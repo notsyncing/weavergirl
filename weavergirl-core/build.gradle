@@ -1,0 +1,35 @@
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId rootProject.ext.grp
+            artifactId 'weavergirl-core'
+            version rootProject.ext.ver
+            from components.java
+
+            artifact sourceJar
+            artifact javadocJar
+        }
+    }
+}
+
+dependencies {
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    pkg {
+        repo = 'maven'
+        name = 'weavergirl-core'
+        licenses = [ 'GPL-3.0' ]
+        vcsUrl = 'https://github.com/notsyncing/weavergirl'
+
+        version {
+            name = rootProject.ext.ver
+            vcsTag = rootProject.ext.ver
+        }
+    }
+
+    publications = [ 'maven' ]
+}

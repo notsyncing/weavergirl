@@ -1,0 +1,84 @@
+buildscript {
+    ext.kotlin_version = '1.1-M02'
+
+    repositories {
+        mavenCentral()
+
+        maven {
+            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
+        }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id "com.jfrog.bintray" version "1.6"
+}
+
+project.ext {
+    grp = "io.github.notsyncing.weavergirl"
+    ver = '0.1.0'
+}
+
+subprojects {
+    apply plugin: "maven-publish"
+    //apply plugin: "kotlin"
+    apply plugin: "kotlin2js"
+
+    def ver = rootProject.ext.ver
+    def grp = rootProject.ext.grp
+
+    group grp
+    version ver
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven {
+            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
+        }
+
+        maven {
+            url "http://dl.bintray.com/kotlin/kotlinx.coroutines"
+        }
+
+        maven {
+            url "https://dl.bintray.com/notsyncing/maven/"
+        }
+
+        jcenter()
+    }
+
+    dependencies {
+        //compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+        compile "org.jetbrains.kotlin:kotlin-js-library:1.1-M02"
+    }
+
+    compileKotlin2Js {
+        kotlinOptions {
+            outputFile = "${projectDir}/../out/production/${project.name}.js"
+            metaInfo = true
+            sourceMap = true
+        }
+    }
+
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier "sources"
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier "javadoc"
+        from javadoc.destinationDir
+    }
+
+    uploadArchives {
+        repositories {
+            mavenLocal()
+        }
+    }
+}
