@@ -2,25 +2,12 @@ package io.github.notsyncing.weavergirl.html.route
 
 import io.github.notsyncing.weavergirl.html.view.HtmlWindow
 import io.github.notsyncing.weavergirl.view.Page
-import io.github.notsyncing.weavergirl.view.Window
 import kotlin.browser.window
 
 object HtmlRouter {
-    class RouteMapper {
-        infix fun String.to(pageCreator: () -> Page) {
-            registerRoute(this, pageCreator)
-        }
-    }
-
-    private val routes: MutableMap<String, () -> Page> = mutableMapOf()
-    private lateinit var gotoPageHandler: (Page, String) -> Unit
+    private lateinit var rootRoute: Route
+    private lateinit var gotoPageHandler: (page: Page, route: ResolvedRoute) -> Unit
     private lateinit var currentWindow: HtmlWindow
-
-    private fun applyState(state: RouteState) {
-        if (routes.containsKey(state.url)) {
-            gotoPageHandler(routes[state.url]!!(), state.url)
-        }
-    }
 
     fun init(window: HtmlWindow) {
         val w = window.nativeWindow
@@ -30,10 +17,12 @@ object HtmlRouter {
             val s = it.asDynamic().state
 
             if (s == null) {
-                return@l null
+                console.info("State popped, but state is null")
+                return@l false
             }
 
-            window.prevPage()
+            console.info("State popped: ${JSON.stringify(s)}")
+            goto(RouteState.from(s) ?: return@l false)
             return@l true
         }
 
@@ -43,32 +32,87 @@ object HtmlRouter {
             } else {
                 goto("/")
             }
-        } else if (w.history.state is RouteState) {
-            applyState(w.history.state as RouteState)
         } else {
-            goto("/")
+            val s = RouteState.from(w.history.state)
+
+            if (s != null) {
+                goto(s)
+            } else {
+                goto("/")
+            }
         }
     }
 
-    fun registerRoute(url: String, pageCreator: () -> Page) {
-        routes[url] = pageCreator
+    fun routes(m: RouteTreeBuilder.() -> Unit) {
+        val b = RouteTreeBuilder()
+        b.m()
+
+        rootRoute = b.build()
+
+        console.info("Routes: ")
+        console.dir(rootRoute)
     }
 
-    fun routes(m: RouteMapper.() -> Unit) {
-        RouteMapper().m()
-    }
-
-    fun onGoToPage(handler: (Page, String) -> Unit) {
+    fun onGoToPage(handler: (Page, ResolvedRoute) -> Unit) {
         gotoPageHandler = handler
     }
 
-    fun hasRoute(url: String) = routes.containsKey(url)
+    fun resolve(url: String): ResolvedRoute? {
+        val host = "${window.location.protocol}//${window.location.host}"
+        var path = url
 
-    fun goto(url: String) {
-        if (!hasRoute(url)) {
-            console.error("Route $url is not registered!")
+        if (url.indexOf(host) == 0) {
+            path = url.substring(host.length)
         }
 
-        gotoPageHandler(routes[url]!!(), url)
+        return rootRoute.resolve(path)
+    }
+
+    fun goto(url: String) {
+        val resolved = resolve(url)
+
+        if (resolved == null) {
+            throw RuntimeException("Route $url is not registered!")
+        }
+
+        goto(resolved)
+    }
+
+    fun goto(state: RouteState) {
+        if (currentWindow.currentPageIndex < 0) {
+            goto(state.url)
+            return
+        }
+
+        console.info("Current page index: ${currentWindow.currentPageIndex}, target state: ${JSON.stringify(state)}")
+
+        if (state.index == currentWindow.currentPageIndex) {
+            return
+        } else if (state.index < currentWindow.currentPageIndex) {
+            console.info("Go back")
+            currentWindow.prevPage(currentWindow.currentPageIndex - state.index)
+        } else {
+            console.info("Go forward")
+            goto(state.url)
+        }
+    }
+
+    fun goto(route: ResolvedRoute) {
+        console.info("Resolved route: ${route.path}")
+        console.dir(route)
+
+        gotoPageHandler(route.pageCreator(), route)
+        currentWindow.nativeWindow.history.pushState(RouteState(currentWindow.currentPageIndex, route.path), "",
+                route.path)
+    }
+
+    fun findRoute(parentRoute: Route?, name: String): Route? {
+        val currRoute = parentRoute ?: rootRoute
+
+        if ((name == "/") && (currRoute == rootRoute)) {
+            return rootRoute
+        }
+
+        return currRoute.children.firstOrNull { it.pattern == name }
     }
 }

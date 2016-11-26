@@ -1,16 +1,14 @@
 package io.github.notsyncing.weavergirl.view
 
-import org.w3c.dom.Document
-
 abstract class Window {
     lateinit var currentPage: Page
 
     abstract fun init()
 
-    abstract fun toPage(page: Page, replaceCurrent: Boolean)
+    abstract fun toPage(url: String, replaceCurrent: Boolean)
 
-    fun toPage(page: Page) {
-        toPage(page, false)
+    fun toPage(url: String) {
+        toPage(url, false)
     }
 
     abstract fun prevPage(distance: Int)

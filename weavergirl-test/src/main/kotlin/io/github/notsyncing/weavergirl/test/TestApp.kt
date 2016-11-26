@@ -3,15 +3,21 @@ package io.github.notsyncing.weavergirl.test
 import io.github.notsyncing.weavergirl.WeavergirlApp
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import io.github.notsyncing.weavergirl.html.view.HtmlWindow
-import kotlin.browser.window
 
 class TestApp : WeavergirlApp(HtmlWindow()) {
     override fun beforeStart() {
         super.beforeStart()
 
         HtmlRouter.routes {
-            "/" to { IndexPage() }
-            "/page1" to { TestPage1() }
+            "/" to { IndexPage() } inner {
+                "page1" to { TestPage1() }
+                "layout" to { TestLayoutPage() } inner {
+                    "a" to { TestA() }
+                    "b" to { TestA() }
+                    "c" to { TestA() }
+                }
+                "page2" to { TestPage2() }
+            }
         }
     }
 }

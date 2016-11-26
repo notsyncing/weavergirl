@@ -6,15 +6,18 @@ import io.github.notsyncing.weavergirl.view.Page
 import io.github.notsyncing.weavergirl.view.Window
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
-import kotlin.browser.document
+import kotlin.dom.asList
 
 abstract class HtmlPage : Page() {
     lateinit var rootElement: FabricHtmlElement<HTMLElement>
     lateinit var window: HtmlWindow
+    lateinit var navRootElement: HTMLElement
+    lateinit var navRootDefaultRoute: String
 
     override fun init(window: Window, rootElement: Any) {
         this.window = window as HtmlWindow
         this.rootElement = FabricHtmlElement(rootElement as HTMLElement, null, this)
+        this.navRootElement = window.document.body!!
     }
 
     override fun append(elem: FabricElement<*>) {
@@ -24,5 +27,15 @@ abstract class HtmlPage : Page() {
     override fun toDom(): FabricElement<*> {
         content().invoke(this)
         return rootElement
+    }
+
+    fun children(): Array<Node> {
+        content().invoke(this)
+        return rootElement.nativeElement.childNodes.asList().toTypedArray()
+    }
+
+    fun FabricHtmlElement<*>.navRoot(defaultRoute: String) {
+        navRootElement = this.nativeElement as HTMLElement
+        navRootDefaultRoute = defaultRoute
     }
 }

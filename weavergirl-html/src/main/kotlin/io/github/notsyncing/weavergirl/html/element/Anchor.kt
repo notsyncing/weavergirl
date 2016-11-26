@@ -1,13 +1,9 @@
 package io.github.notsyncing.weavergirl.html.element
 
-import io.github.notsyncing.weavergirl.element.FabricElement
 import io.github.notsyncing.weavergirl.element.Linkable
-import io.github.notsyncing.weavergirl.html.element.FabricHtmlElement
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
-import org.w3c.dom.*
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
-import kotlin.browser.document
-import kotlin.dom.build.createElement
+import org.w3c.dom.HTMLAnchorElement
 
 open class Anchor(nativeElement: HTMLAnchorElement,
                   parentElement: FabricHtmlElement<*>?,
@@ -19,12 +15,23 @@ open class Anchor(nativeElement: HTMLAnchorElement,
             nativeElement.href = value
         }
 
+    override var pathname: String
+        get() = nativeElement.pathname
+        set(value) {
+            nativeElement.pathname = pathname
+        }
+
     init {
         nativeElement.addEventListener("click", {
-            if (HtmlRouter.hasRoute(nativeElement.href)) {
+            console.info("Current route: ${nativeElement.href}")
+
+            val resolved = HtmlRouter.resolve(nativeElement.href)
+
+            if (resolved != null) {
+                console.info("Route matched ${nativeElement.href}")
                 it.preventDefault()
 
-                HtmlRouter.goto(nativeElement.href)
+                HtmlRouter.goto(resolved)
             }
         })
     }

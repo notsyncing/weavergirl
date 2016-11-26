@@ -6,23 +6,15 @@ import io.github.notsyncing.weavergirl.html.element.div
 import io.github.notsyncing.weavergirl.html.element.text
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
 
-class IndexPage : HtmlPage() {
+class TestC : HtmlPage() {
     override fun content() = html {
         div {
-            div {
-                text("Hello, world!")
-            }
+            text("I'm test page C!")
+        }
 
-            a(href = "http://www.baidu.com/") {
-                text("External link")
-            }
-
-            a(href = "/page1") {
-                text("Internal link")
-            }
-
-            a(href = "/layout") {
-                text("Layout link")
+        div {
+            a(href = "/page2") {
+                text("Goto test page 2")
             }
         }
     }
