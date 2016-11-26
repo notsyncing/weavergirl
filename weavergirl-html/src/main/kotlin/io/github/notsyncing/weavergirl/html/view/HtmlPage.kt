@@ -12,7 +12,6 @@ abstract class HtmlPage : Page() {
     lateinit var rootElement: FabricHtmlElement<HTMLElement>
     lateinit var window: HtmlWindow
     lateinit var navRootElement: HTMLElement
-    lateinit var navRootDefaultRoute: String
 
     override fun init(window: Window, rootElement: Any) {
         this.window = window as HtmlWindow
@@ -30,12 +29,10 @@ abstract class HtmlPage : Page() {
     }
 
     fun children(): Array<Node> {
-        content().invoke(this)
-        return rootElement.nativeElement.childNodes.asList().toTypedArray()
+        return (toDom().nativeElement as HTMLElement).childNodes.asList().toTypedArray()
     }
 
-    fun FabricHtmlElement<*>.navRoot(defaultRoute: String) {
+    fun FabricHtmlElement<*>.navRoot() {
         navRootElement = this.nativeElement as HTMLElement
-        navRootDefaultRoute = defaultRoute
     }
 }

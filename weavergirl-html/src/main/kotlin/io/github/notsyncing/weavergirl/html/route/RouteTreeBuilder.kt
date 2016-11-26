@@ -22,8 +22,14 @@ class RouteTreeBuilder {
     }
 
     infix fun inner(subRoutes: RouteTreeBuilder.() -> Unit) {
+        val oldCurr = currentRoute
+        val oldParent = parentRoute
+
         parentRoute = currentRoute
         this.subRoutes()
+
+        parentRoute = oldParent
+        currentRoute = oldCurr
     }
 
     fun build() = rootRoute

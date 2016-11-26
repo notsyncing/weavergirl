@@ -13,8 +13,8 @@ class TestApp : WeavergirlApp(HtmlWindow()) {
                 "page1" to { TestPage1() }
                 "layout" to { TestLayoutPage() } inner {
                     "a" to { TestA() }
-                    "b" to { TestA() }
-                    "c" to { TestA() }
+                    "b" to { TestB() }
+                    "c" to { TestC() }
                 }
                 "page2" to { TestPage2() }
             }

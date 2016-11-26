@@ -6,8 +6,8 @@ import io.github.notsyncing.weavergirl.html.route.Route
 import io.github.notsyncing.weavergirl.view.Page
 import io.github.notsyncing.weavergirl.view.Window
 import org.w3c.dom.Document
-import org.w3c.dom.HTMLBodyElement
 import org.w3c.dom.HTMLElement
+import kotlin.browser.window
 import kotlin.dom.clear
 
 open class HtmlWindow : Window() {
@@ -18,42 +18,47 @@ open class HtmlWindow : Window() {
         get() = document.body!!
 
     private val pageStack: MutableList<Pair<HtmlPage, ResolvedRoute>> = mutableListOf()
-    private val navRootMap: MutableMap<String, HTMLElement> = mutableMapOf()
+    private val navRootMap: MutableMap<String, HtmlPage> = mutableMapOf()
 
     val currentPageIndex: Int
         get() = pageStack.lastIndex
 
     init {
         HtmlRouter.onGoToPage { p, r -> toPage(p, false, r) }
-
-        navRootMap["/"] = body
     }
 
     override fun init() {
-        HtmlRouter.init(this)
+        window.onload = {
+            val rootPage = HtmlRootPage()
+            rootPage.init(this, document.body!!)
+
+            navRootMap["/"] = rootPage
+
+            HtmlRouter.init(this)
+        }
     }
 
-    private fun attachPageToCurrentNavRoot(page: HtmlPage, navRoots: List<String>) {
-        val currentNavRoot = navRootMap[navRoots.lastOrNull() ?: "/"] ?: body
+    private fun attachPageToNavRoot(page: HtmlPage, navRoot: String?) {
+        val currentNavRoot = navRootMap[navRoot ?: "/"]!!
 
-        console.info("Current nav root: $currentNavRoot, page nav roots: ${JSON.stringify(navRoots)}")
+        console.info("Current nav root: $currentNavRoot")
+        console.info(currentNavRoot.navRootElement.innerHTML)
 
-        if (currentNavRoot is HTMLBodyElement) {
-            console.info("Current nav root is body, replace it")
-            document.body?.clear()
-            document.body = page.toDom().nativeElement as HTMLElement
-        } else {
-            console.info("Current nav root is not body, append to it")
-            currentNavRoot.clear()
-            currentNavRoot.append(*page.children())
-        }
+        currentNavRoot.navRootElement.clear()
+
+        page.children().forEach { currentNavRoot.navRootElement.appendChild(it) }
+
+        console.info("After append: ")
+        console.info(currentNavRoot.navRootElement.innerHTML)
     }
 
     private fun setCurrentPage(page: HtmlPage, navRoots: List<String>) {
         makeSureNavRoots(navRoots)
 
+        console.info("Nav roots all present. attach page $page to nav root ${navRoots.lastOrNull()}")
+
         currentPage = page
-        attachPageToCurrentNavRoot(page, navRoots)
+        attachPageToNavRoot(page, navRoots.lastOrNull())
     }
 
     private fun makeSureNavRoots(navRoots: List<String>) {
@@ -61,22 +66,31 @@ open class HtmlWindow : Window() {
 
         var currRoute: Route? = null
 
-        for (r in navRoots) {
-            if (navRootMap.containsKey(r)) {
-                console.info("Nav root $r already exists, skip")
-                continue
+        navRoots.forEachIndexed { i, r ->
+            if (i == 0) {
+                return@forEachIndexed
             }
 
-            currRoute = HtmlRouter.findRoute(currRoute, r)
+            if (!navRootMap.containsKey(r)) {
+                currRoute = HtmlRouter.findRoute(currRoute, r)
 
-            if (currRoute == null) {
-                throw RuntimeException("Parent route $r of $navRoots not found!")
+                if (currRoute == null) {
+                    throw RuntimeException("Parent route $r of $navRoots not found!")
+                }
+
+                val page = currRoute!!.pageCreator() as HtmlPage
+                page.init(this, document.createElement("body"))
+                attachPageToNavRoot(page, navRoots[i - 1])
+
+                navRootMap[r] = page
+                console.info("Page $page ($i) has nav root ${page.navRootElement}, mapped to $r")
+            } else {
+                val parentNavRoot = navRootMap[navRoots[i - 1]]!!
+                val currNavRoot = navRootMap[r]!!
+
+                parentNavRoot.navRootElement.clear()
+                currNavRoot.children().forEach { parentNavRoot.navRootElement.appendChild(it) }
             }
-
-            val page = currRoute.pageCreator() as HtmlPage
-            page.init(this, document.createElement("body"))
-
-            attachPageToCurrentNavRoot(page, listOf(r))
         }
     }
 
@@ -91,12 +105,6 @@ open class HtmlWindow : Window() {
         }
 
         setCurrentPage(p, route.parents)
-
-        if (p.navRootElement !is HTMLBodyElement) {
-            navRootMap[route.name] = p.navRootElement
-
-            HtmlRouter.goto(p.navRootDefaultRoute)
-        }
     }
 
     override fun toPage(url: String, replaceCurrent: Boolean) {

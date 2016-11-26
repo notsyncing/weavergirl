@@ -10,7 +10,7 @@ class ResolvedRoute(val pageCreator: () -> Page, val name: String,
             return@lazy "/"
         }
 
-        val s = parents.joinToString("/") + name
+        val s = parents.joinToString("/") + "/$name"
 
         if (s.startsWith("//")) {
             return@lazy s.substring(1)

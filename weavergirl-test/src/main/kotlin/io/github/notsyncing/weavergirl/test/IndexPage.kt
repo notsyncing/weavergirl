@@ -21,7 +21,7 @@ class IndexPage : HtmlPage() {
                 text("Internal link")
             }
 
-            a(href = "/layout") {
+            a(href = "/layout/a") {
                 text("Layout link")
             }
         }

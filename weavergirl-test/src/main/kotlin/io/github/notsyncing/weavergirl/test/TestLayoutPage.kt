@@ -25,7 +25,7 @@ class TestLayoutPage : HtmlPage() {
         }
 
         div {
-            navRoot("/layout/a")
+            navRoot()
         }
 
         a(href = "/") {
