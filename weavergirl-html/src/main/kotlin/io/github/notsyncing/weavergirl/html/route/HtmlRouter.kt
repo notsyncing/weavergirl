@@ -98,7 +98,7 @@ object HtmlRouter {
     }
 
     fun goto(route: ResolvedRoute) {
-        console.info("Resolved route: ${route.path}")
+        console.info("Resolved route: ${route.path}, params: ${route.params}")
         console.dir(route)
 
         gotoPageHandler(route.pageCreator(), route)

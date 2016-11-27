@@ -24,6 +24,20 @@ class IndexPage : HtmlPage() {
             a(href = "/layout/a") {
                 text("Layout link")
             }
+
+            div {
+                div {
+                    a(href = "/page3?id=1") {
+                        text("Parameter in querystring")
+                    }
+                }
+
+                div {
+                    a(href = "/page4/5") {
+                        text("Parameter in url")
+                    }
+                }
+            }
         }
     }
 }

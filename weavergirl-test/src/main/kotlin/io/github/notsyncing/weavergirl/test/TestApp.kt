@@ -17,6 +17,8 @@ class TestApp : WeavergirlApp(HtmlWindow()) {
                     "c" to { TestC() }
                 }
                 "page2" to { TestPage2() }
+                "page3" to { TestPage3() }
+                "page4/:id" to { TestPage4() }
             }
         }
     }
