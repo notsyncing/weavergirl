@@ -1,8 +1,10 @@
 package io.github.notsyncing.weavergirl.html.view
 
+import io.github.notsyncing.weavergirl.html.Polyfills
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import io.github.notsyncing.weavergirl.html.route.ResolvedRoute
 import io.github.notsyncing.weavergirl.html.route.Route
+import io.github.notsyncing.weavergirl.html.style.HtmlStyleManager
 import io.github.notsyncing.weavergirl.view.Page
 import io.github.notsyncing.weavergirl.view.PageContext
 import io.github.notsyncing.weavergirl.view.Window
@@ -36,7 +38,10 @@ open class HtmlWindow : Window() {
             navRootMap["/"] = rootPage
 
             HtmlRouter.init(this)
+            HtmlStyleManager.init(this)
         }
+
+        Polyfills.polyfill()
     }
 
     private fun attachPageToNavRoot(page: HtmlPage, navRoot: String?) {

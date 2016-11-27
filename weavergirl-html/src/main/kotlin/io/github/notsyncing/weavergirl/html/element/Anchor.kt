@@ -2,13 +2,9 @@ package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.element.Linkable
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
-import io.github.notsyncing.weavergirl.html.view.HtmlPage
 import org.w3c.dom.HTMLAnchorElement
 
-open class Anchor(nativeElement: HTMLAnchorElement,
-                  parentElement: FabricHtmlElement<*>?,
-                  page: HtmlPage?) :
-        FabricHtmlElement<HTMLAnchorElement>(nativeElement, parentElement, page), Linkable {
+open class Anchor : FabricHtmlElement<HTMLAnchorElement>("a"), Linkable {
     override var href: String
         get() = nativeElement.href
         set(value) {
@@ -37,11 +33,8 @@ open class Anchor(nativeElement: HTMLAnchorElement,
     }
 }
 
-fun FabricHtmlElement<*>.a(href: String, inner: Anchor.() -> Unit): FabricHtmlElement<HTMLAnchorElement> {
-    val e = (this.page as HtmlPage).window.document.createElement("a") as HTMLAnchorElement
-    val d = Anchor(e, this, this.page)
-    d.href = href
-    d.inner()
-
-    return d
+fun FabricHtmlElement<*>.a(href: String, inner: Anchor.() -> Unit): Anchor {
+    return this.createChild({ Anchor() }, inner) {
+        it.href = href
+    }
 }

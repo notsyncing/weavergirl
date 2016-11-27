@@ -39,5 +39,7 @@ class IndexPage : HtmlPage() {
                 }
             }
         }
+
+        customElement1 {  }
     }
 }

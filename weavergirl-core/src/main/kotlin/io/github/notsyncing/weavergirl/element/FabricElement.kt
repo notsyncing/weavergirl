@@ -1,13 +1,8 @@
 package io.github.notsyncing.weavergirl.element
 
-import io.github.notsyncing.weavergirl.view.Page
-import org.w3c.dom.Document
-import org.w3c.dom.Node
-
-abstract class FabricElement<T>(val nativeElement: T,
-                                var parent: FabricElement<*>? = null,
-                                val page: Page? = null) {
+abstract class FabricElement<T>(val nativeElement: T) {
     val children: MutableList<FabricElement<*>> = mutableListOf()
+    var parent: FabricElement<*>? = null
 
     init {
         parent?.children?.add(this)

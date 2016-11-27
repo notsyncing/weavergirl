@@ -5,7 +5,6 @@ import io.github.notsyncing.weavergirl.html.element.a
 import io.github.notsyncing.weavergirl.html.element.div
 import io.github.notsyncing.weavergirl.html.element.text
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
-import io.github.notsyncing.weavergirl.view.Page
 
 class TestPage1 : HtmlPage() {
     override fun content() = html {

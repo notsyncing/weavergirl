@@ -15,7 +15,7 @@ abstract class HtmlPage : Page() {
 
     override fun init(window: Window, rootElement: Any) {
         this.window = window as HtmlWindow
-        this.rootElement = FabricHtmlElement(rootElement as HTMLElement, null, this)
+        this.rootElement = FabricHtmlElement(rootElement as HTMLElement)
         this.navRootElement = window.document.body!!
     }
 

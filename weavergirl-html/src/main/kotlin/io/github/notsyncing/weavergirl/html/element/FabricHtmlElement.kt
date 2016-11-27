@@ -1,20 +1,13 @@
 package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.element.FabricElement
-import org.w3c.dom.Document
-import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
-import io.github.notsyncing.weavergirl.html.view.HtmlPage
+import kotlin.browser.document
 import kotlin.dom.removeFromParent
 
-open class FabricHtmlElement<T: Node>(nativeElement: T,
-                                      parentElement: FabricHtmlElement<*>? = null,
-                                      page: HtmlPage? = null) :
-        FabricElement<T>(nativeElement, parentElement, page) {
-    init {
-        parentElement?.nativeElement?.appendChild(nativeElement)
-    }
+open class FabricHtmlElement<T: Node>(nativeElement: T) : FabricElement<T>(nativeElement) {
+    constructor(nativeElementTagName: String) : this(document.createElement(nativeElementTagName) as T)
 
     override fun append(elem: FabricElement<*>) {
         super.append(elem)
@@ -32,5 +25,18 @@ open class FabricHtmlElement<T: Node>(nativeElement: T,
         super.remove()
 
         nativeElement.removeFromParent()
+    }
+
+    fun <E: FabricElement<*>> createChild(creator: () -> E, inner: (E.() -> Unit)? = null, conf: ((E) -> Unit)? = null): E {
+        val e = creator()
+        conf?.invoke(e)
+
+        append(e)
+
+        if (inner != null) {
+            e.inner()
+        }
+
+        return e
     }
 }
