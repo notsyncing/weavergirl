@@ -1,4 +1,4 @@
-package io.github.notsyncing.weavergirl.test
+package io.github.notsyncing.weavergirl.test.pages
 
 import io.github.notsyncing.weavergirl.html.content.html
 import io.github.notsyncing.weavergirl.html.element.a
@@ -6,16 +6,14 @@ import io.github.notsyncing.weavergirl.html.element.div
 import io.github.notsyncing.weavergirl.html.element.text
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
 
-class TestC : HtmlPage() {
+class TestPage1 : HtmlPage() {
     override fun content() = html {
         div {
-            text("I'm test page C!")
+            text("I'm test page 1!")
         }
 
-        div {
-            a(href = "/page2") {
-                text("Goto test page 2")
-            }
+        a(href = "/") {
+            text("Back")
         }
     }
 }

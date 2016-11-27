@@ -19,5 +19,8 @@ abstract class FabricElement<T>(val nativeElement: T) {
 
     open fun remove() {
         parent?.children?.remove(this)
+        this.parent = null
     }
+
+
 }

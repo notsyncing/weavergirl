@@ -3,6 +3,7 @@ package io.github.notsyncing.weavergirl.test
 import io.github.notsyncing.weavergirl.WeavergirlApp
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import io.github.notsyncing.weavergirl.html.view.HtmlWindow
+import io.github.notsyncing.weavergirl.test.pages.*
 
 class TestApp : WeavergirlApp(HtmlWindow()) {
     override fun beforeStart() {

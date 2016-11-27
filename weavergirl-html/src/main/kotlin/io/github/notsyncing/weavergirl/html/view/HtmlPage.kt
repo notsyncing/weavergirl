@@ -1,6 +1,8 @@
 package io.github.notsyncing.weavergirl.html.view
 
 import io.github.notsyncing.weavergirl.element.FabricElement
+import io.github.notsyncing.weavergirl.events.ViewDidEnter
+import io.github.notsyncing.weavergirl.events.ViewWillEnter
 import io.github.notsyncing.weavergirl.html.element.FabricHtmlElement
 import io.github.notsyncing.weavergirl.view.Page
 import io.github.notsyncing.weavergirl.view.Window
@@ -34,5 +36,25 @@ abstract class HtmlPage : Page() {
 
     fun FabricHtmlElement<*>.navRoot() {
         navRootElement = this.nativeElement as HTMLElement
+    }
+
+    override fun viewWillEnter() {
+        dispatchEventsToChildren(rootElement) {
+            if (it is ViewWillEnter) {
+                it.viewWillEnter()
+            }
+        }
+
+        super.viewWillEnter()
+    }
+
+    override fun viewDidEnter() {
+        dispatchEventsToChildren(rootElement) {
+            if (it is ViewDidEnter) {
+                it.viewDidEnter()
+            }
+        }
+
+        super.viewDidEnter()
     }
 }

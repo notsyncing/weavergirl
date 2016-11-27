@@ -1,4 +1,4 @@
-package io.github.notsyncing.weavergirl.test
+package io.github.notsyncing.weavergirl.test.pages
 
 import io.github.notsyncing.weavergirl.html.content.html
 import io.github.notsyncing.weavergirl.html.element.a

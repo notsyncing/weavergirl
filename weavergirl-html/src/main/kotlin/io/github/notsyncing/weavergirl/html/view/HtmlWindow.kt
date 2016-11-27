@@ -52,7 +52,12 @@ open class HtmlWindow : Window() {
 
         currentNavRoot.navRootElement.clear()
 
-        page.children().forEach { currentNavRoot.navRootElement.appendChild(it) }
+        val children = page.children()
+        page.viewWillEnter()
+
+        children.forEach { currentNavRoot.navRootElement.appendChild(it) }
+
+        page.viewDidEnter()
 
         console.info("After append: ")
         console.info(currentNavRoot.navRootElement.innerHTML)

@@ -1,5 +1,5 @@
 package io.github.notsyncing.weavergirl.events
 
-interface BeforeShow {
-    fun beforeShow()
+interface ViewDidEnter {
+    fun viewDidEnter()
 }
