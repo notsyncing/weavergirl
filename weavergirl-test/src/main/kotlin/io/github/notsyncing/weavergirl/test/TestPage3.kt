@@ -9,7 +9,7 @@ import io.github.notsyncing.weavergirl.html.view.HtmlPage
 class TestPage3 : HtmlPage() {
     override fun content() = html {
         div {
-            text("I'm test page 3: parameter is ")
+            text("I'm test page 3: parameter is ${context.parameters.getFirst("id")}")
         }
 
         a(href = "/") {

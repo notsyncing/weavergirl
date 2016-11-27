@@ -1,10 +1,14 @@
-package io.github.notsyncing.weavergirl.html.route
+package io.github.notsyncing.weavergirl.route
 
 class Parameters {
     private val map = mutableMapOf<String, MutableList<String>>()
 
     fun get(key: String): List<String> {
         return map[key] ?: emptyList()
+    }
+
+    fun getFirst(key: String): String? {
+        return map[key]?.firstOrNull()
     }
 
     fun set(key: String, values: MutableList<String>) {

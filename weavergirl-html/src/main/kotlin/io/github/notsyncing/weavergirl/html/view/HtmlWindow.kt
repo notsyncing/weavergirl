@@ -4,6 +4,7 @@ import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import io.github.notsyncing.weavergirl.html.route.ResolvedRoute
 import io.github.notsyncing.weavergirl.html.route.Route
 import io.github.notsyncing.weavergirl.view.Page
+import io.github.notsyncing.weavergirl.view.PageContext
 import io.github.notsyncing.weavergirl.view.Window
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLElement
@@ -52,16 +53,17 @@ open class HtmlWindow : Window() {
         console.info(currentNavRoot.navRootElement.innerHTML)
     }
 
-    private fun setCurrentPage(page: HtmlPage, navRoots: List<String>) {
-        makeSureNavRoots(navRoots)
+    private fun setCurrentPage(page: HtmlPage, route: ResolvedRoute) {
+        makeSureNavRoots(route)
 
-        console.info("Nav roots all present. attach page $page to nav root ${navRoots.lastOrNull()}")
+        console.info("Nav roots all present. attach page $page to nav root ${route.parents.lastOrNull()}")
 
         currentPage = page
-        attachPageToNavRoot(page, navRoots.lastOrNull())
+        attachPageToNavRoot(page, route.parents.lastOrNull())
     }
 
-    private fun makeSureNavRoots(navRoots: List<String>) {
+    private fun makeSureNavRoots(route: ResolvedRoute) {
+        val navRoots = route.parents
         console.info("Make sure nav roots: ${JSON.stringify(navRoots)}")
 
         var currRoute: Route? = null
@@ -91,12 +93,15 @@ open class HtmlWindow : Window() {
                 parentNavRoot.navRootElement.clear()
                 currNavRoot.children().forEach { parentNavRoot.navRootElement.appendChild(it) }
             }
+
+            navRootMap[r]!!.context = PageContext(route.params)
         }
     }
 
-    fun toPage(page: Page, replaceCurrent: Boolean, route: ResolvedRoute) {
+    private fun toPage(page: Page, replaceCurrent: Boolean, route: ResolvedRoute) {
         val p = page as HtmlPage
         p.init(this, document.createElement("body"))
+        p.context = PageContext(route.params)
 
         if (replaceCurrent) {
             pageStack[pageStack.lastIndex] = Pair(p, route)
@@ -104,7 +109,7 @@ open class HtmlWindow : Window() {
             pageStack.add(Pair(p, route))
         }
 
-        setCurrentPage(p, route.parents)
+        setCurrentPage(p, route)
     }
 
     override fun toPage(url: String, replaceCurrent: Boolean) {
@@ -135,6 +140,6 @@ open class HtmlWindow : Window() {
             r = b
         }
 
-        setCurrentPage(p!!, r!!.parents)
+        setCurrentPage(p!!, r!!)
     }
 }

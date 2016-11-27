@@ -1,5 +1,6 @@
 package io.github.notsyncing.weavergirl.html.route
 
+import io.github.notsyncing.weavergirl.route.Parameters
 import io.github.notsyncing.weavergirl.view.Page
 
 @native
