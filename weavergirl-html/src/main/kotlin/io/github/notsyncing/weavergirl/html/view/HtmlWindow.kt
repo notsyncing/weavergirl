@@ -54,7 +54,7 @@ open class HtmlWindow : Window() {
     }
 
     private fun setCurrentPage(page: HtmlPage, route: ResolvedRoute) {
-        makeSureNavRoots(route)
+        makeSureNavRoots(route, page.context)
 
         console.info("Nav roots all present. attach page $page to nav root ${route.parents.lastOrNull()}")
 
@@ -62,7 +62,7 @@ open class HtmlWindow : Window() {
         attachPageToNavRoot(page, route.parents.lastOrNull())
     }
 
-    private fun makeSureNavRoots(route: ResolvedRoute) {
+    private fun makeSureNavRoots(route: ResolvedRoute, context: PageContext) {
         val navRoots = route.parents
         console.info("Make sure nav roots: ${JSON.stringify(navRoots)}")
 
@@ -94,7 +94,7 @@ open class HtmlWindow : Window() {
                 currNavRoot.children().forEach { parentNavRoot.navRootElement.appendChild(it) }
             }
 
-            navRootMap[r]!!.context = PageContext(route.params)
+            navRootMap[r]!!.context = context
         }
     }
 
