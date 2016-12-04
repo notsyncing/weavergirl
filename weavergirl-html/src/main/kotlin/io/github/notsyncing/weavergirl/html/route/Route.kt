@@ -1,6 +1,6 @@
 package io.github.notsyncing.weavergirl.html.route
 
-import io.github.notsyncing.weavergirl.html.utils.decodeURIComponent
+import io.github.notsyncing.kotlin.js.ext.browser.decodeURIComponent
 import io.github.notsyncing.weavergirl.route.Parameters
 import io.github.notsyncing.weavergirl.view.Page
 

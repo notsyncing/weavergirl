@@ -54,6 +54,7 @@ subprojects {
 
     dependencies {
         compile "org.jetbrains.kotlin:kotlin-js-library:$kotlin_version"
+        compile "io.github.notsyncing.kotlin.js.ext:kotlin-js-ext:0.1.0"
     }
 
     compileKotlin2Js {
