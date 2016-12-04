@@ -1,10 +1,8 @@
 package io.github.notsyncing.weavergirl.html.view
 
-import io.github.notsyncing.weavergirl.html.content.html
-import io.github.notsyncing.weavergirl.view.Page
+import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 
 class HtmlRootPage : HtmlPage() {
-    override fun content(): Page.() -> Unit {
-        return html {}
+    override fun layout() = HtmlLayout {
     }
 }

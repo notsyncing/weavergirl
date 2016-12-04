@@ -11,7 +11,6 @@ import io.github.notsyncing.weavergirl.view.Window
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLElement
 import kotlin.browser.window
-import kotlin.dom.clear
 
 open class HtmlWindow : Window() {
     val nativeWindow: org.w3c.dom.Window = kotlin.browser.window
@@ -32,10 +31,10 @@ open class HtmlWindow : Window() {
 
     override fun init() {
         window.onload = {
-            val rootPage = HtmlRootPage()
-            rootPage.init(this, document.body!!)
+            val rootNavPage = HtmlRootPage()
+            rootNavPage.init(this, null)
 
-            navRootMap["/"] = rootPage
+            navRootMap["/"] = rootNavPage
 
             HtmlRouter.init(this)
             HtmlStyleManager.init(this)
@@ -48,19 +47,18 @@ open class HtmlWindow : Window() {
         val currentNavRoot = navRootMap[navRoot ?: "/"]!!
 
         console.info("Current nav root: $currentNavRoot")
-        console.info(currentNavRoot.navRootElement.innerHTML)
+        console.info(currentNavRoot.navRootElement)
 
         currentNavRoot.navRootElement.clear()
 
-        val children = page.children()
         page.viewWillEnter()
 
-        children.forEach { currentNavRoot.navRootElement.appendChild(it) }
+        page.renderIn(currentNavRoot.navRootElement)
 
         page.viewDidEnter()
 
         console.info("After append: ")
-        console.info(currentNavRoot.navRootElement.innerHTML)
+        console.info(currentNavRoot.navRootElement)
     }
 
     private fun setCurrentPage(page: HtmlPage, route: ResolvedRoute) {
@@ -91,7 +89,7 @@ open class HtmlWindow : Window() {
                 }
 
                 val page = currRoute!!.pageCreator() as HtmlPage
-                page.init(this, document.createElement("body"))
+                page.init(this, null)
                 attachPageToNavRoot(page, navRoots[i - 1])
 
                 navRootMap[r] = page
@@ -101,7 +99,7 @@ open class HtmlWindow : Window() {
                 val currNavRoot = navRootMap[r]!!
 
                 parentNavRoot.navRootElement.clear()
-                currNavRoot.children().forEach { parentNavRoot.navRootElement.appendChild(it) }
+                currNavRoot.renderIn(parentNavRoot.navRootElement)
             }
 
             navRootMap[r]!!.context = context
@@ -110,7 +108,7 @@ open class HtmlWindow : Window() {
 
     private fun toPage(page: Page, replaceCurrent: Boolean, route: ResolvedRoute) {
         val p = page as HtmlPage
-        p.init(this, document.createElement("body"))
+        p.init(this, null)
         p.context = PageContext(route.params)
 
         if (replaceCurrent) {

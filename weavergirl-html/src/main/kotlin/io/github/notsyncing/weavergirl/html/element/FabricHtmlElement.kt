@@ -1,24 +1,44 @@
 package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.element.FabricElement
+import io.github.notsyncing.weavergirl.events.Clicked
+import io.github.notsyncing.weavergirl.events.ValueChanged
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
-import kotlin.browser.document
+import kotlin.dom.clear
 import kotlin.dom.removeFromParent
 
-open class FabricHtmlElement<T: Node>(nativeElement: T) : FabricElement<T>(nativeElement) {
-    constructor(nativeElementTagName: String) : this(document.createElement(nativeElementTagName) as T)
+abstract class FabricHtmlElement<T: Node> : FabricElement() {
+    protected lateinit var nativeElement: T
 
-    override fun append(elem: FabricElement<*>) {
-        super.append(elem)
+    private fun attachEventListeners() {
+        if (this is Clicked) {
+            nativeElement.addEventListener("click", { this.onClick() })
+        }
 
-        nativeElement.appendChild(elem.nativeElement as Node)
+        if (this is ValueChanged) {
+            nativeElement.addEventListener("change", { this.onValueChanged() })
+        }
     }
 
-    override fun insertInto(elem: FabricElement<*>) {
+    override fun append(elem: FabricElement) {
+        super.append(elem)
+
+        if (elem is FabricHtmlElement<*>) {
+            nativeElement.appendChild(elem.nativeElement)
+        }
+
+        attachEventListeners()
+    }
+
+    override fun insertInto(elem: FabricElement) {
         super.insertInto(elem)
 
-        (elem.nativeElement as HTMLElement).appendChild(nativeElement)
+        if (elem is FabricHtmlElement<*>) {
+            (elem.nativeElement as HTMLElement).appendChild(nativeElement)
+        }
+
+        attachEventListeners()
     }
 
     override fun remove() {
@@ -27,16 +47,9 @@ open class FabricHtmlElement<T: Node>(nativeElement: T) : FabricElement<T>(nativ
         nativeElement.removeFromParent()
     }
 
-    fun <E: FabricElement<*>> createChild(creator: () -> E, inner: (E.() -> Unit)? = null, conf: ((E) -> Unit)? = null): E {
-        val e = creator()
-        conf?.invoke(e)
+    override fun clear() {
+        super.clear()
 
-        append(e)
-
-        if (inner != null) {
-            e.inner()
-        }
-
-        return e
+        nativeElement.clear()
     }
 }

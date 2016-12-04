@@ -1,46 +1,81 @@
 package io.github.notsyncing.weavergirl.test.pages
 
-import io.github.notsyncing.weavergirl.html.content.html
-import io.github.notsyncing.weavergirl.html.element.a
-import io.github.notsyncing.weavergirl.html.element.div
-import io.github.notsyncing.weavergirl.html.element.text
+import io.github.notsyncing.weavergirl.html.element.Anchor
+import io.github.notsyncing.weavergirl.html.element.Button
+import io.github.notsyncing.weavergirl.html.element.Div
+import io.github.notsyncing.weavergirl.html.element.Text
+import io.github.notsyncing.weavergirl.html.element.input.TextInput
+import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
-import io.github.notsyncing.weavergirl.test.elements.customElement1
+import io.github.notsyncing.weavergirl.test.elements.CustomElement1
+import io.github.notsyncing.weavergirl.test.elements.CustomElement2
 
 class IndexPage : HtmlPage() {
-    override fun content() = html {
-        div {
-            div {
-                text("Hello, world!")
+    override fun layout() = HtmlLayout {
+        Div() - {
+            Div() - {
+                +Text("Hello, world!")
             }
 
-            a(href = "http://www.baidu.com/") {
-                text("External link")
+            Anchor(href = "http://www.baidu.com/") - {
+                +Text("External link")
             }
 
-            a(href = "/page1") {
-                text("Internal link")
+            Anchor(href = "/page1") - {
+                +Text("Internal link")
             }
 
-            a(href = "/layout/a") {
-                text("Layout link")
+            Anchor(href = "/layout/a") - {
+                +Text("Layout link")
             }
 
-            div {
-                div {
-                    a(href = "/page3?id=1") {
-                        text("Parameter in querystring")
+            Div() - {
+                Div() - {
+                    Anchor(href = "/page3?id=1") - {
+                        +Text("Parameter in querystring")
                     }
                 }
 
-                div {
-                    a(href = "/page4/5") {
-                        text("Parameter in url")
+                Div() - {
+                    Anchor(href = "/page4/5") - {
+                        +Text("Parameter in url")
                     }
                 }
             }
         }
 
-        customElement1 {  }
+        CustomElement1() - {
+            +Text("Click me")
+        }
+
+        Div() - {
+            Div() - {
+                +TextInput()
+            }
+
+            Div() - {
+
+            }
+
+            Div() - {
+                Button() - {
+                    +Text("Show data")
+                }
+            }
+        }
+
+        CustomElement2() - {
+            slot("slot1") {
+                Div() - {
+                    +Text("I'm in slot 1!")
+                }
+            }
+
+            slot("slot2") {
+                Div() - {
+                    +Text("I'm in slot 2!")
+                }
+            }
+        }
     }
 }

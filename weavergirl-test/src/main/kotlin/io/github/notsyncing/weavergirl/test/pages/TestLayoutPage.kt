@@ -1,35 +1,35 @@
 package io.github.notsyncing.weavergirl.test.pages
 
-import io.github.notsyncing.weavergirl.html.content.html
-import io.github.notsyncing.weavergirl.html.element.a
-import io.github.notsyncing.weavergirl.html.element.div
-import io.github.notsyncing.weavergirl.html.element.text
+import io.github.notsyncing.weavergirl.html.element.Anchor
+import io.github.notsyncing.weavergirl.html.element.Div
+import io.github.notsyncing.weavergirl.html.element.Text
+import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
 
 class TestLayoutPage : HtmlPage() {
-    override fun content() = html {
-        div {
-            text("I'm test layout!")
+    override fun layout() = HtmlLayout {
+        Div() - {
+            +Text("I'm test layout!")
 
-            a(href = "/layout/a") {
-                text("Goto A")
+            Anchor(href = "/layout/a") - {
+                +Text("Goto A")
             }
 
-            a(href = "/layout/b") {
-                text("Goto B")
+            Anchor(href = "/layout/b") - {
+                +Text("Goto B")
             }
 
-            a(href = "/layout/c") {
-                text("Goto C")
+            Anchor(href = "/layout/c") - {
+                +Text("Goto C")
             }
         }
 
-        div {
+        Div() - {
             navRoot()
         }
 
-        a(href = "/") {
-            text("Back")
+        Anchor(href = "/") - {
+            +Text("Back")
         }
     }
 }

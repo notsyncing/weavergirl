@@ -3,39 +3,32 @@ package io.github.notsyncing.weavergirl.html.view
 import io.github.notsyncing.weavergirl.element.FabricElement
 import io.github.notsyncing.weavergirl.events.ViewDidEnter
 import io.github.notsyncing.weavergirl.events.ViewWillEnter
+import io.github.notsyncing.weavergirl.html.element.Body
 import io.github.notsyncing.weavergirl.html.element.FabricHtmlElement
+import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import io.github.notsyncing.weavergirl.view.Page
 import io.github.notsyncing.weavergirl.view.Window
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.Node
-import kotlin.dom.asList
+import org.w3c.dom.HTMLBodyElement
 
 abstract class HtmlPage : Page() {
-    lateinit var rootElement: FabricHtmlElement<HTMLElement>
     lateinit var window: HtmlWindow
-    lateinit var navRootElement: HTMLElement
+    lateinit var rootElement: FabricHtmlElement<*>
+    lateinit var navRootElement: FabricHtmlElement<*>
 
-    override fun init(window: Window, rootElement: Any) {
+    override fun init(window: Window, rootElement: FabricElement?) {
         this.window = window as HtmlWindow
-        this.rootElement = FabricHtmlElement(rootElement as HTMLElement)
-        this.navRootElement = window.document.body!!
+
+        if (rootElement == null) {
+            this.rootElement = Body(window.document.body!! as HTMLBodyElement)
+        } else {
+            this.rootElement = rootElement as FabricHtmlElement<*>
+        }
+
+        this.navRootElement = Body(window.document.body!! as HTMLBodyElement)
     }
 
-    override fun append(elem: FabricElement<*>) {
-        rootElement.append(elem)
-    }
-
-    override fun toDom(): FabricElement<*> {
-        content().invoke(this)
-        return rootElement
-    }
-
-    fun children(): Array<Node> {
-        return (toDom().nativeElement as HTMLElement).childNodes.asList().toTypedArray()
-    }
-
-    fun FabricHtmlElement<*>.navRoot() {
-        navRootElement = this.nativeElement as HTMLElement
+    fun HtmlLayout.navRoot() {
+        navRootElement = this.currParentElem as FabricHtmlElement<*>
     }
 
     override fun viewWillEnter() {
