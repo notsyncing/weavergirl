@@ -23,6 +23,7 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         val oldCurr = currParentElem
         currParentElem = this
 
+        this.layout().inner.invoke(this@LayoutContext)
         this@LayoutContext.inner()
 
         currParentElem = oldCurr
@@ -36,8 +37,13 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         }
     }
 
-    fun slot(slotName: String, inner: FabricElement.() -> Unit) {
+    fun slot(slotName: String, inner: LayoutContext.() -> Unit) {
         val elem = currParentElem?.slotMap?.get(slotName)
-        elem?.inner()
+        val oldCurr = currParentElem
+        currParentElem = elem
+
+        this.inner()
+
+        currParentElem = oldCurr
     }
 }

@@ -1,20 +1,16 @@
 package io.github.notsyncing.weavergirl.test.elements
 
-import io.github.notsyncing.weavergirl.element.FabricElement
-import io.github.notsyncing.weavergirl.element.SlotMaker
 import io.github.notsyncing.weavergirl.html.element.Div
 import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 
-class CustomElement2 : FabricElement() {
-    val slot = SlotMaker(this)
-
+class CustomElement2 : Div() {
     override fun layout() = HtmlLayout {
         Div() - {
-            slot.make(this@CustomElement2, "slot1")
+            slot.make(this, "slot1")
         }
 
         Div() - {
-            slot.make(this@CustomElement2, "slot2")
+            slot.make(this, "slot2")
         }
     }
 }

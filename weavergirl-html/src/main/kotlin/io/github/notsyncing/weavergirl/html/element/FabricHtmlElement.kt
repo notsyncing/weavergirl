@@ -1,6 +1,8 @@
 package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.element.FabricElement
+import io.github.notsyncing.weavergirl.element.behaviors.Clickable
+import io.github.notsyncing.weavergirl.element.behaviors.Inputable
 import io.github.notsyncing.weavergirl.events.Clicked
 import io.github.notsyncing.weavergirl.events.ValueChanged
 import org.w3c.dom.HTMLElement
@@ -12,11 +14,11 @@ abstract class FabricHtmlElement<T: Node> : FabricElement() {
     protected lateinit var nativeElement: T
 
     private fun attachEventListeners() {
-        if (this is Clicked) {
+        if ((this is Clickable) && (this is Clicked)) {
             nativeElement.addEventListener("click", { this.onClick() })
         }
 
-        if (this is ValueChanged) {
+        if ((this is Inputable) && (this is ValueChanged)) {
             nativeElement.addEventListener("change", { this.onValueChanged() })
         }
     }

@@ -9,6 +9,8 @@ abstract class FabricElement {
     val slotMap: MutableMap<String, FabricElement> = mutableMapOf()
     var defaultSlotElement: FabricElement? = null
 
+    protected val slot = SlotMaker(this)
+
     open fun insertInto(elem: FabricElement) {
         elem.append(this)
     }
