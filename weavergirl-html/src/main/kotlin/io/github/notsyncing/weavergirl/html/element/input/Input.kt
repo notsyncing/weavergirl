@@ -2,18 +2,21 @@ package io.github.notsyncing.weavergirl.html.element.input
 
 import io.github.notsyncing.weavergirl.element.behaviors.Inputable
 import io.github.notsyncing.weavergirl.html.element.FabricHtmlTagElement
+import io.github.notsyncing.weavergirl.watchable.Watchable
 import org.w3c.dom.HTMLInputElement
 
-open class Input(val type: InputType) : FabricHtmlTagElement<HTMLInputElement>("input"), Inputable {
-    override var value: Any?
-        get() = nativeElement.value
-        set(value) {
-            nativeElement.value = value.toString()
-        }
+abstract class Input<T>(val type: InputType) : FabricHtmlTagElement<HTMLInputElement>("input"), Inputable<T> {
+    override val value: Watchable<T> = Watchable(convertValue(nativeElement.value))
 
     init {
         nativeElement.type = inputTypeToString(type)
+
+        nativeElement.addEventListener("change", {
+            value.set(convertValue(nativeElement.value))
+        })
     }
+
+    abstract fun convertValue(v: String): T
 
     private fun inputTypeToString(type: InputType): String {
         var s = "text"

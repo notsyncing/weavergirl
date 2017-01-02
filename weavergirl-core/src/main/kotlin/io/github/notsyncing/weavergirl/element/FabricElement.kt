@@ -1,6 +1,8 @@
 package io.github.notsyncing.weavergirl.element
 
+import io.github.notsyncing.weavergirl.action.Action
 import io.github.notsyncing.weavergirl.layout.LayoutContext
+import io.github.notsyncing.weavergirl.layout.LayoutScope
 
 abstract class FabricElement {
     val children: MutableList<FabricElement> = mutableListOf()
@@ -9,23 +11,40 @@ abstract class FabricElement {
     val slotMap: MutableMap<String, FabricElement> = mutableMapOf()
     var defaultSlotElement: FabricElement? = null
 
+    var scope: LayoutScope? = null
+
     protected val slot = SlotMaker(this)
+
+    val sourceActions: MutableList<Action> = mutableListOf()
 
     open fun insertInto(elem: FabricElement) {
         elem.append(this)
     }
 
-    open fun append(elem: FabricElement) {
+    open fun append(elem: FabricElement, atIndex: Int) {
         elem.remove()
 
-        this.children.add(elem)
+        if ((atIndex < 0) || (atIndex > this.children.lastIndex)) {
+            this.children.add(elem)
+        } else {
+            this.children.add(atIndex, elem)
+        }
+
         elem.parent = this
     }
 
-    fun append(elems: List<FabricElement>) {
+    fun append(elem: FabricElement) {
+        append(elem, -1)
+    }
+
+    fun append(elems: List<FabricElement>, atIndex: Int) {
         for (e in elems) {
-            append(e)
+            append(e, atIndex)
         }
+    }
+
+    fun append(elems: List<FabricElement>) {
+        append(elems, -1)
     }
 
     open fun remove() {
@@ -38,4 +57,9 @@ abstract class FabricElement {
     }
 
     abstract fun layout(): LayoutContext
+
+    fun refresh() {
+        clear()
+        layout().renderIn(this)
+    }
 }

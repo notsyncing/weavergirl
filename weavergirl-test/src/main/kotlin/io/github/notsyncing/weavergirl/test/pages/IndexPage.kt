@@ -1,5 +1,6 @@
 package io.github.notsyncing.weavergirl.test.pages
 
+import io.github.notsyncing.weavergirl.element.FabricElement
 import io.github.notsyncing.weavergirl.html.element.Anchor
 import io.github.notsyncing.weavergirl.html.element.Button
 import io.github.notsyncing.weavergirl.html.element.Div
@@ -7,10 +8,19 @@ import io.github.notsyncing.weavergirl.html.element.Text
 import io.github.notsyncing.weavergirl.html.element.input.TextInput
 import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
+import io.github.notsyncing.weavergirl.layout.LayoutScope
 import io.github.notsyncing.weavergirl.test.elements.CustomElement1
 import io.github.notsyncing.weavergirl.test.elements.CustomElement2
 
 class IndexPage : HtmlPage() {
+    private var cusElem1: CustomElement1? = null
+    private var elem: FabricElement? = null
+    private var input: TextInput? = null
+    private var list: FabricElement? = null
+    private var showText: Text? = null
+    private var scope1: LayoutScope? = null
+    private var btn: Button? = null
+
     override fun layout() = HtmlLayout {
         Div() - {
             Div() - {
@@ -44,21 +54,27 @@ class IndexPage : HtmlPage() {
             }
         }
 
-        CustomElement1() - {
+        cusElem1 = CustomElement1() - {
             +Text("Click me")
         }
 
         Div() - {
             Div() - {
-                +TextInput()
+                input = +TextInput()
+            }
+
+            scope1 = scope {
+                elem = Div() - {
+                    showText = +Text("")
+                }
+
+                list = Div() - {
+
+                }
             }
 
             Div() - {
-
-            }
-
-            Div() - {
-                Button() - {
+                btn = Button() - {
                     +Text("Show data")
                 }
             }
@@ -76,6 +92,19 @@ class IndexPage : HtmlPage() {
                     +Text("I'm in slot 2!")
                 }
             }
+        }
+    }
+
+    override fun viewDidEnter() {
+        super.viewDidEnter()
+
+        input!!.value.onChanged {
+            println("Changed: from ${it.oldValue} to ${it.newValue}")
+            showText!!.content = it.newValue ?: ""
+        }
+
+        btn!!.clicked.onFired {
+            println("Data: ${input!!.value.get()}")
         }
     }
 }

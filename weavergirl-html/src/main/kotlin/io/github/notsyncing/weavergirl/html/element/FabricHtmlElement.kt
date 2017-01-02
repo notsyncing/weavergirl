@@ -2,9 +2,6 @@ package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.element.FabricElement
 import io.github.notsyncing.weavergirl.element.behaviors.Clickable
-import io.github.notsyncing.weavergirl.element.behaviors.Inputable
-import io.github.notsyncing.weavergirl.events.Clicked
-import io.github.notsyncing.weavergirl.events.ValueChanged
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
 import kotlin.dom.clear
@@ -13,21 +10,27 @@ import kotlin.dom.removeFromParent
 abstract class FabricHtmlElement<T: Node> : FabricElement() {
     protected lateinit var nativeElement: T
 
-    private fun attachEventListeners() {
-        if ((this is Clickable) && (this is Clicked)) {
-            nativeElement.addEventListener("click", { this.onClick() })
-        }
+    open protected fun makeClickable(clickable: Clickable) {
+        nativeElement.addEventListener("click", {
+            clickable.clicked.fire()
+        })
+    }
 
-        if ((this is Inputable) && (this is ValueChanged)) {
-            nativeElement.addEventListener("change", { this.onValueChanged() })
+    private fun attachEventListeners() {
+        if (this is Clickable) {
+            makeClickable(this)
         }
     }
 
-    override fun append(elem: FabricElement) {
-        super.append(elem)
+    override fun append(elem: FabricElement, atIndex: Int) {
+        super.append(elem, atIndex)
 
         if (elem is FabricHtmlElement<*>) {
-            nativeElement.appendChild(elem.nativeElement)
+            if ((atIndex < 0) || (atIndex > nativeElement.childNodes.length - 1)) {
+                nativeElement.appendChild(elem.nativeElement)
+            } else {
+                nativeElement.insertBefore(elem.nativeElement, nativeElement.childNodes[atIndex])
+            }
         }
 
         attachEventListeners()

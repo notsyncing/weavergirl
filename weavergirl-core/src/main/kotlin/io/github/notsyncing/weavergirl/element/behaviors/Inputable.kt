@@ -1,5 +1,7 @@
 package io.github.notsyncing.weavergirl.element.behaviors
 
-interface Inputable {
-    var value: Any?
+import io.github.notsyncing.weavergirl.watchable.Watchable
+
+interface Inputable<T> {
+    val value: Watchable<T>
 }

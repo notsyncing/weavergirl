@@ -4,7 +4,7 @@ publishing {
             groupId rootProject.ext.grp
             artifactId 'weavergirl-html'
             version rootProject.ext.ver
-            from components.java
+            artifact publishJar
 
             artifact sourceJar
             artifact javadocJar

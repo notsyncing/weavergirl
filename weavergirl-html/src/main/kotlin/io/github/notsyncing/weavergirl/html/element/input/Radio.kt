@@ -1,7 +1,15 @@
 package io.github.notsyncing.weavergirl.html.element.input
 
-class Radio(value: Any) : Input(InputType.Radio) {
+import io.github.notsyncing.weavergirl.watchable.Watchable
+
+class Radio(value: Any) : Input<String>(InputType.Radio) {
+    val checked: Watchable<Boolean> = Watchable(nativeElement.checked)
+
     init {
-        this.value = value.toString()
+        nativeElement.addEventListener("change", {
+            checked.set(nativeElement.checked)
+        })
     }
+
+    override fun convertValue(v: String) = v
 }
