@@ -26,6 +26,8 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
     }
 
     operator fun <T: FabricElement> T.minus(inner: LayoutContext.(T) -> Unit): T {
+        this.currentInner = inner as LayoutContext.(FabricElement) -> Unit
+
         if (currParentElem == null) {
             elements.add(this)
         } else {

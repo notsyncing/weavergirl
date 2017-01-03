@@ -20,6 +20,7 @@ class IndexPage : HtmlPage() {
     private var showText: Text? = null
     private var scope1: LayoutScope? = null
     private var btn: Button? = null
+    private var textList = mutableListOf<String>()
 
     override fun layout() = HtmlLayout {
         Div() - {
@@ -69,7 +70,11 @@ class IndexPage : HtmlPage() {
                 }
 
                 list = Div() - {
-
+                    for (t in textList) {
+                        Div() - {
+                            +Text(t)
+                        }
+                    }
                 }
             }
 
@@ -101,6 +106,9 @@ class IndexPage : HtmlPage() {
         input!!.value.onChanged {
             println("Changed: from ${it.oldValue} to ${it.newValue}")
             showText!!.content = it.newValue ?: ""
+
+            textList.add(it.newValue ?: "<EMPTY>")
+            list!!.refresh()
         }
 
         btn!!.clicked.onFired {

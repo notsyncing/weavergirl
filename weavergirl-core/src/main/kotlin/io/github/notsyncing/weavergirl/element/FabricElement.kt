@@ -12,6 +12,7 @@ abstract class FabricElement {
     var defaultSlotElement: FabricElement? = null
 
     var scope: LayoutScope? = null
+    var currentInner: (LayoutContext.(FabricElement) -> Unit)? = null
 
     protected val slot = SlotMaker(this)
 
@@ -58,8 +59,15 @@ abstract class FabricElement {
 
     abstract fun layout(): LayoutContext
 
-    fun refresh() {
+    open fun refresh() {
+        val elemStartIndex = parent?.children?.indexOf(this) ?: -1
+
+        if (elemStartIndex < 0) {
+            return
+        }
+
         clear()
-        layout().renderIn(this)
+
+        layout().renderIn(this, { currentInner?.invoke(this, this@FabricElement) }, elemStartIndex)
     }
 }
