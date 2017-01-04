@@ -4,7 +4,7 @@ import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import org.w3c.dom.Element
 
 abstract class FabricHtmlTagElement<T: Element>(private val tagName: String) : FabricHtmlElement<T>() {
-    var id: String
+    override var id: String
         get() = nativeElement.id
         set(value) {
             nativeElement.id = value

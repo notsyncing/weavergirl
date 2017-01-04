@@ -5,6 +5,8 @@ import io.github.notsyncing.weavergirl.layout.LayoutContext
 import io.github.notsyncing.weavergirl.layout.LayoutScope
 
 abstract class FabricElement {
+    open var id: String = ""
+
     val children: MutableList<FabricElement> = mutableListOf()
     var parent: FabricElement? = null
 

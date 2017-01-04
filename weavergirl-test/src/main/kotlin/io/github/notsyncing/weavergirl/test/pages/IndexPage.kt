@@ -79,6 +79,8 @@ class IndexPage : HtmlPage() {
             }
 
             Div() - {
+                it.id = "btnArea"
+
                 btn = Button() - {
                     +Text("Show data")
                 }
