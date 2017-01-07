@@ -31,13 +31,14 @@ open class HtmlWindow : Window() {
 
     override fun init() {
         window.onload = {
+            HtmlStyleManager.init(this)
+
             val rootNavPage = HtmlRootPage()
             rootNavPage.init(this, null)
 
             navRootMap["/"] = rootNavPage
 
             HtmlRouter.init(this)
-            HtmlStyleManager.init(this)
         }
 
         Polyfills.polyfill()

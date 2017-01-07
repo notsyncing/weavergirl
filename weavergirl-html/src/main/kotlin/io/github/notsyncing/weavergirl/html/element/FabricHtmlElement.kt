@@ -2,6 +2,7 @@ package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.element.FabricElement
 import io.github.notsyncing.weavergirl.element.behaviors.Clickable
+import io.github.notsyncing.weavergirl.html.style.HtmlStyleManager
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
 import kotlin.dom.clear
@@ -34,6 +35,8 @@ abstract class FabricHtmlElement<T: Node> : FabricElement() {
         }
 
         attachEventListeners()
+
+        HtmlStyleManager.applyElementStyles(this)
     }
 
     override fun insertInto(elem: FabricElement) {

@@ -3,6 +3,7 @@ package io.github.notsyncing.weavergirl.element
 import io.github.notsyncing.weavergirl.action.Action
 import io.github.notsyncing.weavergirl.layout.LayoutContext
 import io.github.notsyncing.weavergirl.layout.LayoutScope
+import io.github.notsyncing.weavergirl.style.FabricElementStyles
 
 abstract class FabricElement {
     open var id: String = ""
@@ -19,6 +20,9 @@ abstract class FabricElement {
     protected val slot = SlotMaker(this)
 
     val sourceActions: MutableList<Action> = mutableListOf()
+    val styles = FabricElementStyles()
+
+    open val typeIdentityName = this::class.js.name.replace(".", "_").toLowerCase()
 
     open fun insertInto(elem: FabricElement) {
         elem.append(this)
