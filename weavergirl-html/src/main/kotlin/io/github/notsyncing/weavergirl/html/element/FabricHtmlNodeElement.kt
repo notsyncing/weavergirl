@@ -9,7 +9,7 @@ import kotlin.dom.clear
 import kotlin.dom.removeFromParent
 
 abstract class FabricHtmlNodeElement<T: Node> : FabricElement() {
-    protected lateinit var nativeElement: T
+    lateinit var nativeElement: T
 
     open protected fun makeClickable(clickable: Clickable) {
         nativeElement.addEventListener("click", {

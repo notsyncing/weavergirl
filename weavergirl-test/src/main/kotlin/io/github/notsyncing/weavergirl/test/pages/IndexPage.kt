@@ -6,6 +6,7 @@ import io.github.notsyncing.weavergirl.html.element.Button
 import io.github.notsyncing.weavergirl.html.element.Div
 import io.github.notsyncing.weavergirl.html.element.Text
 import io.github.notsyncing.weavergirl.html.element.input.TextInput
+import io.github.notsyncing.weavergirl.html.interop.jquery.toJQuery
 import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
 import io.github.notsyncing.weavergirl.layout.LayoutScope
@@ -116,5 +117,8 @@ class IndexPage : HtmlPage() {
         btn!!.clicked.onFired {
             println("Data: ${input!!.value.get()}")
         }
+
+        val e = btn!!.toJQuery()
+        e?.attr("jquery_loaded", "")
     }
 }
