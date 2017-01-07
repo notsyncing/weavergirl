@@ -1,63 +1,45 @@
 package io.github.notsyncing.weavergirl.html.element
 
-import io.github.notsyncing.weavergirl.element.FabricElement
-import io.github.notsyncing.weavergirl.element.behaviors.Clickable
-import io.github.notsyncing.weavergirl.html.style.HtmlStyleManager
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.Node
-import kotlin.dom.clear
-import kotlin.dom.removeFromParent
+import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
+import org.w3c.dom.Element
+import kotlin.dom.addClass
+import kotlin.dom.removeClass
 
-abstract class FabricHtmlElement<T: Node> : FabricElement() {
-    protected lateinit var nativeElement: T
+abstract class FabricHtmlElement<T: Element>(private val tagName: String) : FabricHtmlNodeElement<T>() {
+    override var id: String
+        get() = nativeElement.id
+        set(value) {
+            nativeElement.id = value
+        }
 
-    open protected fun makeClickable(clickable: Clickable) {
-        nativeElement.addEventListener("click", {
-            clickable.clicked.fire()
-        })
-    }
+    val classes: List<String>
+        get() = nativeElement.className.split(" ")
 
-    private fun attachEventListeners() {
-        if (this is Clickable) {
-            makeClickable(this)
+    init {
+        if (tagName.isNotEmpty()) {
+            nativeElement = HtmlLayout.raw(tagName)
+            initNativeElement()
         }
     }
 
-    override fun append(elem: FabricElement, atIndex: Int) {
-        super.append(elem, atIndex)
-
-        if (elem is FabricHtmlElement<*>) {
-            if ((atIndex < 0) || (atIndex > nativeElement.childNodes.length - 1)) {
-                nativeElement.appendChild(elem.nativeElement)
-            } else {
-                nativeElement.insertBefore(elem.nativeElement, nativeElement.childNodes[atIndex])
-            }
-        }
-
-        attachEventListeners()
-
-        HtmlStyleManager.applyElementStyles(this)
+    constructor(nativeElement: T) : this("") {
+        this.nativeElement = nativeElement
+        initNativeElement()
     }
 
-    override fun insertInto(elem: FabricElement) {
-        super.insertInto(elem)
-
-        if (elem is FabricHtmlElement<*>) {
-            (elem.nativeElement as HTMLElement).appendChild(nativeElement)
-        }
-
-        attachEventListeners()
+    private fun initNativeElement() {
+        nativeElement.setAttribute(typeIdentityName, "")
     }
 
-    override fun remove() {
-        super.remove()
-
-        nativeElement.removeFromParent()
+    override fun layout() = HtmlLayout {
+        slot.make(this@FabricHtmlElement)
     }
 
-    override fun clear() {
-        super.clear()
+    fun addClass(vararg name: String) {
+        nativeElement.addClass(*name)
+    }
 
-        nativeElement.clear()
+    fun removeClass(vararg name: String) {
+        nativeElement.removeClass(*name)
     }
 }

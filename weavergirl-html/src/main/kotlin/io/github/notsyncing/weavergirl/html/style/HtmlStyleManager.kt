@@ -1,7 +1,7 @@
 package io.github.notsyncing.weavergirl.html.style
 
 import io.github.notsyncing.weavergirl.element.FabricElement
-import io.github.notsyncing.weavergirl.html.element.FabricHtmlTagElement
+import io.github.notsyncing.weavergirl.html.element.FabricHtmlElement
 import io.github.notsyncing.weavergirl.html.view.HtmlWindow
 import io.github.notsyncing.weavergirl.style.FabricElementStyle
 import org.w3c.dom.HTMLStyleElement
@@ -27,7 +27,7 @@ object HtmlStyleManager {
     }
 
     private fun addStyle(style: FabricElementStyle, element: FabricElement) {
-        if (element is FabricHtmlTagElement<*>) {
+        if (element is FabricHtmlElement<*>) {
             element.addClass(style.getName())
         }
 

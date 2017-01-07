@@ -4,7 +4,7 @@ import io.github.notsyncing.weavergirl.element.behaviors.Linkable
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import org.w3c.dom.HTMLAnchorElement
 
-open class Anchor(href: String) : FabricHtmlTagElement<HTMLAnchorElement>("a"), Linkable {
+open class Anchor(href: String) : FabricHtmlElement<HTMLAnchorElement>("a"), Linkable {
     override var href: String
         get() = nativeElement.href
         set(value) {

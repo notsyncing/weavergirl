@@ -1,11 +1,11 @@
 package io.github.notsyncing.weavergirl.html.element.input
 
 import io.github.notsyncing.weavergirl.element.behaviors.Inputable
-import io.github.notsyncing.weavergirl.html.element.FabricHtmlTagElement
+import io.github.notsyncing.weavergirl.html.element.FabricHtmlElement
 import io.github.notsyncing.weavergirl.watchable.Watchable
 import org.w3c.dom.HTMLInputElement
 
-abstract class Input<T>(val type: InputType) : FabricHtmlTagElement<HTMLInputElement>("input"), Inputable<T> {
+abstract class Input<T>(val type: InputType) : FabricHtmlElement<HTMLInputElement>("input"), Inputable<T> {
     override val value: Watchable<T> = Watchable(convertValue(nativeElement.value))
 
     init {
