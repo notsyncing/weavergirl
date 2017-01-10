@@ -32,11 +32,11 @@ class HtmlSize(val value: Double, val type: HtmlSizeType) {
     }
 }
 
-fun Number.px() = HtmlSize(this.toDouble(), HtmlSizeType.Pixel)
-fun Number.vh() = HtmlSize(this.toDouble(), HtmlSizeType.ViewHeight)
-fun Number.vw() = HtmlSize(this.toDouble(), HtmlSizeType.ViewWidth)
-fun Number.em() = HtmlSize(this.toDouble(), HtmlSizeType.FontSize)
-fun Number.percent() = HtmlSize(this.toDouble(), HtmlSizeType.Percentage)
+val Number.px get() = HtmlSize(this.toDouble(), HtmlSizeType.Pixel)
+val Number.vh get() = HtmlSize(this.toDouble(), HtmlSizeType.ViewHeight)
+val Number.vw get() = HtmlSize(this.toDouble(), HtmlSizeType.ViewWidth)
+val Number.em get() = HtmlSize(this.toDouble(), HtmlSizeType.FontSize)
+val Number.percent get() = HtmlSize(this.toDouble(), HtmlSizeType.Percentage)
 
 private fun FabricHtmlElementStyle.dimGetter(name: String): HtmlSize {
     return (styles[name] as? HtmlSize?) ?: HtmlSize.auto()

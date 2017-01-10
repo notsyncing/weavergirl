@@ -30,6 +30,8 @@ open class FabricHtmlElementStyle(name: String) : FabricElementStyle(name) {
 
         return buf.toString()
     }
+
+    val auto = HtmlSize.auto()
 }
 
 fun htmlStyle(name: String = "", inner: FabricHtmlElementStyle.() -> Unit): FabricHtmlElementStyle {
