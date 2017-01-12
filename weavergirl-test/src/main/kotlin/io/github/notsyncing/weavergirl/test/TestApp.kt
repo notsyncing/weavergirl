@@ -1,6 +1,8 @@
 package io.github.notsyncing.weavergirl.test
 
 import io.github.notsyncing.weavergirl.WeavergirlApp
+import io.github.notsyncing.weavergirl.html.resource.css
+import io.github.notsyncing.weavergirl.html.resource.javascript
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import io.github.notsyncing.weavergirl.html.view.HtmlWindow
 import io.github.notsyncing.weavergirl.test.pages.*
@@ -22,6 +24,13 @@ class TestApp : WeavergirlApp(HtmlWindow()) {
                 "page4/:id" to { TestPage4() }
             }
         }
+    }
+
+    override fun afterStart() {
+        super.afterStart()
+
+        currentWindow import javascript("node_modules/test.js")
+        currentWindow import css("node_modules/test.css")
     }
 }
 

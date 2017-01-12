@@ -1,5 +1,7 @@
 package io.github.notsyncing.weavergirl.view
 
+import io.github.notsyncing.weavergirl.resource.Resource
+
 abstract class Window {
     lateinit var currentPage: Page
 
@@ -16,4 +18,10 @@ abstract class Window {
     fun prevPage() {
         prevPage(1)
     }
+
+    infix fun import(resource: Resource) {
+        importResource(resource)
+    }
+
+    protected abstract fun importResource(resource: Resource)
 }

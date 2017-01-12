@@ -8,10 +8,16 @@ open class WeavergirlApp(val currentWindow: Window) {
 
         currentWindow.init()
 
+        afterStart()
+
         console.info("App started in window $currentWindow")
     }
 
     open fun beforeStart() {
+
+    }
+
+    open fun afterStart() {
 
     }
 }

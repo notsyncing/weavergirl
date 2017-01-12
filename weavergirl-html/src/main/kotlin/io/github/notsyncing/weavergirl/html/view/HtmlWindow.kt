@@ -1,10 +1,13 @@
 package io.github.notsyncing.weavergirl.html.view
 
 import io.github.notsyncing.weavergirl.html.Polyfills
+import io.github.notsyncing.weavergirl.html.resource.JavascriptResource
+import io.github.notsyncing.weavergirl.html.resource.StylesheetResource
 import io.github.notsyncing.weavergirl.html.route.HtmlRouter
 import io.github.notsyncing.weavergirl.html.route.ResolvedRoute
 import io.github.notsyncing.weavergirl.html.route.Route
 import io.github.notsyncing.weavergirl.html.style.HtmlStyleManager
+import io.github.notsyncing.weavergirl.resource.Resource
 import io.github.notsyncing.weavergirl.view.Page
 import io.github.notsyncing.weavergirl.view.PageContext
 import io.github.notsyncing.weavergirl.view.Window
@@ -42,6 +45,11 @@ open class HtmlWindow : Window() {
         }
 
         Polyfills.polyfill()
+
+        if (document.head == null) {
+            val head = document.createElement("head")
+            document.appendChild(head)
+        }
     }
 
     private fun attachPageToNavRoot(page: HtmlPage, navRoot: String?) {
@@ -150,5 +158,30 @@ open class HtmlWindow : Window() {
         }
 
         setCurrentPage(p!!, r!!)
+    }
+
+    private fun importJs(res: JavascriptResource) {
+        val scriptElem = document.createElement("script")
+        scriptElem.setAttribute("type", res.mimeType)
+        scriptElem.setAttribute("src", res.url)
+
+        document.head!!.appendChild(scriptElem)
+    }
+
+    private fun importCss(res: StylesheetResource) {
+        val scriptElem = document.createElement("link")
+        scriptElem.setAttribute("type", res.mimeType)
+        scriptElem.setAttribute("rel", "stylesheet")
+        scriptElem.setAttribute("href", res.url)
+
+        document.head!!.appendChild(scriptElem)
+    }
+
+    override fun importResource(resource: Resource) {
+        if (resource is JavascriptResource) {
+            importJs(resource)
+        } else if (resource is StylesheetResource) {
+            importCss(resource)
+        }
     }
 }
