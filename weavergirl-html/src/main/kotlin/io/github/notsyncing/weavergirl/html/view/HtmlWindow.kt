@@ -13,6 +13,8 @@ import io.github.notsyncing.weavergirl.view.PageContext
 import io.github.notsyncing.weavergirl.view.Window
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLScriptElement
+import org.w3c.dom.HTMLLinkElement
 import kotlin.browser.window
 
 open class HtmlWindow : Window() {
@@ -161,18 +163,18 @@ open class HtmlWindow : Window() {
     }
 
     private fun importJs(res: JavascriptResource) {
-        val scriptElem = document.createElement("script")
-        scriptElem.setAttribute("type", res.mimeType)
-        scriptElem.setAttribute("src", res.url)
+        val scriptElem = document.createElement("script") as HTMLScriptElement
+        scriptElem.type = res.mimeType
+        scriptElem.src = res.url
 
         document.head!!.appendChild(scriptElem)
     }
 
     private fun importCss(res: StylesheetResource) {
-        val scriptElem = document.createElement("link")
-        scriptElem.setAttribute("type", res.mimeType)
-        scriptElem.setAttribute("rel", "stylesheet")
-        scriptElem.setAttribute("href", res.url)
+        val scriptElem = document.createElement("link") as HTMLLinkElement
+        scriptElem.type = res.mimeType
+        scriptElem.rel = "stylesheet"
+        scriptElem.href = res.url
 
         document.head!!.appendChild(scriptElem)
     }
