@@ -28,7 +28,7 @@ abstract class FabricHtmlElement<T: Element>(private val tagName: String) : Fabr
     }
 
     private fun initNativeElement() {
-        nativeElement.setAttribute(typeIdentityName, "")
+        nativeElement.setAttribute("we-$typeIdentityName", "")
     }
 
     override fun layout() = HtmlLayout {

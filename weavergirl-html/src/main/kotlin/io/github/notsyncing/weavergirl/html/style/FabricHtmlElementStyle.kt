@@ -16,7 +16,7 @@ open class FabricHtmlElementStyle(name: String) : FabricElementStyle(name) {
     }
 
     override fun generateStyleName(typeIdentifyName: String): String {
-        return ".${getName()}${if (typeIdentifyName.isNotEmpty()) "[$typeIdentifyName]" else ""}"
+        return ".${getName()}${if (typeIdentifyName.isNotEmpty()) "[we-$typeIdentifyName]" else ""}"
     }
 
     override fun generateStyleString(typeIdentifyName: String): String {
