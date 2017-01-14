@@ -42,4 +42,8 @@ abstract class FabricHtmlElement<T: Element>(private val tagName: String) : Fabr
     fun removeClass(vararg name: String) {
         nativeElement.removeClass(*name)
     }
+
+    infix fun classes(list: String) {
+        addClass(*list.split(" ").toTypedArray())
+    }
 }
