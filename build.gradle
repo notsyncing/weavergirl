@@ -73,6 +73,7 @@ subprojects {
 
     task publishJar(type: Jar) {
         from outputDir
+        include("${project.name}.js", "${project.name}.meta.js", "${project.name}/**")
     }
 
     task sourceJar(type: Jar) {
