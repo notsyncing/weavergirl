@@ -63,7 +63,25 @@ abstract class FabricElement {
         children.clear()
     }
 
+    fun _layout(): LayoutContext {
+        beforeLayout()
+
+        val ctx = layout()
+
+        afterLayout(ctx)
+
+        return ctx
+    }
+
     abstract fun layout(): LayoutContext
+
+    open protected fun beforeLayout() {
+
+    }
+
+    open protected fun afterLayout(layoutContext: LayoutContext) {
+
+    }
 
     open fun refresh() {
         val elemStartIndex = parent?.children?.indexOf(this) ?: -1
@@ -74,6 +92,6 @@ abstract class FabricElement {
 
         clear()
 
-        layout().renderIn(this, { currentInner?.invoke(this, this@FabricElement) }, elemStartIndex)
+        _layout().renderIn(this, { currentInner?.invoke(this, this@FabricElement) }, elemStartIndex)
     }
 }

@@ -5,6 +5,8 @@ import io.github.notsyncing.weavergirl.element.FabricElement
 abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
     private val elements: MutableList<FabricElement> = mutableListOf()
 
+    var rootElement: FabricElement? = null
+
     var currParentElem: FabricElement? = null
     var currScope: LayoutScope? = null
 
@@ -26,6 +28,10 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
     }
 
     operator fun <T: FabricElement> T.minus(inner: LayoutContext.(T) -> Unit): T {
+        if (rootElement == null) {
+            rootElement = this
+        }
+
         this.currentInner = inner as LayoutContext.(FabricElement) -> Unit
 
         if (currParentElem == null) {
@@ -39,7 +45,7 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         val oldCurr = currParentElem
         currParentElem = this
 
-        this.layout().inner.invoke(this@LayoutContext)
+        this._layout().inner.invoke(this@LayoutContext)
         this@LayoutContext.inner(this)
 
         currParentElem = oldCurr
