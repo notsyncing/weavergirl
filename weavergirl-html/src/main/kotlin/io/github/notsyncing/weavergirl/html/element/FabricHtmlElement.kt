@@ -46,7 +46,7 @@ abstract class FabricHtmlElement<T: Element>(private val tagName: String) : Fabr
     }
 
     private fun initNativeElement() {
-        if (!nativeElementInitialized) {
+        if (nativeElementInitialized) {
             return
         }
 
