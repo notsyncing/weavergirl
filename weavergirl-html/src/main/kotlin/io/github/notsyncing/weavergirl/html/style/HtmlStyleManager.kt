@@ -2,6 +2,7 @@ package io.github.notsyncing.weavergirl.html.style
 
 import io.github.notsyncing.weavergirl.element.FabricElement
 import io.github.notsyncing.weavergirl.html.element.FabricHtmlElement
+import io.github.notsyncing.weavergirl.html.view.HtmlPage
 import io.github.notsyncing.weavergirl.html.view.HtmlWindow
 import io.github.notsyncing.weavergirl.style.FabricElementStyle
 import org.w3c.dom.HTMLStyleElement
@@ -26,18 +27,26 @@ object HtmlStyleManager {
         }
     }
 
-    private fun addStyle(style: FabricElementStyle, element: FabricElement) {
+    fun applyGlobalElementStyles(page: HtmlPage) {
+        for (s in page.globalStyles.get()) {
+            addStyle(s)
+        }
+    }
+
+    private fun addStyle(style: FabricElementStyle, element: FabricElement? = null) {
         if (element is FabricHtmlElement<*>) {
-            element.addClass(style.getName())
+            for (c in style.getName().split(".")) {
+                element.addClass(c)
+            }
         }
 
-        val name = style.getName(element.typeIdentityName)
+        val name = style.getName(element?.typeIdentityName)
 
         if (addedStyles.contains(name)) {
             return
         }
 
-        val cssRule = style.toString(element.typeIdentityName)
+        val cssRule = style.toString(element?.typeIdentityName)
         stylesheet.insertRule(cssRule, 0)
 
         addedStyles.add(name)

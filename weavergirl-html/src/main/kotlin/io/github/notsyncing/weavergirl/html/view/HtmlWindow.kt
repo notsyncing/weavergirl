@@ -13,8 +13,8 @@ import io.github.notsyncing.weavergirl.view.PageContext
 import io.github.notsyncing.weavergirl.view.Window
 import org.w3c.dom.Document
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLScriptElement
 import org.w3c.dom.HTMLLinkElement
+import org.w3c.dom.HTMLScriptElement
 import kotlin.browser.window
 
 open class HtmlWindow : Window() {
@@ -63,6 +63,8 @@ open class HtmlWindow : Window() {
         currentNavRoot.navRootElement.clear()
 
         page.viewWillEnter()
+
+        HtmlStyleManager.applyGlobalElementStyles(page)
 
         page.renderIn(currentNavRoot.navRootElement)
 

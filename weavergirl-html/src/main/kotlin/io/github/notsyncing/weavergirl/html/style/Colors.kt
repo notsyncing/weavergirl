@@ -3,9 +3,29 @@ package io.github.notsyncing.weavergirl.html.style
 class HtmlColor(val r: Int, val g: Int, val b: Int, val a: Float) : HtmlStyleRule() {
     companion object {
         val auto = HtmlColor(0, 0, 0, 0.0f)
+
+        val white = HtmlColor("white")
+        val black = HtmlColor("black")
+        val gray = HtmlColor("gray")
+
+        val red = HtmlColor("red")
+        val green = HtmlColor("green")
+        val blue = HtmlColor("blue")
+
+        val transparent = HtmlColor("transparent")
+    }
+
+    private var colorName: String = ""
+
+    constructor(color: String) : this(0, 0, 0, 0.0f) {
+        this.colorName = color
     }
 
     override fun toString(): String {
+        if (colorName.isNotEmpty()) {
+            return colorName
+        }
+
         if (a >= 1.0f) {
             return "rgb($r, $g, $b)"
         } else {
@@ -26,18 +46,10 @@ fun Int.color(): HtmlColor {
     return HtmlColor(r, g, b, 1.0f)
 }
 
-private fun FabricHtmlElementStyle.dimGetter(name: String): HtmlColor {
-    return (styles[name] as? HtmlColor?) ?: HtmlColor.auto
-}
-
-private fun FabricHtmlElementStyle.dimSetter(name: String, value: HtmlColor) {
-    styles[name] = value
-}
-
 var FabricHtmlElementStyle.color: HtmlColor
-    get() = dimGetter("color")
-    set(value) { dimSetter("color", value) }
+    get() = dimGetterColor("color")
+    set(value) { dimSetterColor("color", value) }
 
 var FabricHtmlElementStyle.backgroundColor: HtmlColor
-    get() = dimGetter("background-color")
-    set(value) { dimSetter("background-color", value) }
+    get() = dimGetterColor("background-color")
+    set(value) { dimSetterColor("background-color", value) }

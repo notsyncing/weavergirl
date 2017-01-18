@@ -15,11 +15,11 @@ open class FabricHtmlElementStyle(name: String) : FabricElementStyle(name) {
         return "style-${this.hashCode()}"
     }
 
-    override fun generateStyleName(typeIdentifyName: String): String {
-        return ".${getName()}${if (typeIdentifyName.isNotEmpty()) "[we-$typeIdentifyName]" else ""}"
+    override fun generateStyleName(typeIdentifyName: String?): String {
+        return ".${getName()}${if (typeIdentifyName?.isNotEmpty() == true) "[we-$typeIdentifyName]" else ""}"
     }
 
-    override fun generateStyleString(typeIdentifyName: String): String {
+    override fun generateStyleString(typeIdentifyName: String?): String {
         val buf = StringBuilder()
 
         buf.append(generateStyleName(typeIdentifyName))
@@ -37,6 +37,22 @@ open class FabricHtmlElementStyle(name: String) : FabricElementStyle(name) {
                 .append("\n}")
 
         return buf.toString()
+    }
+
+    fun dimGetterSize(name: String): HtmlSize {
+        return (styles[name] as? HtmlSize?) ?: HtmlSize.auto
+    }
+
+    fun dimSetterSize(name: String, value: HtmlSize) {
+        styles[name] = value
+    }
+
+    fun dimGetterColor(name: String): HtmlColor {
+        return (styles[name] as? HtmlColor?) ?: HtmlColor.auto
+    }
+
+    fun dimSetterColor(name: String, value: HtmlColor) {
+        styles[name] = value
     }
 }
 

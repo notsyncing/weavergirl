@@ -6,7 +6,7 @@ abstract class FabricElementStyle(name: String) {
     private var styleName: String = name
     private var styleString: String = ""
 
-    fun toString(typeIdentifyName: String): String {
+    fun toString(typeIdentifyName: String?): String {
         if (styleString.isEmpty()) {
             styleString = generateStyleString(typeIdentifyName)
         }
@@ -26,13 +26,13 @@ abstract class FabricElementStyle(name: String) {
         return styleName
     }
 
-    fun getName(typeIdentifyName: String): String {
+    fun getName(typeIdentifyName: String?): String {
         return generateStyleName(typeIdentifyName)
     }
 
     abstract protected fun defaultStyleName(): String
 
-    abstract protected fun generateStyleName(typeIdentifyName: String): String
+    abstract protected fun generateStyleName(typeIdentifyName: String?): String
 
-    abstract protected fun generateStyleString(typeIdentifyName: String): String
+    abstract protected fun generateStyleString(typeIdentifyName: String?): String
 }

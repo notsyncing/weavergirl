@@ -8,12 +8,21 @@ import io.github.notsyncing.weavergirl.html.element.Text
 import io.github.notsyncing.weavergirl.html.element.input.TextInput
 import io.github.notsyncing.weavergirl.html.interop.jquery.toJQuery
 import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
+import io.github.notsyncing.weavergirl.html.style.height
+import io.github.notsyncing.weavergirl.html.style.htmlStyle
+import io.github.notsyncing.weavergirl.html.style.px
 import io.github.notsyncing.weavergirl.html.view.HtmlPage
 import io.github.notsyncing.weavergirl.layout.LayoutScope
 import io.github.notsyncing.weavergirl.test.elements.CustomElement1
 import io.github.notsyncing.weavergirl.test.elements.CustomElement2
 
 class IndexPage : HtmlPage() {
+    companion object {
+        private val gs = htmlStyle("test-gs") {
+            height = 40.px
+        }
+    }
+
     private var cusElem1: CustomElement1? = null
     private var elem: FabricElement? = null
     private var input: TextInput? = null
@@ -23,9 +32,15 @@ class IndexPage : HtmlPage() {
     private var btn: Button? = null
     private var textList = mutableListOf<String>()
 
+    init {
+        globalStyles add gs
+    }
+
     override fun layout() = HtmlLayout {
         Div() - {
             Div() - {
+                it classes "test-gs"
+
                 +Text("Hello, world!")
             }
 
