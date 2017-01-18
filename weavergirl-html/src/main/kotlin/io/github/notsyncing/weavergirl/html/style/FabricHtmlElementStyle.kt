@@ -24,14 +24,20 @@ open class FabricHtmlElementStyle(name: String) : FabricElementStyle(name) {
 
         buf.append(generateStyleName(typeIdentifyName))
                 .append("{\n")
-                .append(styles.entries.map { "${it.key}: ${it.value}" }
-                        .joinToString(";\n"))
+                .append(styles.entries.map {
+                    val important = if ((it.value is HtmlStyleRule) && ((it.value as HtmlStyleRule)._important)) {
+                        " !important"
+                    } else {
+                        ""
+                    }
+
+                    "${it.key}: ${it.value}$important;"
+                }
+                        .joinToString("\n"))
                 .append("\n}")
 
         return buf.toString()
     }
-
-    val auto = HtmlSize.auto()
 }
 
 fun htmlStyle(name: String = "", inner: FabricHtmlElementStyle.() -> Unit): FabricHtmlElementStyle {

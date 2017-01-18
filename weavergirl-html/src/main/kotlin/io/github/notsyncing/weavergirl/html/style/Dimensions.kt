@@ -9,9 +9,9 @@ enum class HtmlSizeType {
     Auto
 }
 
-class HtmlSize(val value: Double, val type: HtmlSizeType) {
+class HtmlSize(val value: Double, val type: HtmlSizeType) : HtmlStyleRule() {
     companion object {
-        fun auto() = HtmlSize(0.0, HtmlSizeType.Auto)
+        val auto = HtmlSize(0.0, HtmlSizeType.Auto)
     }
 
     override fun toString(): String {
@@ -39,7 +39,7 @@ val Number.em get() = HtmlSize(this.toDouble(), HtmlSizeType.FontSize)
 val Number.percent get() = HtmlSize(this.toDouble(), HtmlSizeType.Percentage)
 
 private fun FabricHtmlElementStyle.dimGetter(name: String): HtmlSize {
-    return (styles[name] as? HtmlSize?) ?: HtmlSize.auto()
+    return (styles[name] as? HtmlSize?) ?: HtmlSize.auto
 }
 
 private fun FabricHtmlElementStyle.dimSetter(name: String, value: HtmlSize) {
