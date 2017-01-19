@@ -33,7 +33,7 @@ class IndexPage : HtmlPage() {
     private var textList = mutableListOf<String>()
 
     init {
-        globalStyles add gs
+        globalStyles += gs
     }
 
     override fun layout() = HtmlLayout {

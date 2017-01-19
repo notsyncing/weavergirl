@@ -13,7 +13,7 @@ open class CustomElement1 : Div(), Clickable, ViewWillEnter, ViewDidEnter {
     init {
         clicked.onFired { console.info("I'm clicked!") }
 
-        styles add htmlStyle("custom-elem") {
+        styles += htmlStyle("custom-elem") {
             height = 200.px
             width = HtmlSize.auto.important()
 

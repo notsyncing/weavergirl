@@ -5,15 +5,11 @@ class FabricElementStyles {
 
     fun get(): List<FabricElementStyle> = styles
 
-    infix fun add(style: FabricElementStyle) {
-        styles.add(style)
-    }
-
     operator fun plusAssign(style: FabricElementStyle) {
-        add(style)
+        this.styles.add(style)
     }
 
-    operator fun plusAssign(styles: Array<FabricElementStyle>) {
+    operator fun <T: FabricElementStyle> plusAssign(styles: Array<T>) {
         this.styles.addAll(styles)
     }
 
@@ -21,7 +17,7 @@ class FabricElementStyles {
         styles.remove(style)
     }
 
-    operator fun minusAssign(styles: Array<FabricElementStyle>) {
+    operator fun <T: FabricElementStyle> minusAssign(styles: Array<T>) {
         this.styles.removeAll(styles)
     }
 }
