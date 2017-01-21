@@ -2,6 +2,7 @@ package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
 import org.w3c.dom.Element
+import org.w3c.dom.Node
 import kotlin.dom.addClass
 import kotlin.dom.removeClass
 
@@ -38,6 +39,16 @@ abstract class FabricHtmlElement<T: Element>(private val tagName: String) : Fabr
         nativeElementInitialized = true
 
         nativeElement.setAttribute("we-$typeIdentityName", "")
+
+        if ((parent != null) && (parent is FabricHtmlNodeElement<*>)) {
+            val parentNativeElem = parent!!.getNativeElement() as Node
+            parentNativeElem.appendChild(nativeElement)
+
+            println("Post append native element to parent: " + parentNativeElem.childNodes.length)
+            console.dir(parent!!)
+            console.dir(nativeElement)
+            console.dir(nativeElement.parentNode!!)
+        }
     }
 
     override fun setNativeElement(nativeElement: Any) {

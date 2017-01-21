@@ -24,12 +24,14 @@ abstract class FabricElement {
 
     open val typeIdentityName = this::class.js.name.replace(".", "_").toLowerCase()
 
+    var nativeElementIsExternal = false
+
     open fun insertInto(elem: FabricElement) {
         elem.append(this)
     }
 
     open fun append(elem: FabricElement, atIndex: Int) {
-        elem.remove()
+        elem.remove(nativeElementIsExternal)
 
         if ((atIndex < 0) || (atIndex > this.children.lastIndex)) {
             this.children.add(elem)
@@ -54,9 +56,16 @@ abstract class FabricElement {
         append(elems, -1)
     }
 
-    open fun remove() {
+    open fun remove(dontRemoveNativeElement: Boolean = false) {
         parent?.children?.remove(this)
         this.parent = null
+
+        println("Removed:")
+        if (parent != null) {
+            console.dir(parent!!)
+        }
+
+        console.dir(this)
     }
 
     open fun clear() {
@@ -77,7 +86,9 @@ abstract class FabricElement {
 
     abstract fun hasNativeElement(): Boolean
 
-    abstract fun setNativeElement(nativeElement: Any)
+    open fun setNativeElement(nativeElement: Any) {
+        nativeElementIsExternal = true
+    }
 
     abstract fun getNativeElement(): Any
 

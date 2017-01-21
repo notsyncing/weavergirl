@@ -1,6 +1,7 @@
 package io.github.notsyncing.weavergirl.layout
 
 import io.github.notsyncing.weavergirl.element.FabricElement
+import org.w3c.dom.Node
 
 abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
     private val elements: MutableList<FabricElement> = mutableListOf()
@@ -32,6 +33,9 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
             rootElement = this
         }
 
+        println("-----")
+        console.dir(this)
+
         this.currentInner = inner as LayoutContext.(FabricElement) -> Unit
         this.scope = currScope
 
@@ -50,6 +54,9 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
             }
 
             currParentElem!!.append(this)
+
+            println("Current parent native element: " + (currParentElem!!.getNativeElement() as Node).childNodes.length)
+            console.dir(currParentElem!!.getNativeElement())
         }
 
         val oldCurr = currParentElem
