@@ -1,7 +1,6 @@
 package io.github.notsyncing.weavergirl.html.element
 
 import io.github.notsyncing.weavergirl.html.layout.HtmlLayout
-import io.github.notsyncing.weavergirl.layout.LayoutContext
 import org.w3c.dom.Element
 import kotlin.dom.addClass
 import kotlin.dom.removeClass
@@ -31,20 +30,6 @@ abstract class FabricHtmlElement<T: Element>(private val tagName: String) : Fabr
 
     constructor() : this("")
 
-    override fun afterLayout(layoutContext: LayoutContext) {
-        super.afterLayout(layoutContext)
-
-        if (!nativeElementInitialized) {
-            val e = (layoutContext.rootElement as? FabricHtmlNodeElement<*>)?.nativeElement as T?
-
-            if (e != null) {
-                nativeElement = e
-            }
-        }
-
-        initNativeElement()
-    }
-
     private fun initNativeElement() {
         if (nativeElementInitialized) {
             return
@@ -53,6 +38,12 @@ abstract class FabricHtmlElement<T: Element>(private val tagName: String) : Fabr
         nativeElementInitialized = true
 
         nativeElement.setAttribute("we-$typeIdentityName", "")
+    }
+
+    override fun setNativeElement(nativeElement: Any) {
+        super.setNativeElement(nativeElement)
+
+        initNativeElement()
     }
 
     override fun layout() = HtmlLayout {

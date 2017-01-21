@@ -23,6 +23,14 @@ abstract class FabricHtmlNodeElement<T: Node> : FabricElement() {
         }
     }
 
+    override fun hasNativeElement() = nativeElement != null
+
+    override fun setNativeElement(nativeElement: Any) {
+        this.nativeElement = nativeElement as T
+    }
+
+    override fun getNativeElement() = this.nativeElement
+
     override fun append(elem: FabricElement, atIndex: Int) {
         super.append(elem, atIndex)
 
@@ -51,6 +59,11 @@ abstract class FabricHtmlNodeElement<T: Node> : FabricElement() {
 
     override fun remove() {
         super.remove()
+
+        if (nativeElement == null) {
+            println("Following element has no native element:")
+            console.dir(this)
+        }
 
         nativeElement.removeFromParent()
     }

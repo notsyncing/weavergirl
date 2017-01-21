@@ -33,14 +33,17 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         }
 
         this.currentInner = inner as LayoutContext.(FabricElement) -> Unit
+        this.scope = currScope
 
         if (currParentElem == null) {
             elements.add(this)
         } else {
-            currParentElem!!.append(this)
+            if (!currParentElem!!.hasNativeElement()) {
+                currParentElem!!.setNativeElement(this.getNativeElement())
+            } else {
+                currParentElem!!.append(this)
+            }
         }
-
-        this.scope = currScope
 
         val oldCurr = currParentElem
         currParentElem = this
@@ -54,13 +57,7 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
     }
 
     operator fun <T: FabricElement> T.unaryPlus(): T {
-        if (currParentElem == null) {
-            elements.add(this)
-        } else {
-            currParentElem!!.append(this)
-        }
-
-        return this
+        return this.minus {  }
     }
 
     fun slot(slotName: String, inner: LayoutContext.() -> Unit) {

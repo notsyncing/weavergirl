@@ -15,6 +15,7 @@ import io.github.notsyncing.weavergirl.html.view.HtmlPage
 import io.github.notsyncing.weavergirl.layout.LayoutScope
 import io.github.notsyncing.weavergirl.test.elements.CustomElement1
 import io.github.notsyncing.weavergirl.test.elements.CustomElement2
+import io.github.notsyncing.weavergirl.test.elements.CustomElement3
 
 class IndexPage : HtmlPage() {
     companion object {
@@ -116,6 +117,8 @@ class IndexPage : HtmlPage() {
                 }
             }
         }
+
+        +CustomElement3()
     }
 
     override fun viewDidEnter() {

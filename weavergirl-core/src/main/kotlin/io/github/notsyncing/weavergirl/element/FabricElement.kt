@@ -75,12 +75,20 @@ abstract class FabricElement {
 
     abstract fun layout(): LayoutContext
 
-    open protected fun beforeLayout() {
+    abstract fun hasNativeElement(): Boolean
 
+    abstract fun setNativeElement(nativeElement: Any)
+
+    abstract fun getNativeElement(): Any
+
+    open protected fun beforeLayout() {
+        println("Before layout of:")
+        console.dir(this)
     }
 
     open protected fun afterLayout(layoutContext: LayoutContext) {
-
+        println("After layout of:")
+        console.dir(this)
     }
 
     open fun refresh() {
