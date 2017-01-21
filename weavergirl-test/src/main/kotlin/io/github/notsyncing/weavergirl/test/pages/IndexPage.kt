@@ -126,6 +126,10 @@ class IndexPage : HtmlPage() {
 
             +CustomElement4()
         }
+
+        Anchor(href = "/notfound") - {
+            +Text("Not found")
+        }
     }
 
     override fun viewDidEnter() {

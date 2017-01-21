@@ -53,6 +53,8 @@ class Route(val pattern: String, val pageCreator: () -> Page,
         var currIndex = 0
 
         while (currIndex < l.size) {
+            var innerMatched = false
+
             for (childRoute in currRoute.children) {
                 val childRouteParts = childRoute.pattern.split("/")
                 val childRouteParams = mutableListOf<Pair<String, String>>()
@@ -72,6 +74,8 @@ class Route(val pattern: String, val pageCreator: () -> Page,
                 }
 
                 if (match) {
+                    innerMatched = true
+
                     childRouteParams.forEach { (k, v) ->
                         params.put(k, v)
                     }
@@ -81,6 +85,10 @@ class Route(val pattern: String, val pageCreator: () -> Page,
                     parents.add(currRoute.pattern)
                     break
                 }
+            }
+
+            if (!innerMatched) {
+                return null
             }
         }
 
