@@ -36,13 +36,20 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         this.scope = currScope
 
         if (currParentElem == null) {
+            println("Current no parent element")
             elements.add(this)
         } else {
+            println("Append to parent element:")
+            console.dir(currParentElem!!)
+
             if (!currParentElem!!.hasNativeElement()) {
                 currParentElem!!.setNativeElement(this.getNativeElement())
-            } else {
-                currParentElem!!.append(this)
+
+                println("Set native element:")
+                console.dir(currParentElem!!.getNativeElement())
             }
+
+            currParentElem!!.append(this)
         }
 
         val oldCurr = currParentElem

@@ -34,7 +34,11 @@ abstract class FabricHtmlNodeElement<T: Node> : FabricElement() {
     override fun append(elem: FabricElement, atIndex: Int) {
         super.append(elem, atIndex)
 
-        if (elem is FabricHtmlNodeElement<*>) {
+        if (!elem.hasNativeElement()) {
+            return
+        }
+
+        if ((elem is FabricHtmlNodeElement<*>) && (nativeElement != elem.nativeElement)) {
             if ((atIndex < 0) || (atIndex > nativeElement.childNodes.length - 1)) {
                 nativeElement.appendChild(elem.nativeElement)
             } else {
@@ -60,12 +64,12 @@ abstract class FabricHtmlNodeElement<T: Node> : FabricElement() {
     override fun remove() {
         super.remove()
 
-        if (nativeElement == null) {
+        if (!hasNativeElement()) {
             println("Following element has no native element:")
             console.dir(this)
+        } else {
+            nativeElement.removeFromParent()
         }
-
-        nativeElement.removeFromParent()
     }
 
     override fun clear() {
