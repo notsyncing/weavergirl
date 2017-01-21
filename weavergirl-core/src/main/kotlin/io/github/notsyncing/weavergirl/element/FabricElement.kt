@@ -57,15 +57,14 @@ abstract class FabricElement {
     }
 
     open fun remove(dontRemoveNativeElement: Boolean = false) {
-        parent?.children?.remove(this)
-        this.parent = null
-
         println("Removed:")
         if (parent != null) {
             console.dir(parent!!)
         }
-
         console.dir(this)
+
+        parent?.children?.remove(this)
+        parent = null
     }
 
     open fun clear() {

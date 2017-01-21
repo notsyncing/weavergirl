@@ -15,43 +15,16 @@ abstract class Page : ViewWillEnter, ViewDidEnter, ViewWillLeave, ViewDidLeave {
 
     abstract fun layout(): LayoutContext
 
-    protected fun dispatchEventsToChildren(elem: FabricElement, func: (FabricElement) -> Unit) {
-        for (e in elem.children) {
-            func(e)
-            dispatchEventsToChildren(e, func)
-        }
-    }
-
-    override fun viewWillEnter() {
-        dispatchEventsToChildren(rootElement) {
-            if (it is ViewWillEnter) {
-                it.viewWillEnter()
-            }
-        }
-    }
-
     override fun viewDidEnter() {
-        dispatchEventsToChildren(rootElement) {
-            if (it is ViewDidEnter) {
-                it.viewDidEnter()
-            }
-        }
-    }
-
-    override fun viewWillLeave() {
-        dispatchEventsToChildren(rootElement) {
-            if (it is ViewWillLeave) {
-                it.viewWillLeave()
-            }
-        }
     }
 
     override fun viewDidLeave() {
-        dispatchEventsToChildren(rootElement) {
-            if (it is ViewDidLeave) {
-                it.viewDidLeave()
-            }
-        }
+    }
+
+    override fun viewWillEnter() {
+    }
+
+    override fun viewWillLeave() {
     }
 
     fun renderIn(elem: FabricElement) {

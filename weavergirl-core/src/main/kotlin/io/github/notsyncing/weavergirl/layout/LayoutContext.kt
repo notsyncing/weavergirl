@@ -1,6 +1,8 @@
 package io.github.notsyncing.weavergirl.layout
 
 import io.github.notsyncing.weavergirl.element.FabricElement
+import io.github.notsyncing.weavergirl.events.ViewDidEnter
+import io.github.notsyncing.weavergirl.events.ViewWillEnter
 import org.w3c.dom.Node
 
 abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
@@ -39,6 +41,10 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         this.currentInner = inner as LayoutContext.(FabricElement) -> Unit
         this.scope = currScope
 
+        if (this is ViewWillEnter) {
+            this.viewWillEnter()
+        }
+
         if (currParentElem == null) {
             println("Current no parent element")
             elements.add(this)
@@ -66,6 +72,10 @@ abstract class LayoutContext(protected val inner: LayoutContext.() -> Unit) {
         this@LayoutContext.inner(this)
 
         currParentElem = oldCurr
+
+        if (this is ViewDidEnter) {
+            this.viewDidEnter()
+        }
 
         return this
     }
