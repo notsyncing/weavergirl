@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.1.0-beta-17'
+    ext.kotlin_version = '1.1.0'
 
     repositories {
         mavenCentral()
@@ -10,6 +10,7 @@ buildscript {
     }
 
     dependencies {
+        classpath 'org.apache.ant:ant:1.9.7'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -49,8 +50,8 @@ subprojects {
     }
 
     dependencies {
-        compile "org.jetbrains.kotlin:kotlin-js-library:$kotlin_version"
-        compile "io.github.notsyncing.kotlin.js.ext:kotlin-js-ext:0.1.0"
+        compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+        //compile "io.github.notsyncing.kotlin.js.ext:kotlin-js-ext:0.1.0"
     }
 
     def outputDir = "${projectDir}/../out/production"

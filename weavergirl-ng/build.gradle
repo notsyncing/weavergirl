@@ -1,0 +1,20 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath "io.github.notsyncing.weavergirl:weavergirl-gradle-plugin:0.1.0"
+    }
+}
+
+apply plugin: "io.github.notsyncing.weavergirl.gradle"
+
+dependencies {
+    compile "org.webjars.npm:onsenui:2.1.0"
+}
+
+weavergirl {
+
+}
