@@ -25,7 +25,7 @@
         return stack.join("/");
     }
 
-    function fetchScript(url) {
+    function fetch(url) {
         return new Promise((resolve, reject) => {
             try {
                 let xhr = new XMLHttpRequest();
@@ -49,7 +49,7 @@
     }
 
     function loadFromUrl(url) {
-        return fetchScript(url);
+        return fetch(url);
     }
 
     async function load(pathOrUrl) {
@@ -76,7 +76,8 @@
     }
 
     window.Weavergirl.Loader = {
-        load: load
+        load: load,
+        fetch: fetch
     };
 
 })();
@@ -86,6 +87,137 @@
     let stylesheets = new Set();
     let fragments = new Map();
 
+    class WeavergirlComponent extends HTMLElement {
+        constructor(contentUrl, stylesheetUrls, scriptUrls) {
+            super();
 
+            this.contentUrl = contentUrl;
+            this.stylesheetUrls = stylesheetUrls;
+            this.scriptUrls = scriptUrls;
+
+            this.content = "";
+            this.model = null;
+            this.modelProxy = null;
+        }
+
+        createdCallback() {
+
+        }
+
+        loadStylesheet(url) {
+            let elem = document.createElement("link");
+            elem.rel = "stylesheet";
+            elem.type = "text/css";
+            elem.href = url;
+
+            document.head.appendChild(elem);
+        }
+
+        async loadDependencies() {
+            if (this.stylesheetUrls) {
+                for (let url of this.stylesheetUrls) {
+                    if (stylesheets.has(url)) {
+                        continue;
+                    }
+
+                    this.loadStylesheet(url);
+                }
+            }
+
+            if (this.contentUrl) {
+                if (fragments.has(this.contentUrl)) {
+                    this.content = fragments.get(this.contentUrl);
+                } else {
+                    this.content = await window.Weavergirl.Loader.fetch(this.contentUrl);
+                    fragments.set(this.contentUrl, this.content);
+                }
+            }
+
+            if (this.scriptUrls) {
+                for (let url of this.scriptUrls) {
+                    await window.Weavergirl.Loader.load(url);
+                }
+            }
+        }
+
+        async _render() {
+            await this.loadDependencies();
+
+            let r = this.render();
+            let renderedContent;
+
+            if (r instanceof Promise) {
+                renderedContent = await r;
+            } else {
+                renderedContent = r;
+            }
+
+            this.attachRenderedContentToDom(renderedContent);
+        }
+
+        attachedCallback() {
+            this._render().then(() => {})
+                    .catch(err => {
+                        console.error(`An error occured when rendering component ${this}: ${err.message}`);
+                        console.error(err);
+                    });
+        }
+
+        detachedCallback() {
+
+        }
+
+        attributeChangedCallback(attrName, oldVal, newVal) {
+
+        }
+
+        attachRenderedContentToDom(renderedContent) {
+            if ((renderedContent === null) || (renderedContent === undefined)) {
+                return;
+            }
+
+            this.innerHTML = renderedContent;
+        }
+
+        render() {
+            if (this.content) {
+                return this.content;
+            } else {
+                return null;
+            }
+        }
+
+        async refresh() {
+            await this._render();
+        }
+
+        bindToModel(model) {
+            if (!model) {
+                return;
+            }
+
+            let watcher = {
+                get: function (target, key) {
+                    if ((typeof target[key] === "object") && (target[key] !== null)) {
+                        return new Proxy(target[key], watcher);
+                    } else {
+                        return target[key];
+                    }
+                },
+                set: function (target, key, value) {
+                    this.refresh().then(() => {})
+                        .catch(err => {
+                            console.error(`An error occured when refreshing component ${this} on model change [${target}.${key} -> ${value}]: ${err.message}`);
+                            console.error(err);
+                        });
+                }
+            };
+
+            this.model = model;
+            this.modelProxy = new Proxy(this.model, watcher);
+        }
+    }
+
+    window.Weavergirl.WeavergirlComponent = WeavergirlComponent;
 
 })();
