@@ -1,15 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html>
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 
-    <link type="text/css" rel="stylesheet" href="onsenui/2.1.0/css/onsen-css-components.css">
+    <link type="text/css" rel="stylesheet" href="onsenui/2.2.4/css/onsenui.css">
+    <link type="text/css" rel="stylesheet" href="onsenui/2.2.4/css/onsen-css-components.css">
 
-    <script type="text/javascript" src="onsenui/2.1.0/js/onsenui.js"></script>
+    <script type="text/javascript" src="onsenui/2.2.4/js/onsenui.js"></script>
     <script type="text/javascript" src="weavergirl-ng/weavergirl.js"></script>
+
+    <script type="text/javascript">
+        window.menus = [
+            {
+                name: "First",
+                href: "/"
+            },
+            {
+                name: "Second",
+                href: "/second"
+            },
+            {
+                name: "Third",
+                href: "/third"
+            }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            Weavergirl.Router.init([
+                {
+                    route: "",
+                    component: {
+                        url: "/weavergirl-ng/layout/layout.js",
+                        id: "layout"
+                    },
+                    children: [
+                        {
+                            route: "/",
+                            component: "/weavergirl-ng/first.js"
+                        },
+                        {
+                            route: "/second",
+                            component: "/weavergirl-ng/second.js"
+                        },
+                        {
+                            route: "/third",
+                            component: "/weavergirl-ng/third.js"
+                        }
+                    ]
+                },
+                {
+                    route: "/fourth",
+                    component: "/weavergirl-ng/fourth.js"
+                }
+            ]);
+        });
+    </script>
 </head>
+
 <body>
-    <ons-button>Test button</ons-button>
 </body>
+
 </html>

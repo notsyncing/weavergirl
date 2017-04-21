@@ -12,7 +12,7 @@ buildscript {
 apply plugin: "io.github.notsyncing.weavergirl.gradle"
 
 dependencies {
-    compile "org.webjars.npm:onsenui:2.1.0"
+    compile "org.webjars.npm:onsenui:2.2.4"
 }
 
 weavergirl {
