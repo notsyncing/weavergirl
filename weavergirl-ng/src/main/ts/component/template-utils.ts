@@ -1,7 +1,7 @@
 import Component from "./component";
 
 export default class TemplateUtils {
-    static html(strings, ...values) {
+    static html(strings, ...values): string {
         let i = 0, j = 0;
         let s = "";
 
@@ -28,23 +28,23 @@ export default class TemplateUtils {
         return s;
     }
 
-    static _extractExpressionFromFunction(funcContainsExpression) {
+    static _extractExpressionFromFunction(funcContainsExpression: Function): string {
         let source = funcContainsExpression.toString();
         return source.replace(/\(\)\s*=>\s*/g, "").replace(/this\.stage\.state\./g, "");
     }
 
-    static _convertExpressionToMutatorElement(funcContainsExpression) {
+    static _convertExpressionToMutatorElement(funcContainsExpression: Function): string {
         let expression = TemplateUtils._extractExpressionFromFunction(funcContainsExpression);
         Component.mutatorFunctions.set(expression, funcContainsExpression);
 
         return `<!--#weavergirl-mutator { "type": "inline", "expression": "${expression}" }-->${funcContainsExpression()}<!--#/weavergirl-mutator-->`;
     }
 
-    static forEach(list, handler) {
+    static forEach(list: Function | Array<any>, handler: (item: any, index: number) => string): string {
         let s = "";
 
         if (typeof list === "function") {
-            let expression = TemplateUtils._extractExpressionFromFunction(list);
+            let expression = TemplateUtils._extractExpressionFromFunction(list as Function);
             s += `<!--#weavergirl-mutator { "type": "repeater", "expression": "${expression}" }-->`;
         }
 

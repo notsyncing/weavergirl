@@ -1,15 +1,15 @@
 import TemplateUtils from "./template-utils";
 import Loader from "../loader/loader";
+import {ComponentDependencies} from "./component-dependencies";
+import Stage from "../router/stage";
+import {Mutator} from "./mutator";
+import {ResolvedRoute} from "../router/router-models";
 
 export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
     static fragments = new Map();
     static stages = new Map();
     static mutatorFunctions = new Map();
-
-    private contentUrl: string = null;
-    private stylesheetUrls: Array<string> = null;
-    private scriptUrls: Array<string> = null;
 
     private content: string = "";
     private route = null;
@@ -19,21 +19,20 @@ export default class Component extends HTMLElement {
     private refreshPlanned = false;
     private rendered = false;
 
-    constructor(contentUrl, stylesheetUrls, scriptUrls) {
+    constructor(private contentUrl: string,
+                private stylesheetUrls: Array<string> = null,
+                private scriptUrls: Array<string> = null) {
         super();
 
         console.info(`Constructor: contentUrl ${contentUrl}`);
-
-        this.contentUrl = contentUrl;
-        this.stylesheetUrls = stylesheetUrls;
-        this.scriptUrls = scriptUrls;
 
         if (this.stageClass) {
             if (Component.stages.has(this.constructor.name)) {
                 this.stage = Component.stages.get(this.constructor.name);
                 this.stage.rootComponent = this;
             } else {
-                this.stage = new this.stageClass(this);
+                let c = this.stageClass as any;
+                this.stage = new c(this);
                 Component.stages.set(this.constructor.name, this.stage);
             }
         } else {
@@ -41,7 +40,7 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private loadStylesheet(url) {
+    private loadStylesheet(url: string): void {
         if (Component.stylesheets.has(url)) {
             return;
         }
@@ -56,18 +55,18 @@ export default class Component extends HTMLElement {
         document.head.appendChild(elem);
     }
 
-    protected dependencies() {
+    protected dependencies(): ComponentDependencies {
         return {
             scripts: [],
             stylesheets: []
         };
     }
 
-    html(strings, ...values) {
+    html(strings, ...values): string {
         return TemplateUtils.html(strings, ...values);
     }
 
-    private async loadDependencies() {
+    private async loadDependencies(): Promise<void> {
         if (this.allDependenciesLoaded) {
             return;
         }
@@ -110,13 +109,13 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private attachStageToSelfElements() {
+    private attachStageToSelfElements(): void {
         this.walkSelfElements(elem => {
-            elem.stage = this.stage;
+            elem["stage"] = this.stage;
         }, this);
     }
 
-    async render() {
+    async render(): Promise<void> {
         if (!this.ownerDocument.defaultView) {
             console.info(`${this.id || this.tagName} has not been inserted into DOM, skip rendering.`);
             return;
@@ -144,7 +143,7 @@ export default class Component extends HTMLElement {
         this.afterRender();
     }
 
-    protected afterRender() {}
+    protected afterRender(): void {}
 
     connectedCallback() {
         console.info(`Attached ${this.id || this.tagName} to DOM, contentUrl ${this.contentUrl}`);
@@ -168,7 +167,7 @@ export default class Component extends HTMLElement {
 
     }
 
-    findSlotElement(node: Node = this) {
+    findSlotElement(node: Node = this): Element {
         if (!(node instanceof Element)) {
             return null;
         }
@@ -176,7 +175,7 @@ export default class Component extends HTMLElement {
         let elem = node as Element;
 
         if (elem.hasAttribute("weavergirl-slot")) {
-            return node;
+            return elem;
         }
 
         if (elem.childNodes.length > 0) {
@@ -192,7 +191,7 @@ export default class Component extends HTMLElement {
         return null;
     }
 
-    private processElementIds(content) {
+    private processElementIds(content: string): string {
         let elem = document.createElement("div");
         elem.innerHTML = content;
 
@@ -219,7 +218,7 @@ export default class Component extends HTMLElement {
         return elem.innerHTML;
     }
 
-    private attachElementsToProperties() {
+    private attachElementsToProperties(): void {
         let __this = this;
         let attachToStage = (this.stage) && (this.stage.rootComponent === this);
 
@@ -245,12 +244,12 @@ export default class Component extends HTMLElement {
         _process(this);
     }
 
-    private attachRenderedContentToDom(renderedContent) {
+    private attachRenderedContentToDom(renderedContent: string): void {
         if ((renderedContent === null) || (renderedContent === undefined)) {
             return;
         }
 
-        let oldChildContainer = this;
+        let oldChildContainer: Element = this;
 
         console.info(`Element ${this.id || this.tagName}: rendered ${this.rendered}`);
 
@@ -275,7 +274,7 @@ export default class Component extends HTMLElement {
         this.rendered = true;
     }
 
-    private getRenderContent() {
+    private getRenderContent(): any {
         if (!this.contentUrl) {
             this.content = this.view();
             return this.content;
@@ -287,11 +286,11 @@ export default class Component extends HTMLElement {
         }
     }
 
-    protected view() {
+    protected view(): string {
         return null;
     }
 
-    async refresh() {
+    async refresh(): Promise<void> {
         if (this.refreshPlanned) {
             console.info("A refresh is already planned, skip.");
             return;
@@ -305,7 +304,7 @@ export default class Component extends HTMLElement {
         this.refreshPlanned = false;
     }
 
-    async refreshCascade() {
+    async refreshCascade(): Promise<void> {
         console.info(`Begin cascade refresh of ${this.id || this.tagName}`);
 
         await this.refresh();
@@ -329,7 +328,7 @@ export default class Component extends HTMLElement {
         console.info(`End cascade refresh of ${this.id || this.tagName}`);
     }
 
-    routeChanged(resolvedRoute) {
+    routeChanged(resolvedRoute: ResolvedRoute): void {
         let params = resolvedRoute.queries || {};
 
         for (let c of resolvedRoute.commands) {
@@ -347,7 +346,7 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private walkSelfNodes(handler, elem) {
+    private walkSelfNodes(handler: (node: Node) => void, elem: Node): void {
         for (let e of elem.childNodes) {
             handler(e);
 
@@ -355,21 +354,23 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private walkSelfElements(handler, elem) {
+    private walkSelfElements(handler: (e: Element) => void, elem: Node): void {
         this.walkSelfNodes(n => {
             if (!(n instanceof Element)) {
                 return;
             }
 
-            if (n.hasAttribute("weavergirl-slot")) {
+            let e = n as Element;
+
+            if (e.hasAttribute("weavergirl-slot")) {
                 return;
             }
 
-            handler(n);
+            handler(e);
         }, elem);
     }
 
-    protected getSelfElementsByTagName(tagName) {
+    protected getSelfElementsByTagName(tagName: string): Array<Node> {
         let elems = [];
 
         this.walkSelfElements(e => {
@@ -381,12 +382,12 @@ export default class Component extends HTMLElement {
         return elems;
     }
 
-    protected get stageClass() {
+    protected get stageClass(): Stage {
         return null;
     }
 
-    private walkSelfMutators(handler, elem) {
-        let mutatorStack = [];
+    private walkSelfMutators(handler: (mutator: Mutator) => void, elem): void {
+        let mutatorStack: Array<Mutator> = [];
         let beginPattern = "#weavergirl-mutator ";
         let endPattern = "#/weavergirl-mutator";
         let mutators = [];
@@ -406,7 +407,10 @@ export default class Component extends HTMLElement {
                     info: mutatorInfo,
                     parent: n.parentNode,
                     beginPatternNode: n,
-                    beginIndex: Array.prototype.indexOf.call(n.parentNode.childNodes, n) + 1
+                    beginIndex: Array.prototype.indexOf.call(n.parentNode.childNodes, n) + 1,
+                    endPatternNode: null,
+                    endIndex: -1,
+                    childNodes: null
                 });
             } else if (s === endPattern) {
                 let mutator = mutatorStack.pop();
@@ -433,7 +437,7 @@ export default class Component extends HTMLElement {
         }
     }
 
-    updateMutator(mutatorExpression, changeType, newValue) {
+    updateMutator(mutatorExpression: string, changeType: string, newValue: any): boolean {
         console.info(`Update mutators on ${this.id || this.tagName} with expression ${mutatorExpression} = ${newValue}, key/changeType ${changeType}`);
 
         let found = false;

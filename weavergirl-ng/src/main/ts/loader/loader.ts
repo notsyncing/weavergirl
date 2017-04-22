@@ -1,9 +1,9 @@
 export default class Loader {
-    static modules = new Map();
+    static modules = new Map<string, any>();
     static base = location.href;
-    static afterLoadHandlers = [];
+    static afterLoadHandlers: Array<(result: any) => void> = [];
     
-    static absolute(relative): string {
+    static absolute(relative: string): string {
         let stack = this.base.split("/"),
             parts = relative.split("/");
         stack.pop(); // remove current file name (or empty string)
@@ -19,7 +19,7 @@ export default class Loader {
         return stack.join("/");
     }
 
-    static fetch(url): Promise<string> {
+    static fetch(url: string): Promise<string> {
         return new Promise((resolve, reject) => {
             try {
                 let xhr = new XMLHttpRequest();
@@ -42,11 +42,11 @@ export default class Loader {
         });
     }
 
-    static loadFromUrl(url): Promise<string> {
+    static loadFromUrl(url: string): Promise<string> {
         return this.fetch(url);
     }
 
-    static async load(pathOrUrl): Promise<any> {
+    static async load(pathOrUrl: string): Promise<any> {
         if (!/^[a-zA-Z0-9]+:\/\//.test(pathOrUrl)) {
             pathOrUrl = this.absolute(pathOrUrl);
         }
@@ -77,7 +77,7 @@ export default class Loader {
         return _module.exports;
     }
 
-    static async loadAsset(pathOrUrl): Promise<string> {
+    static async loadAsset(pathOrUrl: string): Promise<string> {
         if (!/^[a-zA-Z0-9]+:\/\//.test(pathOrUrl)) {
             pathOrUrl = this.absolute(pathOrUrl);
         }
@@ -89,7 +89,7 @@ export default class Loader {
         this.base = location.href;
     }
     
-    static addAfterLoadHandler(h): void {
+    static addAfterLoadHandler(h: (result: any) => void): void {
         this.afterLoadHandlers.push(h);
     }
 }

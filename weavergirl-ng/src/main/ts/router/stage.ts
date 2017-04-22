@@ -1,7 +1,9 @@
+import Component from "../component/component";
+
 export default class Stage {
     public state: any = null;
 
-    constructor(public rootComponent) {
+    constructor(public rootComponent: Component) {
         let __this = this;
 
         let watcher = {
@@ -19,7 +21,7 @@ export default class Stage {
         this.stageWillEnter();
     }
 
-    getFullExpression(proxy, key, previousString = "") {
+    getFullExpression(proxy: any, key: any, previousString = ""): string {
         let s = previousString;
 
         if (proxy.proxyFieldName) {
@@ -61,7 +63,7 @@ export default class Stage {
         return s;
     }
 
-    newWatchedObject(handlers) {
+    newWatchedObject(handlers): any {
         let watcher = {
             get: function (target, key) {
                 if ((typeof target[key] === "object") && (target[key] !== null)) {
@@ -97,8 +99,8 @@ export default class Stage {
         return new Proxy({}, watcher);
     }
 
-    rootComponentRendered() {
+    rootComponentRendered(): void {
     }
 
-    stageWillEnter() {}
+    stageWillEnter(): void {}
 }

@@ -2,17 +2,18 @@ import {RouterCommand, RouterMode} from "./enums";
 import Loader from "../loader/loader";
 import Component from "../component/component";
 import {Weavergirl} from "../weavergirl";
+import {ResolvedRoute, Route, RouteCommand, RouteComponentInfo, RouteMatchResult} from "./router-models";
 
 export default class Router {
-    routes: Array<any> = [];
+    routes: Array<Route> = [];
     mode = RouterMode.Direct;
 
     constructor() {
     }
 
-    init(routes, mode, _noGo) {
-        this.routes = routes || [];
-        this.mode = mode || RouterMode.Direct;
+    init(routes: Array<Route> = [], mode: RouterMode = RouterMode.Direct, _noGo = false): void {
+        this.routes = routes;
+        this.mode = mode;
 
         let route = this.resolve(this.getCurrentPath(), location.search);
 
@@ -22,7 +23,7 @@ export default class Router {
         }
     }
 
-    getCurrentPath() {
+    getCurrentPath(): string {
         switch (this.mode) {
             case RouterMode.Direct:
                 return location.pathname;
@@ -34,7 +35,7 @@ export default class Router {
         }
     }
 
-    getQueryStringParameters(query) {
+    getQueryStringParameters(query: string): any {
         if (!query) {
             return {};
         }
@@ -48,7 +49,7 @@ export default class Router {
             }, {});
     }
 
-    matchPathWithRoute(path, route) {
+    matchPathWithRoute(path: string, route: Route): boolean | RouteMatchResult {
         let pattern = route.route;
 
         if ((pattern.indexOf("/:") < 0) && (pattern.indexOf("*") < 0)) {
@@ -110,20 +111,25 @@ export default class Router {
         };
     }
 
-    _resolve(currPath, currRoute, prevResult) {
-        let matchResult = this.matchPathWithRoute(currPath, currRoute);
+    _resolve(currPath: string, currRoute: Route, prevResult: Array<RouteCommand>) {
+        let _matchResult = this.matchPathWithRoute(currPath, currRoute);
 
-        if (matchResult === false) {
+        if (_matchResult === false) {
             return null;
         }
 
-        let componentUrl, componentId = null;
+        let matchResult = _matchResult as RouteMatchResult;
+
+        let componentUrl: string;
+        let componentId: string = null;
 
         if (typeof currRoute.component === "string") {
-            componentUrl = currRoute.component;
+            componentUrl = currRoute.component as string;
         } else {
-            componentUrl = currRoute.component.url;
-            componentId = currRoute.component.id;
+            let c = currRoute.component as RouteComponentInfo;
+
+            componentUrl = c.url;
+            componentId = c.id;
         }
 
         prevResult.push({
@@ -150,7 +156,7 @@ export default class Router {
         }
     }
 
-    resolve(path, queryString) {
+    resolve(path: string, queryString: string): ResolvedRoute {
         if (queryString) {
             if (queryString.indexOf("?") >= 0) {
                 queryString = queryString.substring(1);
@@ -172,10 +178,10 @@ export default class Router {
         return null;
     }
 
-    async go(resolvedRoute, needToPushState = false) {
+    async go(resolvedRoute: ResolvedRoute, needToPushState = false): Promise<void> {
         console.info(`Go to resolved route: ${JSON.stringify(resolvedRoute)}, need to push state ${needToPushState}`);
 
-        let currLayout = document.body;
+        let currLayout: Element = document.body;
 
         for (let cmd of resolvedRoute.commands) {
             switch (cmd.command) {
@@ -231,7 +237,7 @@ export default class Router {
         }
     }
 
-    navigate(url) {
+    navigate(url: string): Promise<void> {
         let elem = document.createElement("a");
         elem.href = url;
 
