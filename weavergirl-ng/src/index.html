@@ -10,6 +10,7 @@
     <link type="text/css" rel="stylesheet" href="onsenui/2.2.4/css/onsen-css-components.css">
 
     <script type="text/javascript" src="onsenui/2.2.4/js/onsenui.js"></script>
+    <script type="text/javascript" src="requirejs/2.3.3/require.js"></script>
     <script type="text/javascript" src="weavergirl-ng/weavergirl.js"></script>
 
     <script type="text/javascript">
@@ -29,33 +30,35 @@
         ];
 
         document.addEventListener("DOMContentLoaded", () => {
-            Weavergirl.Router.init([
-                {
-                    route: "",
-                    component: {
-                        url: "/weavergirl-ng/layout/layout.js",
-                        id: "layout"
+            require(["weavergirl"], function () {
+                Weavergirl.Router.init([
+                    {
+                        route: "",
+                        component: {
+                            url: "/weavergirl-ng/layout/layout.js",
+                            id: "layout"
+                        },
+                        children: [
+                            {
+                                route: "/",
+                                component: "/weavergirl-ng/first.js"
+                            },
+                            {
+                                route: "/second",
+                                component: "/weavergirl-ng/second.js"
+                            },
+                            {
+                                route: "/third",
+                                component: "/weavergirl-ng/third.js"
+                            }
+                        ]
                     },
-                    children: [
-                        {
-                            route: "/",
-                            component: "/weavergirl-ng/first.js"
-                        },
-                        {
-                            route: "/second",
-                            component: "/weavergirl-ng/second.js"
-                        },
-                        {
-                            route: "/third",
-                            component: "/weavergirl-ng/third.js"
-                        }
-                    ]
-                },
-                {
-                    route: "/fourth",
-                    component: "/weavergirl-ng/fourth.js"
-                }
-            ]);
+                    {
+                        route: "/fourth",
+                        component: "/weavergirl-ng/fourth.js"
+                    }
+                ]);
+            });
         });
     </script>
 </head>

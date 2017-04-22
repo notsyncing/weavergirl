@@ -1,5 +1,6 @@
 package io.github.notsyncing.weavergirl.gradle
 
+import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.codehaus.plexus.archiver.tar.TarArchiver
 import org.codehaus.plexus.archiver.tar.TarLongFileMode
 import org.codehaus.plexus.archiver.util.DefaultFileSet
@@ -92,6 +93,13 @@ class WeavergirlPlugin implements Plugin<Project> {
                 exclude 'index.html'
             }
 
+            for (f in project.extensions.weavergirl.additionalFiles) {
+                project.copy {
+                    from f
+                    into appDir.toFile()
+                }
+            }
+
             def indexFile = Paths.get(project.extensions.weavergirl.srcDir, "index.html")
 
             if (Files.exists(indexFile)) {
@@ -115,6 +123,43 @@ class WeavergirlPlugin implements Plugin<Project> {
             def archiver = new TarArchiver()
             archiver.compression = TarArchiver.TarCompressionMethod.gzip
             archiver.longfile = TarLongFileMode.posix
+            archiver.addFileSet(files)
+            archiver.setDestFile(s.toFile())
+            archiver.createArchive()
+        }
+
+        def makeJarTask = project.task("makeWeavergirlJar").doLast {
+            def jarDir = project.buildDir.toPath().resolve("weavergirl/jar/${project.name}")
+            def name = "${project.name}-${project.version}.jar"
+            def s = jarDir.parent.parent.resolve(name)
+
+            if (Files.exists(jarDir)) {
+                project.delete(jarDir.toFile())
+            }
+
+            if (Files.exists(s)) {
+                Files.delete(s)
+            }
+
+            project.copy {
+                from project.extensions.weavergirl.srcDir
+                into jarDir.toFile()
+                exclude 'index.html'
+            }
+
+            for (f in project.extensions.weavergirl.additionalFiles) {
+                project.copy {
+                    from f
+                    into jarDir.toFile()
+                }
+            }
+
+            def files = new DefaultFileSet()
+            files.includeEmptyDirs(true)
+            files.directory = jarDir.parent.toFile()
+
+            def archiver = new JarArchiver()
+            archiver.compress = true
             archiver.addFileSet(files)
             archiver.setDestFile(s.toFile())
             archiver.createArchive()

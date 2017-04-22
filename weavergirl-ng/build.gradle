@@ -9,12 +9,29 @@ buildscript {
     }
 }
 
+plugins {
+    id "de.richsource.gradle.plugins.typescript" version "1.8.0"
+}
+
 apply plugin: "io.github.notsyncing.weavergirl.gradle"
 
 dependencies {
     compile "org.webjars.npm:onsenui:2.2.4"
+    compile "org.webjars.npm:requirejs:2.3.3"
+}
+
+compileTypeScript {
+    sourcemap = true
+    target = "es6"
+    module = "amd"
+    outFile = file("${buildDir}/ts/weavergirl.js")
+    pretty = true
 }
 
 weavergirl {
+    additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl.js").toString()]
+}
 
+project.afterEvaluate {
+    makeWeavergirlApp.dependsOn(compileTypeScript)
 }
