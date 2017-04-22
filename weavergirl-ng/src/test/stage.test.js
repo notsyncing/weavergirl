@@ -2,11 +2,14 @@
 
 describe("Stage", () => {
     describe("-getFullExpression", () => {
-        let newWatchedObject = Weavergirl._tests.newWatchedObject;
-        let getFullExpression = Weavergirl._tests.getFullExpression;
+        let newWatchedObject;
+        let getFullExpression;
         let o, expr;
 
         beforeEach(() => {
+            newWatchedObject = Weavergirl._tests.Stage.newWatchedObject;
+            getFullExpression = Weavergirl._tests.Stage.getFullExpression;
+
             o = newWatchedObject({
                 set: function (target, key, value) {
                     expr = getFullExpression(target, key);

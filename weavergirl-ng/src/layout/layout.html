@@ -2,7 +2,7 @@
     <ons-splitter-side side="left" width="220px">
         <ons-page>
             <ons-list>
-                ${T.forEach(this.stage.state.menus, (m, i) =>
+                ${T.forEach(() => this.stage.state.menus, (m, i) =>
                     this.html`<ons-list-item tappable href="${m.href}" onclick="this.stage.go(event, '${m.href}')">${() => this.stage.state.menus[i].name}</ons-list-item>`
                 )}
             </ons-list>

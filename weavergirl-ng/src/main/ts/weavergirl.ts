@@ -16,7 +16,12 @@ export let Weavergirl = {
 
     Stage: Stage,
 
-    _tests: {}
+    _tests: {
+        Stage: {
+            newWatchedObject: Stage.newWatchedObject,
+            getFullExpression: Stage.getFullExpression
+        }
+    }
 };
 
 if (!window["Weavergirl"]) {

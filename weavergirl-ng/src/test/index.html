@@ -9,7 +9,8 @@
 
     <script type="text/javascript" src="node_modules/should/should.js"></script>
     <script type="text/javascript" src="node_modules/mocha/mocha.js"></script>
-    <script type="text/javascript" src="../src/weavergirl.js"></script>
+    <script type="text/javascript" src="node_modules/requirejs/require.js"></script>
+    <script type="text/javascript" src="../../build/ts/weavergirl.js"></script>
 
     <title>Weavergirl Tests</title>
 </head>
@@ -26,7 +27,10 @@
 
     <script type="text/javascript">
         mocha.checkLeaks();
-        mocha.run();
+
+        require(["weavergirl"], function () {
+            mocha.run();
+        });
     </script>
 </body>
 

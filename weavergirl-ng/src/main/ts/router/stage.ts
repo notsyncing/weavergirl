@@ -11,17 +11,17 @@ export default class Stage {
                 console.dir(target);
                 console.info(`Stage ${__this.constructor.name} state change detected: on ${target} key ${key} value ${value}`);
 
-                let expr = __this.getFullExpression(target, key);
+                let expr = Stage.getFullExpression(target, key);
                 __this.rootComponent.updateMutator(expr, key, value);
             }
         };
 
-        this.state = this.newWatchedObject(watcher);
+        this.state = Stage.newWatchedObject(watcher);
 
         this.stageWillEnter();
     }
 
-    getFullExpression(proxy: any, key: any, previousString = ""): string {
+    static getFullExpression(proxy: any, key: any, previousString = ""): string {
         let s = previousString;
 
         if (proxy.proxyFieldName) {
@@ -57,13 +57,13 @@ export default class Stage {
                 }
             }
 
-            return this.getFullExpression(proxy.parentProxy, null, s);
+            return Stage.getFullExpression(proxy.parentProxy, null, s);
         }
 
         return s;
     }
 
-    newWatchedObject(handlers): any {
+    static newWatchedObject(handlers): any {
         let watcher = {
             get: function (target, key) {
                 if ((typeof target[key] === "object") && (target[key] !== null)) {

@@ -7,9 +7,9 @@ import {ResolvedRoute} from "../router/router-models";
 
 export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
-    static fragments = new Map();
-    static stages = new Map();
-    static mutatorFunctions = new Map();
+    static fragments = new Map<string, string>();
+    static stages = new Map<string, Stage>();
+    static mutatorFunctions = new Map<string, Function>();
 
     private content: string = "";
     private route = null;
