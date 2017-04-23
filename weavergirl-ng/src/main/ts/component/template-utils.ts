@@ -110,4 +110,77 @@ export default class TemplateUtils {
 
         return s;
     }
+
+    static when(field: any | Function): SwitchTemplate {
+        return new SwitchTemplate(field);
+    }
+}
+
+class SwitchTemplate {
+    private fieldIsFunction = false;
+    private mutatorBegin: MutatorInfo;
+    private conditions: Array<any> = [];
+    private otherwiseFunction: () => string;
+
+    constructor(private field: any | Function) {
+        if (typeof field === "function") {
+            this.fieldIsFunction = true;
+
+            this.mutatorBegin = {
+                id: Component.allocateMutatorId(),
+                type: "repeater",
+                expression: FunctionUtils.extractExpressionFromFunction(field)
+            };
+
+            Component.setMutatorFunction(this.mutatorBegin.id, () => {
+                return this.toStringWithoutMutator();
+            });
+        }
+    }
+
+    is(condition: any, handler: () => string): SwitchTemplate {
+        this.conditions.push({ condition: condition, handler: handler });
+
+        return this;
+    }
+
+    otherwise(handler: () => string): SwitchTemplate {
+        this.otherwiseFunction = handler;
+
+        return this;
+    }
+
+    toString() {
+        return this.toStringWithoutMutator(false);
+    }
+
+    toStringWithoutMutator(without = true) {
+        let str = "";
+        let result: any;
+
+        if (this.fieldIsFunction) {
+            result = this.field();
+        } else {
+            result = this.field;
+        }
+
+        let noOtherwise = false;
+
+        for (let c of this.conditions) {
+            if (c.condition === result) {
+                noOtherwise = true;
+                str += c.handler();
+            }
+        }
+
+        if (!noOtherwise) {
+            str += this.otherwiseFunction();
+        }
+
+        if (without) {
+            return str;
+        } else {
+            return `${TemplateUtils.makeMutatorBegin(this.mutatorBegin)}${str}${TemplateUtils.makeMutatorEnd()}`;
+        }
+    }
 }
