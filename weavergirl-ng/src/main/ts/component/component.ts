@@ -9,7 +9,9 @@ export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
     static fragments = new Map<string, string>();
     static stages = new Map<string, Stage>();
-    static mutatorFunctions = new Map<string, Function>();
+    static mutatorFunctions = new Map<number, Function>();
+
+    private static mutatorCounter = 0;
 
     private content: string = "";
     private route = null;
@@ -407,7 +409,7 @@ export default class Component extends HTMLElement {
                     info: mutatorInfo,
                     parent: n.parentNode,
                     beginPatternNode: n,
-                    beginIndex: Array.prototype.indexOf.call(n.parentNode.childNodes, n) + 1,
+                    beginIndex: Array.prototype.indexOf.call(n.parentNode.childNodes, n),
                     endPatternNode: null,
                     endIndex: -1,
                     childNodes: null
@@ -424,7 +426,7 @@ export default class Component extends HTMLElement {
                 mutator.endIndex = Array.prototype.indexOf.call(n.parentNode.childNodes, n);
                 mutator.childNodes = [];
 
-                for (let i = mutator.beginIndex; i < mutator.endIndex; i++) {
+                for (let i = mutator.beginIndex + 1; i < mutator.endIndex; i++) {
                     mutator.childNodes.push(mutator.parent.childNodes[i]);
                 }
 
@@ -444,10 +446,10 @@ export default class Component extends HTMLElement {
 
         this.walkSelfMutators(mutator => {
             if (mutator.info.expression === mutatorExpression) {
+                let f = Component.mutatorFunctions.get(mutator.info.id).bind(this);
+
                 switch (mutator.info.type) {
                     case "inline":
-                        let f = Component.mutatorFunctions.get(mutatorExpression).bind(this);
-
                         if (mutator.childNodes.length > 0) {
                             mutator.childNodes[0].textContent = f();
                         } else {
@@ -458,7 +460,22 @@ export default class Component extends HTMLElement {
                         found = true;
                         break;
                     case "repeater":
+                        let nodeCount = mutator.endIndex - mutator.beginIndex - 1;
 
+                        for (let i = 0; i < nodeCount; i++) {
+                            mutator.parent.removeChild(mutator.parent.childNodes[mutator.beginIndex + 1]);
+                        }
+
+                        let e = document.createElement("div");
+                        e.innerHTML = f();
+
+                        while (e.childNodes.length > 0) {
+                            mutator.parent.insertBefore(e.childNodes[0], mutator.endPatternNode);
+                        }
+
+                        this.attachStageToSelfElements();
+
+                        found = true;
                         break;
                     default:
                         throw new Error(`Unsupported mutator type ${mutator.info.type}, mutator ${JSON.stringify(mutator.info)}`);
@@ -473,6 +490,16 @@ export default class Component extends HTMLElement {
         }
 
         return found;
+    }
+
+    static allocateMutatorId() {
+        let n = Component.mutatorCounter;
+        Component.mutatorCounter++;
+        return n;
+    }
+
+    static collectUnusedMutatorId() {
+
     }
 }
 

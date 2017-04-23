@@ -1,5 +1,6 @@
 import Component from "./component";
 import {MutatorInfo} from "./mutator";
+import FunctionUtils from "../common/function-utils";
 
 export default class TemplateUtils {
     static html(strings, ...values): string {
@@ -19,7 +20,7 @@ export default class TemplateUtils {
                 if (v instanceof Promise) {
                     // TODO: Implement this!
                 } else if (typeof v === "function") {
-                    s += TemplateUtils._convertExpressionToMutatorElement(v);
+                    s += TemplateUtils.convertExpressionToMutatorElement(v);
                 } else {
                     s += v;
                 }
@@ -27,11 +28,6 @@ export default class TemplateUtils {
         }
 
         return s;
-    }
-
-    static _extractExpressionFromFunction(funcContainsExpression: Function): string {
-        let source = funcContainsExpression.toString();
-        return source.replace(/\(\)\s*=>\s*/g, "").replace(/this\.stage\.state\./g, "");
     }
 
     static makeMutatorBegin(info: MutatorInfo): string {
@@ -42,25 +38,36 @@ export default class TemplateUtils {
         return "<!--#/weavergirl-mutator-->";
     }
 
-    static _convertExpressionToMutatorElement(funcContainsExpression: Function): string {
-        let expression = TemplateUtils._extractExpressionFromFunction(funcContainsExpression);
-        Component.mutatorFunctions.set(expression, funcContainsExpression);
+    private static convertExpressionToMutatorElement(funcContainsExpression: Function): string {
+        let expression = FunctionUtils.extractExpressionFromFunction(funcContainsExpression);
+        let mutatorId = Component.allocateMutatorId();
+        Component.mutatorFunctions.set(mutatorId, funcContainsExpression);
 
-        return `${this.makeMutatorBegin({ type: "inline", expression: expression })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
+        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expression: expression })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
     }
 
-    static forEach(list: Function | Array<any>, handler: (item: any, index: number) => string): string {
+    static forEach(list: Function | Array<any>, handler: (item: any, index: number) => string, _noMutatorNode = false): string {
         let s = "";
         let l: Array<any>;
         let mutatorBegin: MutatorInfo = null;
+        let handlerArgs: Array<string>;
+        let listIsFunction = false;
+        let expression: string;
 
         if (typeof list === "function") {
-            let expression = TemplateUtils._extractExpressionFromFunction(list as Function);
+            listIsFunction = true;
+            expression = FunctionUtils.extractExpressionFromFunction(list as Function);
+            handlerArgs = FunctionUtils.getFunctionArguments(handler);
 
-            mutatorBegin = {
-                type: "repeater",
-                expression: expression
-            };
+            if (!_noMutatorNode) {
+                mutatorBegin = {
+                    id: Component.allocateMutatorId(),
+                    type: "repeater",
+                    expression: expression + ".length"
+                };
+
+                Component.mutatorFunctions.set(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
+            }
 
             l = list() as Array<any>;
         } else {
@@ -70,9 +77,31 @@ export default class TemplateUtils {
         for (let i = 0; i < l.length; i++) {
             let item = handler(l[i], i);
 
-            // TODO: Parse and replace loop index variable in mutator expression
+            if (listIsFunction) {
+                let indexVarName = handlerArgs[1];
+                let p = new RegExp(`([^a-zA-Z0-9_])(${indexVarName})([^a-zA-Z0-9_])`, "g");
+                item = item.replace(p, `$1${i}$3`);
+            }
 
-            s += item;
+            let itemMutatorBegin = {
+                id: Component.allocateMutatorId(),
+                type: "repeater",
+                expression: `${expression}[${i}]`
+            };
+
+            Component.mutatorFunctions.set(itemMutatorBegin.id, () => {
+                let l: Array<any>;
+
+                if (listIsFunction) {
+                    l = (list as Function)() as Array<any>;
+                } else {
+                    l = list as Array<any>;
+                }
+
+                return handler(l[i], i);
+            });
+
+            s += `${this.makeMutatorBegin(itemMutatorBegin)}${item}${this.makeMutatorEnd()}`;
         }
 
         if (mutatorBegin !== null) {

@@ -9,6 +9,7 @@ export interface Mutator {
 }
 
 export interface MutatorInfo {
+    id: number;
     type: string;
     expression: string;
 }
