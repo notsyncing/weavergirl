@@ -2,16 +2,19 @@ import TemplateUtils from "./template-utils";
 import Loader from "../loader/loader";
 import {ComponentDependencies} from "./component-dependencies";
 import Stage from "../router/stage";
-import {Mutator} from "./mutator";
+import {Mutator, MutatorInfo} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
 
 export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
     static fragments = new Map<string, string>();
     static stages = new Map<string, Stage>();
-    static mutatorFunctions = new Map<number, Function>();
 
+    private static mutatorFunctions = new Map<number, Function>();
     private static mutatorCounter = 0;
+
+    private static mutatorBeginPattern = "#weavergirl-mutator ";
+    private static mutatorEndPattern = "#/weavergirl-mutator";
 
     private content: string = "";
     private route = null;
@@ -114,6 +117,7 @@ export default class Component extends HTMLElement {
     private attachStageToSelfElements(): void {
         this.walkSelfElements(elem => {
             elem["stage"] = this.stage;
+            return true;
         }, this);
     }
 
@@ -273,6 +277,13 @@ export default class Component extends HTMLElement {
             }
         }
 
+        this.walkSelfMutators(m => {
+            if (Component.mutatorFunctions.has(m.info.id)) {
+                m.beginPatternNode["_weavergirlMutatorFunction"] = Component.mutatorFunctions.get(m.info.id);
+                Component.mutatorFunctions.delete(m.info.id);
+            }
+        }, this);
+
         this.rendered = true;
     }
 
@@ -348,27 +359,27 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private walkSelfNodes(handler: (node: Node) => void, elem: Node): void {
+    private walkSelfNodes(handler: (node: Node) => boolean, elem: Node): void {
         for (let e of elem.childNodes) {
-            handler(e);
-
-            this.walkSelfNodes(handler, e);
+            if (handler(e)) {
+                this.walkSelfNodes(handler, e);
+            }
         }
     }
 
-    private walkSelfElements(handler: (e: Element) => void, elem: Node): void {
+    private walkSelfElements(handler: (e: Element) => boolean, elem: Node): void {
         this.walkSelfNodes(n => {
             if (!(n instanceof Element)) {
-                return;
+                return true;
             }
 
             let e = n as Element;
 
             if (e.hasAttribute("weavergirl-slot")) {
-                return;
+                return false;
             }
 
-            handler(e);
+            return handler(e);
         }, elem);
     }
 
@@ -379,6 +390,8 @@ export default class Component extends HTMLElement {
             if (e.tagName.toUpperCase() === tagName.toUpperCase()) {
                 elems.push(e);
             }
+
+            return true;
         }, this);
 
         return elems;
@@ -390,19 +403,17 @@ export default class Component extends HTMLElement {
 
     private walkSelfMutators(handler: (mutator: Mutator) => void, elem): void {
         let mutatorStack: Array<Mutator> = [];
-        let beginPattern = "#weavergirl-mutator ";
-        let endPattern = "#/weavergirl-mutator";
         let mutators = [];
 
         this.walkSelfNodes(n => {
             if (n.nodeType !== Node.COMMENT_NODE) {
-                return;
+                return true;
             }
 
             let s = n.textContent;
 
-            if (s.startsWith(beginPattern)) {
-                s = s.substring(beginPattern.length);
+            if (s.startsWith(Component.mutatorBeginPattern)) {
+                s = s.substring(Component.mutatorBeginPattern.length);
                 let mutatorInfo = JSON.parse(s);
 
                 mutatorStack.push({
@@ -414,7 +425,7 @@ export default class Component extends HTMLElement {
                     endIndex: -1,
                     childNodes: null
                 });
-            } else if (s === endPattern) {
+            } else if (s === Component.mutatorEndPattern) {
                 let mutator = mutatorStack.pop();
 
                 if (!mutator) {
@@ -432,6 +443,8 @@ export default class Component extends HTMLElement {
 
                 mutators.push(mutator);
             }
+
+            return true;
         }, elem);
 
         for (let m of mutators) {
@@ -446,7 +459,7 @@ export default class Component extends HTMLElement {
 
         this.walkSelfMutators(mutator => {
             if (mutator.info.expression === mutatorExpression) {
-                let f = Component.mutatorFunctions.get(mutator.info.id).bind(this);
+                let f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || Component.mutatorFunctions.get(mutator.info.id)).bind(this);
 
                 switch (mutator.info.type) {
                     case "inline":
@@ -492,14 +505,44 @@ export default class Component extends HTMLElement {
         return found;
     }
 
-    static allocateMutatorId() {
+    static allocateMutatorId(): number {
         let n = Component.mutatorCounter;
         Component.mutatorCounter++;
         return n;
     }
 
-    static collectUnusedMutatorId() {
+    static setMutatorFunction(id: number, func: Function): void {
+        Component.mutatorFunctions.set(id, func);
+    }
 
+    static collectUnusedMutatorId(elem: Node = document.body, _newMap = new Map<number, Function>()) {
+        if (Component.mutatorFunctions.size <= 0) {
+            console.info(`Mutator cache collection result: no need to collect.`);
+            return;
+        }
+
+        if ((elem instanceof Node) && (elem.nodeType == Node.COMMENT_NODE)) {
+            let s = elem.textContent;
+
+            if (s.startsWith(Component.mutatorBeginPattern)) {
+                s = s.substring(Component.mutatorBeginPattern.length);
+                let mutatorInfo = JSON.parse(s) as MutatorInfo;
+
+                if (Component.mutatorFunctions.has(mutatorInfo.id)) {
+                    _newMap.set(mutatorInfo.id, Component.mutatorFunctions.get(mutatorInfo.id));
+                }
+            }
+        }
+
+        for (let c of elem.childNodes) {
+            Component.collectUnusedMutatorId(c, _newMap);
+        }
+
+        if (elem === document.body) {
+            console.info(`Mutator cache collection result: previous ${Component.mutatorFunctions.size}, now ${_newMap.size}, collected ${Component.mutatorFunctions.size - _newMap.size}`);
+
+            Component.mutatorFunctions = _newMap;
+        }
     }
 }
 

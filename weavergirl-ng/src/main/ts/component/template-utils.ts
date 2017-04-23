@@ -41,7 +41,7 @@ export default class TemplateUtils {
     private static convertExpressionToMutatorElement(funcContainsExpression: Function): string {
         let expression = FunctionUtils.extractExpressionFromFunction(funcContainsExpression);
         let mutatorId = Component.allocateMutatorId();
-        Component.mutatorFunctions.set(mutatorId, funcContainsExpression);
+        Component.setMutatorFunction(mutatorId, funcContainsExpression);
 
         return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expression: expression })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
     }
@@ -66,7 +66,7 @@ export default class TemplateUtils {
                     expression: expression + ".length"
                 };
 
-                Component.mutatorFunctions.set(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
+                Component.setMutatorFunction(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
             }
 
             l = list() as Array<any>;
@@ -89,7 +89,7 @@ export default class TemplateUtils {
                 expression: `${expression}[${i}]`
             };
 
-            Component.mutatorFunctions.set(itemMutatorBegin.id, () => {
+            Component.setMutatorFunction(itemMutatorBegin.id, () => {
                 let l: Array<any>;
 
                 if (listIsFunction) {

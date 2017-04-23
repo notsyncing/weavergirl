@@ -235,6 +235,8 @@ export default class Router {
         if (needToPushState) {
             history.pushState(resolvedRoute, "", resolvedRoute.url);
         }
+
+        Component.collectUnusedMutatorId();
     }
 
     navigate(url: string): Promise<void> {
