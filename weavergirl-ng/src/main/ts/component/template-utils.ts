@@ -1,15 +1,69 @@
 import Component from "./component";
-import {MutatorInfo} from "./mutator";
+import {AttributeMutatorInfo, MutatorInfo} from "./mutator";
 import FunctionUtils from "../common/function-utils";
 
+enum TemplateState {
+    Unknown,
+    InTag,
+    InContent
+}
+
 export default class TemplateUtils {
+    private static determineState(currStr: string): TemplateState {
+        let state = TemplateState.Unknown;
+
+        for (let i = 0; i < currStr.length; i++) {
+            let c = currStr[i];
+            let c2 = null;
+            let c0 = null;
+
+            if (i < currStr.length - 1) {
+                c2 = currStr[i + 1];
+            }
+
+            if (i > 0) {
+                c0 = currStr[i - 1];
+            }
+
+            switch (state) {
+                case TemplateState.Unknown:
+                    if ((c === '<') && (c2 !== '!')) {
+                        state = TemplateState.InTag;
+                    } else if ((c === '>') && (c0 !== '-') ){
+                        state = TemplateState.InContent;
+                    }
+
+                    break;
+                case TemplateState.InTag:
+                    if ((c === '>') && (c0 !== '-')) {
+                        state = TemplateState.InContent;
+                    }
+
+                    break;
+                case TemplateState.InContent:
+                    if ((c === '<') && (c2 !== '!')) {
+                        state = TemplateState.InTag;
+                    }
+
+                    break;
+                default:
+                    throw new Error(`Unsupported template state ${state} when parsing ${currStr}`);
+            }
+        }
+
+        return state;
+    }
+
     static html(strings, ...values): string {
         let i = 0, j = 0;
         let s = "";
+        let state = TemplateState.Unknown;
 
         while ((i < strings.length) || (j < values.length)) {
             if (i < strings.length) {
                 s += strings[i];
+                state = TemplateUtils.determineState(strings[i]);
+
                 i++;
             }
 
@@ -19,6 +73,8 @@ export default class TemplateUtils {
 
                 if (v instanceof Promise) {
                     // TODO: Implement this!
+                } else if (v instanceof ContextContent) {
+                    s += (v as ContextContent).getContent({ state: state });
                 } else if (typeof v === "function") {
                     s += TemplateUtils.convertExpressionToMutatorElement(v);
                 } else {
@@ -114,6 +170,27 @@ export default class TemplateUtils {
     static when(field: any | Function): SwitchTemplate {
         return new SwitchTemplate(field);
     }
+
+    static makeAttributeMutator(info: MutatorInfo): string {
+        return `weavergirl-mutator-${info.id}="${encodeURIComponent(JSON.stringify(info))}"`;
+    }
+
+    static attr(name: string, value: string | Function): string {
+        if (typeof value === "function") {
+            let mutator: AttributeMutatorInfo = {
+                id: Component.allocateMutatorId(),
+                type: "attribute",
+                expression: FunctionUtils.extractExpressionFromFunction(value),
+                attribute: name
+            };
+
+            Component.setMutatorFunction(mutator.id, value);
+
+            return `${name}="${value()}" ${TemplateUtils.makeAttributeMutator(mutator)}`;
+        } else {
+            return `${name}="${value}"`;
+        }
+    }
 }
 
 class SwitchTemplate {
@@ -182,5 +259,18 @@ class SwitchTemplate {
         } else {
             return `${TemplateUtils.makeMutatorBegin(this.mutatorBegin)}${str}${TemplateUtils.makeMutatorEnd()}`;
         }
+    }
+}
+
+interface TemplateContext {
+    state: TemplateState
+}
+
+class ContextContent {
+    constructor(private handler: (context: TemplateContext) => string) {
+    }
+
+    getContent(context: TemplateContext): string {
+        return this.handler(context);
     }
 }

@@ -2,7 +2,7 @@ import TemplateUtils from "./template-utils";
 import Loader from "../loader/loader";
 import {ComponentDependencies} from "./component-dependencies";
 import Stage from "../router/stage";
-import {Mutator, MutatorInfo} from "./mutator";
+import {AttributeMutatorInfo, Mutator, MutatorInfo} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
 
 export default class Component extends HTMLElement {
@@ -279,8 +279,12 @@ export default class Component extends HTMLElement {
 
         this.walkSelfMutators(m => {
             if (Component.mutatorFunctions.has(m.info.id)) {
-                m.beginPatternNode["_weavergirlMutatorFunction"] = Component.mutatorFunctions.get(m.info.id);
-                Component.mutatorFunctions.delete(m.info.id);
+                if (m.info.type === "attribute") {
+
+                } else {
+                    m.beginPatternNode["_weavergirlMutatorFunction"] = Component.mutatorFunctions.get(m.info.id);
+                    Component.mutatorFunctions.delete(m.info.id);
+                }
             }
         }, this);
 
@@ -406,42 +410,58 @@ export default class Component extends HTMLElement {
         let mutators = [];
 
         this.walkSelfNodes(n => {
-            if (n.nodeType !== Node.COMMENT_NODE) {
-                return true;
-            }
+            if (n.nodeType === Node.COMMENT_NODE) {
+                let s = n.textContent;
 
-            let s = n.textContent;
+                if (s.startsWith(Component.mutatorBeginPattern)) {
+                    s = s.substring(Component.mutatorBeginPattern.length);
+                    let mutatorInfo = JSON.parse(s);
 
-            if (s.startsWith(Component.mutatorBeginPattern)) {
-                s = s.substring(Component.mutatorBeginPattern.length);
-                let mutatorInfo = JSON.parse(s);
+                    mutatorStack.push({
+                        info: mutatorInfo,
+                        parent: n.parentNode,
+                        beginPatternNode: n,
+                        beginIndex: Array.prototype.indexOf.call(n.parentNode.childNodes, n),
+                        endPatternNode: null,
+                        endIndex: -1,
+                        childNodes: null
+                    });
+                } else if (s === Component.mutatorEndPattern) {
+                    let mutator = mutatorStack.pop();
 
-                mutatorStack.push({
-                    info: mutatorInfo,
-                    parent: n.parentNode,
-                    beginPatternNode: n,
-                    beginIndex: Array.prototype.indexOf.call(n.parentNode.childNodes, n),
-                    endPatternNode: null,
-                    endIndex: -1,
-                    childNodes: null
-                });
-            } else if (s === Component.mutatorEndPattern) {
-                let mutator = mutatorStack.pop();
+                    if (!mutator) {
+                        console.dir(n);
+                        throw new Error(`Unpaired mutator end pattern found at ${n}`);
+                    }
 
-                if (!mutator) {
-                    console.dir(n);
-                    throw new Error(`Unpaired mutator end pattern found at ${n}`);
+                    mutator.endPatternNode = n;
+                    mutator.endIndex = Array.prototype.indexOf.call(n.parentNode.childNodes, n);
+                    mutator.childNodes = [];
+
+                    for (let i = mutator.beginIndex + 1; i < mutator.endIndex; i++) {
+                        mutator.childNodes.push(mutator.parent.childNodes[i]);
+                    }
+
+                    mutators.push(mutator);
                 }
+            } else if (n.nodeType === Node.ELEMENT_NODE) {
+                for (let i = 0; i < n.attributes.length; i++) {
+                    let a = n.attributes[i];
 
-                mutator.endPatternNode = n;
-                mutator.endIndex = Array.prototype.indexOf.call(n.parentNode.childNodes, n);
-                mutator.childNodes = [];
+                    if (a.name.startsWith("weavergirl-mutator-")) {
+                        let mutatorInfo = JSON.parse(decodeURIComponent(a.value));
 
-                for (let i = mutator.beginIndex + 1; i < mutator.endIndex; i++) {
-                    mutator.childNodes.push(mutator.parent.childNodes[i]);
+                        mutators.push({
+                            info: mutatorInfo,
+                            parent: n,
+                            beginPatternNode: null,
+                            beginIndex: -1,
+                            endPatternNode: null,
+                            endIndex: -1,
+                            childNodes: null
+                        });
+                    }
                 }
-
-                mutators.push(mutator);
             }
 
             return true;
@@ -459,7 +479,13 @@ export default class Component extends HTMLElement {
 
         this.walkSelfMutators(mutator => {
             if (mutator.info.expression === mutatorExpression) {
-                let f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || Component.mutatorFunctions.get(mutator.info.id)).bind(this);
+                let f: Function;
+
+                if (mutator.info.type === "attribute") {
+                    f = Component.mutatorFunctions.get(mutator.info.id).bind(this);
+                } else {
+                    f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || Component.mutatorFunctions.get(mutator.info.id)).bind(this);
+                }
 
                 switch (mutator.info.type) {
                     case "inline":
@@ -487,6 +513,12 @@ export default class Component extends HTMLElement {
                         }
 
                         this.attachStageToSelfElements();
+
+                        found = true;
+                        break;
+                    case "attribute":
+                        let info = mutator.info as AttributeMutatorInfo;
+                        (mutator.parent as Element).setAttribute(info.attribute, f());
 
                         found = true;
                         break;
@@ -521,16 +553,28 @@ export default class Component extends HTMLElement {
             return;
         }
 
+        let mutatorInfo: MutatorInfo = null;
+
         if ((elem instanceof Node) && (elem.nodeType == Node.COMMENT_NODE)) {
             let s = elem.textContent;
 
             if (s.startsWith(Component.mutatorBeginPattern)) {
                 s = s.substring(Component.mutatorBeginPattern.length);
-                let mutatorInfo = JSON.parse(s) as MutatorInfo;
+                mutatorInfo = JSON.parse(s) as MutatorInfo;
+            }
+        } else if (elem instanceof Element) {
+            for (let i = 0; i < elem.attributes.length; i++) {
+                let a = elem.attributes[i];
 
-                if (Component.mutatorFunctions.has(mutatorInfo.id)) {
-                    _newMap.set(mutatorInfo.id, Component.mutatorFunctions.get(mutatorInfo.id));
+                if (a.name.startsWith("weavergirl-mutator-")) {
+                    mutatorInfo = JSON.parse(a.value) as MutatorInfo;
                 }
+            }
+        }
+
+        if (mutatorInfo !== null) {
+            if (Component.mutatorFunctions.has(mutatorInfo.id)) {
+                _newMap.set(mutatorInfo.id, Component.mutatorFunctions.get(mutatorInfo.id));
             }
         }
 

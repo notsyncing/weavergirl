@@ -13,3 +13,7 @@ export interface MutatorInfo {
     type: string;
     expression: string;
 }
+
+export interface AttributeMutatorInfo extends MutatorInfo {
+    attribute: string;
+}

@@ -3,6 +3,7 @@ class FirstPageStage extends Weavergirl.Stage {
         this.state.counter = 0;
         this.state.text = "";
         this.state.switchOn = false;
+        this.state.type = "text";
     }
 
     incCounter() {
@@ -15,6 +16,14 @@ class FirstPageStage extends Weavergirl.Stage {
 
     toggleSwitch() {
         this.state.switchOn = !this.state.switchOn;
+    }
+
+    toggleType() {
+        if (this.state.type === "checkbox") {
+            this.state.type = "text";
+        } else {
+            this.state.type = "checkbox";
+        }
     }
 }
 
@@ -46,6 +55,11 @@ class FirstPage extends Weavergirl.Component {
                 `<div>I'm off!</div>`)}
         
         <button id="btnToggle" onclick="this.stage.toggleSwitch()">Toggle</button>
+    </div>
+    
+    <div>
+        <input ${T.attr("type", () => this.stage.state.type)}>
+        <button id="btnToggleType" onclick="this.stage.toggleType()">Toggle</button>    
     </div>
 </div>
 `;
