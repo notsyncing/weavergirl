@@ -1,3 +1,4 @@
+import "babel-polyfill";
 import Router from "./router/router";
 import Component from "./component/component";
 import TemplateUtils from "./component/template-utils";

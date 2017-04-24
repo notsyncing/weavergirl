@@ -50,6 +50,104 @@
         </option>
       </configuration>
     </facet>
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="1">
+        <option name="compilerInfo">
+          <KotlinCompilerInfo>
+            <option name="compilerSettings">
+              <CompilerSettings />
+            </option>
+            <option name="k2jsCompilerArguments">
+              <K2JSCompilerArguments>
+                <option name="outputFile" value="$MODULE_DIR$/../out/production/weavergirl-ng.js" />
+                <option name="noStdlib" value="true" />
+                <option name="sourceMap" value="true" />
+                <option name="metaInfo" value="true" />
+                <option name="target" value="v5" />
+                <option name="moduleKind" value="plain" />
+                <option name="main" value="call" />
+                <option name="languageVersion" value="1.1" />
+                <option name="apiVersion" value="1.1" />
+                <option name="coroutinesWarn" value="true" />
+              </K2JSCompilerArguments>
+            </option>
+            <option name="k2jvmCompilerArguments">
+              <K2JVMCompilerArguments />
+            </option>
+            <option name="_commonCompilerArguments">
+              <DummyImpl>
+                <option name="languageVersion" value="1.1" />
+                <option name="apiVersion" value="1.1" />
+                <option name="pluginClasspaths">
+                  <array />
+                </option>
+                <option name="coroutinesWarn" value="true" />
+                <option name="pluginOptions">
+                  <array />
+                </option>
+              </DummyImpl>
+            </option>
+          </KotlinCompilerInfo>
+        </option>
+        <option name="useProjectSettings" value="false" />
+        <option name="versionInfo">
+          <KotlinVersionInfo>
+            <option name="apiLevel" value="1.1" />
+            <option name="languageLevel" value="1.1" />
+            <option name="targetPlatformName" value="JavaScript " />
+          </KotlinVersionInfo>
+        </option>
+      </configuration>
+    </facet>
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="1">
+        <option name="compilerInfo">
+          <KotlinCompilerInfo>
+            <option name="compilerSettings">
+              <CompilerSettings />
+            </option>
+            <option name="k2jsCompilerArguments">
+              <K2JSCompilerArguments>
+                <option name="outputFile" value="$MODULE_DIR$/../out/production/weavergirl-ng.js" />
+                <option name="noStdlib" value="true" />
+                <option name="sourceMap" value="true" />
+                <option name="metaInfo" value="true" />
+                <option name="target" value="v5" />
+                <option name="moduleKind" value="plain" />
+                <option name="main" value="call" />
+                <option name="languageVersion" value="1.1" />
+                <option name="apiVersion" value="1.1" />
+                <option name="coroutinesWarn" value="true" />
+              </K2JSCompilerArguments>
+            </option>
+            <option name="k2jvmCompilerArguments">
+              <K2JVMCompilerArguments />
+            </option>
+            <option name="_commonCompilerArguments">
+              <DummyImpl>
+                <option name="languageVersion" value="1.1" />
+                <option name="apiVersion" value="1.1" />
+                <option name="pluginClasspaths">
+                  <array />
+                </option>
+                <option name="coroutinesWarn" value="true" />
+                <option name="pluginOptions">
+                  <array />
+                </option>
+              </DummyImpl>
+            </option>
+          </KotlinCompilerInfo>
+        </option>
+        <option name="useProjectSettings" value="false" />
+        <option name="versionInfo">
+          <KotlinVersionInfo>
+            <option name="apiLevel" value="1.1" />
+            <option name="languageLevel" value="1.1" />
+            <option name="targetPlatformName" value="JavaScript " />
+          </KotlinVersionInfo>
+        </option>
+      </configuration>
+    </facet>
   </component>
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/build/classes/main" />
@@ -62,14 +160,18 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/kotlin" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-js:1.1.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.webjars.npm:onsenui:2.2.4" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-js:1.1.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.webjars.npm:requirejs:2.3.3" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.webjars.npm:onsenui:2.2.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-js:1.1.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.webjars.npm:requirejs:2.3.3" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.webjars.npm:onsenui:2.2.4" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-js:1.1.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.webjars.npm:requirejs:2.3.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.webjars.npm:onsenui:2.2.4" level="project" />
   </component>
 </module>

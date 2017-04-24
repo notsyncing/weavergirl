@@ -25,8 +25,6 @@ dependencies {
 compileTypeScript {
     sourcemap = true
     target = "es6"
-    module = "amd"
-    outFile = file("${buildDir}/ts/weavergirl.js")
     pretty = true
 
     if (Os.isFamily(Os.FAMILY_MAC)) {
@@ -38,6 +36,38 @@ weavergirl {
     additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl.js").toString()]
 }
 
+task webpack() {
+    def tsOutPath = project.buildDir.toPath().resolve("ts")
+
+    copy {
+        from "webpack.config.js"
+        into tsOutPath.toFile()
+    }
+
+    doLast {
+        exec {
+            workingDir tsOutPath.toFile()
+
+            if (Os.isFamily(Os.FAMILY_MAC)) {
+                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill"
+            } else {
+                commandLine "npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill"
+            }
+        }
+
+        exec {
+            workingDir tsOutPath.toFile()
+
+            if (Os.isFamily(Os.FAMILY_MAC)) {
+                commandLine "/usr/local/bin/node", "/usr/local/bin/webpack", "--config", "webpack.config.js"
+            } else {
+                commandLine "webpack", "--config", "webpack.config.js"
+            }
+        }
+    }
+}
+
 project.afterEvaluate {
-    makeWeavergirlApp.dependsOn(compileTypeScript)
+    webpack.dependsOn(compileTypeScript)
+    makeWeavergirlApp.dependsOn(webpack)
 }

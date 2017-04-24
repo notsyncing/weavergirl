@@ -1,7 +1,7 @@
 import {RouterCommand, RouterMode} from "./enums";
 import Loader from "../loader/loader";
 import Component from "../component/component";
-import {Weavergirl} from "../weavergirl";
+import {Weavergirl} from "../main";
 import {ResolvedRoute, Route, RouteCommand, RouteComponentInfo, RouteMatchResult} from "./router-models";
 
 export default class Router {
