@@ -1,5 +1,6 @@
 package io.github.notsyncing.weavergirl.gradle
 
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.codehaus.plexus.archiver.jar.JarArchiver
 import org.codehaus.plexus.archiver.tar.TarArchiver
 import org.codehaus.plexus.archiver.tar.TarLongFileMode
@@ -8,10 +9,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.*
+import java.nio.file.attribute.BasicFileAttributes
 
 class WeavergirlPlugin implements Plugin<Project> {
     private void copySubdirectoryFromFileTree(Project project, FileTree fromTree, String dirToCopy, Path toDir) {
@@ -28,6 +27,70 @@ class WeavergirlPlugin implements Plugin<Project> {
         }
 
         project.delete(tempDir)
+    }
+
+    private void babelDirectory(Project project, Path dir, String[] skipFiles) {
+        project.exec {
+            workingDir dir.toFile()
+
+            if (Os.isFamily(Os.FAMILY_MAC)) {
+                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "babel-preset-es2015", "babel-preset-env"
+            } else {
+                commandLine "npm", "link", "babel-preset-es2015", "babel-preset-env"
+            }
+        }
+
+        Files.walkFileTree(dir, new FileVisitor<Path>() {
+            @Override
+            FileVisitResult preVisitDirectory(Path d, BasicFileAttributes attrs) throws IOException {
+                if (d.fileName.toString() == "node_modules") {
+                    return FileVisitResult.SKIP_SUBTREE
+                }
+
+                return FileVisitResult.CONTINUE
+            }
+
+            @Override
+            FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                if (!file.fileName.toString().endsWith(".js")) {
+                    return FileVisitResult.CONTINUE
+                }
+
+                if (skipFiles.contains(file.toString())) {
+                    return FileVisitResult.CONTINUE
+                }
+
+                def f = dir.relativize(file)
+
+                project.exec {
+                    workingDir dir.toFile()
+
+                    if (Os.isFamily(Os.FAMILY_MAC)) {
+                        commandLine "/usr/local/bin/node", "/usr/local/bin/babel", f.toString(), "--presets=es2015", "-o", f.toString()
+                    } else {
+                        commandLine "babel", f.toString(), "--presets=es2015", "-o", f.toString()
+                    }
+                }
+
+                println("babel: ${file}")
+
+                return FileVisitResult.CONTINUE
+            }
+
+            @Override
+            FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                println("Error occured when visiting file ${file}: ${exc.message}")
+                exc.printStackTrace()
+                return FileVisitResult.CONTINUE
+            }
+
+            @Override
+            FileVisitResult postVisitDirectory(Path d, IOException exc) throws IOException {
+                return FileVisitResult.CONTINUE
+            }
+        })
+
+        project.delete(dir.resolve("node_modules").toFile())
     }
 
     @Override
@@ -104,6 +167,10 @@ class WeavergirlPlugin implements Plugin<Project> {
 
             if (Files.exists(indexFile)) {
                 Files.copy(indexFile, outputDir.resolve("index.html"))
+            }
+
+            if (project.extensions.weavergirl.useBabel) {
+                babelDirectory(project, appDir, project.extensions.weavergirl.babelSkipFiles)
             }
         }
 

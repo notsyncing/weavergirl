@@ -34,6 +34,9 @@ compileTypeScript {
 
 weavergirl {
     additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl.js").toString()]
+
+    useBabel = true
+    babelSkipFiles = ["weavergirl.js"]
 }
 
 task webpack() {

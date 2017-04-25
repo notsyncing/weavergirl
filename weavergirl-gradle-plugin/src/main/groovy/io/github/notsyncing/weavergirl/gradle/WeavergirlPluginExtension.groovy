@@ -1,6 +1,9 @@
 package io.github.notsyncing.weavergirl.gradle
 
 class WeavergirlPluginExtension {
-    def String srcDir = "src"
-    def String[] additionalFiles = []
+    String srcDir = "src"
+    String[] additionalFiles = []
+
+    boolean useBabel = false
+    String[] babelSkipFiles = []
 }

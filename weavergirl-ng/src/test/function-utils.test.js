@@ -3,13 +3,13 @@
 describe("FunctionUtils", () => {
     describe("#extractExpressionFromFunction", () => {
         it("should return o.a for () => this.stage.state.o.a", () => {
-            let f = () => o.a;
+            let f = () => this.stage.state.o.a;
             let r = Weavergirl._tests.FunctionUtils.extractExpressionFromFunction(f);
             r.should.equal("o.a");
         });
 
         it("should return o.a for () => { return this.stage.state.o.a; }", () => {
-            let f = () => o.a;
+            let f = () => { return this.stage.state.o.a; };
             let r = Weavergirl._tests.FunctionUtils.extractExpressionFromFunction(f);
             r.should.equal("o.a");
         });
@@ -21,7 +21,13 @@ describe("FunctionUtils", () => {
         });
 
         it("should return o.a for () => this.stage.state./*b.*/o.a", () => {
-            let f = () => o.a;
+            let f = () => this.stage.state./*b.*/o.a;
+            let r = Weavergirl._tests.FunctionUtils.extractExpressionFromFunction(f);
+            r.should.equal("o.a");
+        });
+
+        it("should return o.a for () => _this4.stage.state.o.a", () => {
+            let f = () => _this4.stage.state.o.a;
             let r = Weavergirl._tests.FunctionUtils.extractExpressionFromFunction(f);
             r.should.equal("o.a");
         });
@@ -102,5 +108,16 @@ describe("FunctionUtils", () => {
             let r = Weavergirl._tests.FunctionUtils.getFunctionArguments(f);
             r.should.eql(["a", "b"]);
         });
+
+        it("should return [m, i] for complex function A", () => {
+            let f = function (m, i) {
+                return _this4.html(_templateObject, m.href, m.href, function () {
+                    return _this4.stage.state.menus[i].name;
+                });
+            };
+
+            let r = Weavergirl._tests.FunctionUtils.getFunctionArguments(f);
+            r.should.eql(["m", "i"]);
+        })
     });
 });
