@@ -588,6 +588,11 @@ export default class Component extends HTMLElement {
             Component.mutatorFunctions = _newMap;
         }
     }
+
+    static resetMutatorId() {
+        Component.mutatorFunctions.clear();
+        Component.mutatorCounter = 0;
+    }
 }
 
 Loader.addAfterLoadHandler(function (exports) {

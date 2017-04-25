@@ -135,29 +135,36 @@ export default class TemplateUtils {
 
             if (listIsFunction) {
                 let indexVarName = handlerArgs[1];
-                let p = new RegExp(`([^a-zA-Z0-9_])(${indexVarName})([^a-zA-Z0-9_])`, "g");
-                item = item.replace(p, `$1${i}$3`);
+
+                if (indexVarName) {
+                    let p = new RegExp(`([^a-zA-Z0-9_])(${indexVarName})([^a-zA-Z0-9_])`, "g");
+                    item = item.replace(p, `$1${i}$3`);
+                }
             }
 
-            let itemMutatorBegin = {
-                id: Component.allocateMutatorId(),
-                type: "repeater",
-                expression: `${expression}[${i}]`
-            };
+            if (expression) {
+                let itemMutatorBegin = {
+                    id: Component.allocateMutatorId(),
+                    type: "repeater",
+                    expression: `${expression}[${i}]`
+                };
 
-            Component.setMutatorFunction(itemMutatorBegin.id, () => {
-                let l: Array<any>;
+                Component.setMutatorFunction(itemMutatorBegin.id, () => {
+                    let l: Array<any>;
 
-                if (listIsFunction) {
-                    l = (list as Function)() as Array<any>;
-                } else {
-                    l = list as Array<any>;
-                }
+                    if (listIsFunction) {
+                        l = (list as Function)() as Array<any>;
+                    } else {
+                        l = list as Array<any>;
+                    }
 
-                return handler(l[i], i);
-            });
+                    return handler(l[i], i);
+                });
 
-            s += `${this.makeMutatorBegin(itemMutatorBegin)}${item}${this.makeMutatorEnd()}`;
+                s += `${this.makeMutatorBegin(itemMutatorBegin)}${item}${this.makeMutatorEnd()}`;
+            } else {
+                s += item;
+            }
         }
 
         if (mutatorBegin !== null) {
@@ -171,7 +178,7 @@ export default class TemplateUtils {
         return new SwitchTemplate(field);
     }
 
-    static makeAttributeMutator(info: MutatorInfo): string {
+    private static makeAttributeMutator(info: MutatorInfo): string {
         return `weavergirl-mutator-${info.id}="${encodeURIComponent(JSON.stringify(info))}"`;
     }
 
@@ -195,23 +202,27 @@ export default class TemplateUtils {
 
 class SwitchTemplate {
     private fieldIsFunction = false;
-    private mutatorBegin: MutatorInfo;
+    private mutatorBegin: MutatorInfo = null;
     private conditions: Array<any> = [];
-    private otherwiseFunction: () => string;
+    private otherwiseFunction: () => string = null;
 
     constructor(private field: any | Function) {
         if (typeof field === "function") {
             this.fieldIsFunction = true;
 
-            this.mutatorBegin = {
-                id: Component.allocateMutatorId(),
-                type: "repeater",
-                expression: FunctionUtils.extractExpressionFromFunction(field)
-            };
+            let expression = FunctionUtils.extractExpressionFromFunction(field);
 
-            Component.setMutatorFunction(this.mutatorBegin.id, () => {
-                return this.toStringWithoutMutator();
-            });
+            if (expression) {
+                this.mutatorBegin = {
+                    id: Component.allocateMutatorId(),
+                    type: "repeater",
+                    expression: expression
+                };
+
+                Component.setMutatorFunction(this.mutatorBegin.id, () => {
+                    return this.toStringWithoutMutator();
+                });
+            }
         }
     }
 
@@ -251,10 +262,12 @@ class SwitchTemplate {
         }
 
         if (!noOtherwise) {
-            str += this.otherwiseFunction();
+            if (this.otherwiseFunction) {
+                str += this.otherwiseFunction();
+            }
         }
 
-        if (without) {
+        if ((without) || (!this.mutatorBegin)) {
             return str;
         } else {
             return `${TemplateUtils.makeMutatorBegin(this.mutatorBegin)}${str}${TemplateUtils.makeMutatorEnd()}`;
