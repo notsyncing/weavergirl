@@ -6,6 +6,7 @@ import Loader from "./loader/loader";
 import Stage from "./router/stage";
 import {RouterCommand, RouterMode} from "./router/enums";
 import FunctionUtils from "./common/function-utils";
+import {Language} from "./i18n/lang";
 
 export let Weavergirl = {
     Loader: Loader,
@@ -17,6 +18,8 @@ export let Weavergirl = {
     RouterCommand: RouterCommand,
 
     Stage: Stage,
+
+    Language: Language,
 
     _tests: {
         Stage: {
@@ -31,4 +34,5 @@ if (!window["Weavergirl"]) {
     window["Weavergirl"] = Weavergirl;
 
     window["T"] = TemplateUtils;
+    window["I"] = Language.getText;
 }

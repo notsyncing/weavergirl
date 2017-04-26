@@ -54,12 +54,12 @@ class FirstPage extends Weavergirl.Component {
             .otherwise(() =>
                 `<div>I'm off!</div>`)}
         
-        <button id="btnToggle" onclick="this.stage.toggleSwitch()">Toggle</button>
+        <button id="btnToggle" onclick="this.stage.toggleSwitch()">${I("Toggle")}</button>
     </div>
     
     <div>
         <input ${T.attr("type", () => this.stage.state.type)}>
-        <button id="btnToggleType" onclick="this.stage.toggleType()">Toggle</button>    
+        <button id="btnToggleType" onclick="this.stage.toggleType()">${I("Toggle {0}", 2)}</button>    
     </div>
 </div>
 `;

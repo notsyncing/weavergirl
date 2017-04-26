@@ -20,6 +20,7 @@ apply plugin: "io.github.notsyncing.weavergirl.gradle"
 dependencies {
     compile "org.webjars.npm:onsenui:2.2.4"
     compile "org.webjars.npm:requirejs:2.3.3"
+    compile 'org.webjars.bower:framework7:1.6.0'
 }
 
 compileTypeScript {
