@@ -1,6 +1,6 @@
-import Component from "./component";
 import {AttributeMutatorInfo, MutatorInfo} from "./mutator";
 import FunctionUtils from "../common/function-utils";
+import Stage from "../router/stage";
 
 enum TemplateState {
     Unknown,
@@ -87,17 +87,17 @@ export default class TemplateUtils {
     }
 
     static makeMutatorBegin(info: MutatorInfo): string {
-        return `<!--#weavergirl-mutator ${JSON.stringify(info)}-->`;
+        return `<!--${Stage.mutatorBeginPattern}${JSON.stringify(info)}-->`;
     }
 
     static makeMutatorEnd(): string {
-        return "<!--#/weavergirl-mutator-->";
+        return `<!--${Stage.mutatorEndPattern}-->`;
     }
 
     private static convertExpressionToMutatorElement(funcContainsExpression: Function): string {
         let expression = FunctionUtils.extractExpressionFromFunction(funcContainsExpression);
-        let mutatorId = Component.allocateMutatorId();
-        Component.setMutatorFunction(mutatorId, funcContainsExpression);
+        let mutatorId = Stage.allocateMutatorId();
+        Stage.setMutatorFunction(mutatorId, funcContainsExpression);
 
         return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expression: expression })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
     }
@@ -117,12 +117,12 @@ export default class TemplateUtils {
 
             if (!_noMutatorNode) {
                 mutatorBegin = {
-                    id: Component.allocateMutatorId(),
+                    id: Stage.allocateMutatorId(),
                     type: "repeater",
                     expression: expression + ".length"
                 };
 
-                Component.setMutatorFunction(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
+                Stage.setMutatorFunction(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
             }
 
             l = list() as Array<any>;
@@ -144,12 +144,12 @@ export default class TemplateUtils {
 
             if (expression) {
                 let itemMutatorBegin = {
-                    id: Component.allocateMutatorId(),
+                    id: Stage.allocateMutatorId(),
                     type: "repeater",
                     expression: `${expression}[${i}]`
                 };
 
-                Component.setMutatorFunction(itemMutatorBegin.id, () => {
+                Stage.setMutatorFunction(itemMutatorBegin.id, () => {
                     let l: Array<any>;
 
                     if (listIsFunction) {
@@ -185,13 +185,13 @@ export default class TemplateUtils {
     static attr(name: string, value: string | Function): string {
         if (typeof value === "function") {
             let mutator: AttributeMutatorInfo = {
-                id: Component.allocateMutatorId(),
+                id: Stage.allocateMutatorId(),
                 type: "attribute",
                 expression: FunctionUtils.extractExpressionFromFunction(value),
                 attribute: name
             };
 
-            Component.setMutatorFunction(mutator.id, value);
+            Stage.setMutatorFunction(mutator.id, value);
 
             return `${name}="${value()}" ${TemplateUtils.makeAttributeMutator(mutator)}`;
         } else {
@@ -214,12 +214,12 @@ class SwitchTemplate {
 
             if (expression) {
                 this.mutatorBegin = {
-                    id: Component.allocateMutatorId(),
+                    id: Stage.allocateMutatorId(),
                     type: "repeater",
                     expression: expression
                 };
 
-                Component.setMutatorFunction(this.mutatorBegin.id, () => {
+                Stage.setMutatorFunction(this.mutatorBegin.id, () => {
                     return this.toStringWithoutMutator();
                 });
             }

@@ -3,7 +3,7 @@
 describe("TemplateUtils", () => {
     describe("#html", () => {
         beforeEach(() => {
-            Weavergirl.Component.resetMutatorId();
+            Weavergirl.Stage.resetMutators();
         });
 
         it("should generate correct simple HTML", () => {
@@ -40,7 +40,7 @@ describe("TemplateUtils", () => {
 
     describe("#forEach", () => {
         beforeEach(() => {
-            Weavergirl.Component.resetMutatorId();
+            Weavergirl.Stage.resetMutators();
         });
 
         it("should generate correct simple static constant HTML", () => {
@@ -100,7 +100,7 @@ describe("TemplateUtils", () => {
 
     describe("#when", () => {
         beforeEach(() => {
-            Weavergirl.Component.resetMutatorId();
+            Weavergirl.Stage.resetMutators();
         });
 
         it("should generate correct simple HTML for one positive branch", () => {

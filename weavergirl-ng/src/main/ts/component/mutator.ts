@@ -1,4 +1,7 @@
+import Stage from "../router/stage";
+
 export interface Mutator {
+    stage: Stage;
     info: MutatorInfo;
     parent: Node;
     beginPatternNode: Node;

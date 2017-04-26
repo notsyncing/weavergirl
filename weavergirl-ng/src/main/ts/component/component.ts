@@ -10,16 +10,9 @@ export default class Component extends HTMLElement {
     static fragments = new Map<string, string>();
     static stages = new Map<string, Stage>();
 
-    private static mutatorFunctions = new Map<number, Function>();
-    private static mutatorCounter = 0;
-    private static mutators = new Map<string, Array<Mutator>>();
-
-    private static mutatorBeginPattern = "#weavergirl-mutator ";
-    private static mutatorEndPattern = "#/weavergirl-mutator";
-
     private content: string = "";
     private route = null;
-    private stage = null;
+    private stage: Stage = null;
 
     private allDependenciesLoaded = false;
     private refreshPlanned = false;
@@ -42,7 +35,7 @@ export default class Component extends HTMLElement {
                 Component.stages.set(this.constructor.name, this.stage);
             }
         } else {
-            this.stage = null;
+            this.stage = new Stage(this);
         }
     }
 
@@ -251,30 +244,14 @@ export default class Component extends HTMLElement {
         _process(this);
     }
 
-    private static registerMutator(mutator: Mutator, _into = Component.mutators): void {
-        if (!_into.has(mutator.info.expression)) {
-            _into.set(mutator.info.expression, [mutator]);
-        } else {
-            let l = _into.get(mutator.info.expression);
-
-            for (let m of l) {
-                if (m.info.id === mutator.info.id) {
-                    return;
-                }
-            }
-
-            l.push(mutator);
-        }
-    }
-
     private registerSelfMutators(): void {
         this.walkSelfMutators(m => {
-            Component.registerMutator(m);
+            this.stage.registerMutator(m);
 
-            if (Component.mutatorFunctions.has(m.info.id)) {
+            if (Stage.mutatorFunctions.has(m.info.id)) {
                 if (m.info.type !== "attribute") {
-                    m.beginPatternNode["_weavergirlMutatorFunction"] = Component.mutatorFunctions.get(m.info.id);
-                    Component.mutatorFunctions.delete(m.info.id);
+                    m.beginPatternNode["_weavergirlMutatorFunction"] = Stage.mutatorFunctions.get(m.info.id);
+                    Stage.mutatorFunctions.delete(m.info.id);
                 }
             }
         }, this);
@@ -384,16 +361,16 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private walkSelfNodes(handler: (node: Node) => boolean, elem: Node): void {
+    private walkChildNodes(handler: (node: Node) => boolean, elem: Node): void {
         for (let e of elem.childNodes) {
             if (handler(e)) {
-                this.walkSelfNodes(handler, e);
+                this.walkChildNodes(handler, e);
             }
         }
     }
 
     private walkSelfElements(handler: (e: Element) => boolean, elem: Node): void {
-        this.walkSelfNodes(n => {
+        this.walkChildNodes(n => {
             if (!(n instanceof Element)) {
                 return true;
             }
@@ -426,70 +403,12 @@ export default class Component extends HTMLElement {
         return null;
     }
 
-    private static handleMutatorNode(node: Node, tempStack: Array<Mutator>, handler: (mutator: Mutator) => void): void {
-        if (node.nodeType === Node.COMMENT_NODE) {
-            let s = node.textContent;
-
-            if (s.startsWith(Component.mutatorBeginPattern)) {
-                s = s.substring(Component.mutatorBeginPattern.length);
-                let mutatorInfo = JSON.parse(s);
-
-                tempStack.push({
-                    info: mutatorInfo,
-                    parent: node.parentNode,
-                    beginPatternNode: node,
-                    beginIndex: Array.prototype.indexOf.call(node.parentNode.childNodes, node),
-                    endPatternNode: null,
-                    endIndex: -1,
-                    childNodes: null
-                });
-            } else if (s === Component.mutatorEndPattern) {
-                let mutator = tempStack.pop();
-
-                if (!mutator) {
-                    console.dir(node);
-                    throw new Error(`Unpaired mutator end pattern found at ${node}`);
-                }
-
-                mutator.endPatternNode = node;
-                mutator.endIndex = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-                mutator.childNodes = [];
-
-                for (let i = mutator.beginIndex + 1; i < mutator.endIndex; i++) {
-                    mutator.childNodes.push(mutator.parent.childNodes[i]);
-                }
-
-                handler(mutator);
-            }
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-            for (let i = 0; i < node.attributes.length; i++) {
-                let a = node.attributes[i];
-
-                if (a.name.startsWith("weavergirl-mutator-")) {
-                    let mutatorInfo = JSON.parse(decodeURIComponent(a.value));
-
-                    let mutator = {
-                        info: mutatorInfo,
-                        parent: node,
-                        beginPatternNode: null,
-                        beginIndex: -1,
-                        endPatternNode: null,
-                        endIndex: -1,
-                        childNodes: null
-                    };
-
-                    handler(mutator);
-                }
-            }
-        }
-    }
-
     private walkSelfMutators(handler: (mutator: Mutator) => void, elem: Node): void {
         let mutatorStack: Array<Mutator> = [];
         let mutators = [];
 
-        this.walkSelfNodes(n => {
-            Component.handleMutatorNode(n, mutatorStack, m => mutators.push(m));
+        this.walkChildNodes(n => {
+            this.stage.handleMutatorNode(n, mutatorStack, m => mutators.push(m));
             return true;
         }, elem);
 
@@ -502,9 +421,9 @@ export default class Component extends HTMLElement {
         let f: Function;
 
         if (mutator.info.type === "attribute") {
-            f = Component.mutatorFunctions.get(mutator.info.id).bind(this);
+            f = Stage.mutatorFunctions.get(mutator.info.id).bind(this);
         } else {
-            f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || Component.mutatorFunctions.get(mutator.info.id)).bind(this);
+            f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || Stage.mutatorFunctions.get(mutator.info.id)).bind(this);
         }
 
         switch (mutator.info.type) {
@@ -559,8 +478,8 @@ export default class Component extends HTMLElement {
 
         let found = 0;
 
-        if (Component.mutators.has(mutatorExpression)) {
-            let mutators = Component.mutators.get(mutatorExpression);
+        if (this.stage.mutators.has(mutatorExpression)) {
+            let mutators = this.stage.mutators.get(mutatorExpression);
             let mutatorsToRemove: Array<Mutator> = [];
 
             for (let mutator of mutators) {
@@ -582,7 +501,7 @@ export default class Component extends HTMLElement {
                 }
 
                 if (mutators.length <= 0) {
-                    Component.mutators.delete(mutatorExpression);
+                    this.stage.mutators.delete(mutatorExpression);
                 }
 
                 console.info(`Collected ${mutatorsToRemove.length} detached mutators.`);
@@ -605,55 +524,6 @@ export default class Component extends HTMLElement {
         }
 
         return found > 0;
-    }
-
-    static allocateMutatorId(): number {
-        let n = Component.mutatorCounter;
-        Component.mutatorCounter++;
-        return n;
-    }
-
-    static setMutatorFunction(id: number, func: Function): void {
-        Component.mutatorFunctions.set(id, func);
-    }
-
-    static collectUnusedMutatorId(elem: Node = document.body) {
-        if (Component.mutatorFunctions.size <= 0) {
-            console.info(`Mutator cache collection result: no need to collect.`);
-            return;
-        }
-
-        let newFunctionMap = new Map<number, Function>();
-        let newMutatorMap = new Map<string, Array<Mutator>>();
-
-        let mutatorStack: Array<Mutator> = [];
-
-        function _process(n: Node) {
-            Component.handleMutatorNode(n, mutatorStack, m => {
-                if (Component.mutatorFunctions.has(m.info.id)) {
-                    newFunctionMap.set(m.info.id, Component.mutatorFunctions.get(m.info.id));
-                }
-
-                Component.registerMutator(m, newMutatorMap);
-            });
-
-            for (let c of n.childNodes) {
-                _process(c);
-            }
-        }
-
-        _process(elem);
-
-        console.info(`Mutator cache collection result: previous ${Component.mutatorFunctions.size}, now ${newFunctionMap.size}, collected ${Component.mutatorFunctions.size - newFunctionMap.size}`);
-
-        Component.mutatorFunctions = newFunctionMap;
-        Component.mutators = newMutatorMap;
-    }
-
-    static resetMutatorId() {
-        Component.mutators.clear();
-        Component.mutatorFunctions.clear();
-        Component.mutatorCounter = 0;
     }
 }
 

@@ -3,6 +3,7 @@ import Loader from "../loader/loader";
 import Component from "../component/component";
 import {Weavergirl} from "../main";
 import {ResolvedRoute, Route, RouteCommand, RouteComponentInfo, RouteMatchResult} from "./router-models";
+import Stage from "./stage";
 
 export default class Router {
     routes: Array<Route> = [];
@@ -236,7 +237,7 @@ export default class Router {
             history.pushState(resolvedRoute, "", resolvedRoute.url);
         }
 
-        Component.collectUnusedMutatorId();
+        Stage.collectUnusedMutatorId();
     }
 
     navigate(url: string): Promise<void> {
