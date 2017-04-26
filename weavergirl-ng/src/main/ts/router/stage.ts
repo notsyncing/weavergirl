@@ -165,7 +165,7 @@ export default class Stage {
             newStageMutatorMap.set(s, new Map());
             _process(s, elem);
 
-            console.info(`Stage ${s} mutator collection result: previous ${s.mutators.size}, now ${newStageMutatorMap.get(s).size}, collected ${newStageMutatorMap.get(s).size - s.mutators.size}`);
+            console.info(`Stage ${s.constructor.name} mutator collection result: previous ${s.mutators.size}, now ${newStageMutatorMap.get(s).size}, collected ${s.mutators.size - newStageMutatorMap.get(s).size}`);
 
             s.mutators = newStageMutatorMap.get(s);
         }
