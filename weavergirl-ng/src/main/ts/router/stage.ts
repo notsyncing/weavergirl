@@ -1,15 +1,9 @@
 import Component from "../component/component";
 import {Mutator} from "../component/mutator";
+import MutatorHub from "../component/mutator-hub";
 
 export default class Stage {
-    private static mutatorCounter = 0;
-
-    static mutatorBeginPattern = "#weavergirl-mutator ";
-    static mutatorEndPattern = "#/weavergirl-mutator";
-
-    static mutatorFunctions = new Map<number, Function>();
-
-    mutators = new Map<string, Array<Mutator>>();
+    mutatorHub = new MutatorHub(this);
 
     public state: any = null;
 
@@ -33,38 +27,12 @@ export default class Stage {
         }, 0);
     }
 
-    static allocateMutatorId(): number {
-        let n = Stage.mutatorCounter;
-        Stage.mutatorCounter++;
-        return n;
-    }
-
-    static setMutatorFunction(id: number, func: Function): void {
-        Stage.mutatorFunctions.set(id, func);
-    }
-
-    registerMutator(mutator: Mutator, _into = this.mutators): void {
-        if (!_into.has(mutator.info.expression)) {
-            _into.set(mutator.info.expression, [mutator]);
-        } else {
-            let l = _into.get(mutator.info.expression);
-
-            for (let m of l) {
-                if (m.info.id === mutator.info.id) {
-                    return;
-                }
-            }
-
-            l.push(mutator);
-        }
-    }
-
     handleMutatorNode(node: Node, tempStack: Array<Mutator>, handler: (mutator: Mutator) => void): void {
         if (node.nodeType === Node.COMMENT_NODE) {
             let s = node.textContent;
 
-            if (s.startsWith(Stage.mutatorBeginPattern)) {
-                s = s.substring(Stage.mutatorBeginPattern.length);
+            if (s.startsWith(MutatorHub.mutatorBeginPattern)) {
+                s = s.substring(MutatorHub.mutatorBeginPattern.length);
                 let mutatorInfo = JSON.parse(s);
 
                 tempStack.push({
@@ -77,7 +45,7 @@ export default class Stage {
                     endIndex: -1,
                     childNodes: null
                 });
-            } else if (s === Stage.mutatorEndPattern) {
+            } else if (s === MutatorHub.mutatorEndPattern) {
                 let mutator = tempStack.pop();
 
                 if (!mutator) {
@@ -117,62 +85,6 @@ export default class Stage {
                 }
             }
         }
-    }
-
-    clearMutators(): void {
-        this.mutators.clear();
-        Stage.mutatorFunctions.clear();
-    }
-
-    static resetMutatorId(): void {
-        Stage.mutatorCounter = 0;
-    }
-
-    static resetMutators(): void {
-        for (let s of Component.stages.values()) {
-            s.clearMutators();
-        }
-
-        Stage.resetMutatorId();
-    }
-
-    static collectUnusedMutatorId(elem: Node = document): void {
-        if (Stage.mutatorFunctions.size <= 0) {
-            console.info(`Mutator cache collection result: no need to collect.`);
-            return;
-        }
-
-        let newFunctionMap = new Map<number, Function>();
-        let newStageMutatorMap = new Map<Stage, Map<string, Array<Mutator>>>();
-
-        let mutatorStack: Array<Mutator> = [];
-
-        function _process(stage: Stage, n: Node) {
-            stage.handleMutatorNode(n, mutatorStack, m => {
-                if (Stage.mutatorFunctions.has(m.info.id)) {
-                    newFunctionMap.set(m.info.id, Stage.mutatorFunctions.get(m.info.id));
-                }
-
-                stage.registerMutator(m, newStageMutatorMap.get(stage));
-            });
-
-            for (let c of n.childNodes) {
-                _process(stage, c);
-            }
-        }
-
-        for (let s of Component.stages.values()) {
-            newStageMutatorMap.set(s, new Map());
-            _process(s, elem);
-
-            console.info(`Stage ${s.constructor.name} mutator collection result: previous ${s.mutators.size}, now ${newStageMutatorMap.get(s).size}, collected ${s.mutators.size - newStageMutatorMap.get(s).size}`);
-
-            s.mutators = newStageMutatorMap.get(s);
-        }
-
-        console.info(`Mutator cache collection result: previous ${Stage.mutatorFunctions.size}, now ${newFunctionMap.size}, collected ${Stage.mutatorFunctions.size - newFunctionMap.size}`);
-
-        Stage.mutatorFunctions = newFunctionMap;
     }
 
     static getFullExpression(proxy: any, key: any, previousString = ""): string {

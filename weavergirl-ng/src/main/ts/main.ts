@@ -7,11 +7,13 @@ import Stage from "./router/stage";
 import {RouterCommand, RouterMode} from "./router/enums";
 import FunctionUtils from "./common/function-utils";
 import {Language} from "./i18n/lang";
+import MutatorHub from "./component/mutator-hub";
 
 export let Weavergirl = {
     Loader: Loader,
 
     Component: Component,
+    MutatorHub: MutatorHub,
 
     Router: new Router(),
     RouterMode: RouterMode,

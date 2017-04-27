@@ -4,6 +4,7 @@ import {ComponentDependencies} from "./component-dependencies";
 import Stage from "../router/stage";
 import {AttributeMutatorInfo, Mutator} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
+import MutatorHub from "./mutator-hub";
 
 export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
@@ -246,12 +247,12 @@ export default class Component extends HTMLElement {
 
     private registerSelfMutators(): void {
         this.walkSelfMutators(m => {
-            this.stage.registerMutator(m);
+            this.stage.mutatorHub.registerMutator(m);
 
-            if (Stage.mutatorFunctions.has(m.info.id)) {
+            if (MutatorHub.mutatorFunctions.has(m.info.id)) {
                 if (m.info.type !== "attribute") {
-                    m.beginPatternNode["_weavergirlMutatorFunction"] = Stage.mutatorFunctions.get(m.info.id);
-                    Stage.mutatorFunctions.delete(m.info.id);
+                    m.beginPatternNode["_weavergirlMutatorFunction"] = MutatorHub.mutatorFunctions.get(m.info.id);
+                    MutatorHub.mutatorFunctions.delete(m.info.id);
                 }
             }
         }, this);
@@ -421,9 +422,9 @@ export default class Component extends HTMLElement {
         let f: Function;
 
         if (mutator.info.type === "attribute") {
-            f = Stage.mutatorFunctions.get(mutator.info.id).bind(this);
+            f = MutatorHub.mutatorFunctions.get(mutator.info.id).bind(this);
         } else {
-            f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || Stage.mutatorFunctions.get(mutator.info.id)).bind(this);
+            f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || MutatorHub.mutatorFunctions.get(mutator.info.id)).bind(this);
         }
 
         switch (mutator.info.type) {
@@ -478,8 +479,8 @@ export default class Component extends HTMLElement {
 
         let found = 0;
 
-        if (this.stage.mutators.has(mutatorExpression)) {
-            let mutators = this.stage.mutators.get(mutatorExpression);
+        if (this.stage.mutatorHub.mutators.has(mutatorExpression)) {
+            let mutators = this.stage.mutatorHub.mutators.get(mutatorExpression);
             let mutatorsToRemove: Array<Mutator> = [];
 
             for (let mutator of mutators) {
@@ -501,7 +502,7 @@ export default class Component extends HTMLElement {
                 }
 
                 if (mutators.length <= 0) {
-                    this.stage.mutators.delete(mutatorExpression);
+                    this.stage.mutatorHub.mutators.delete(mutatorExpression);
                 }
 
                 console.info(`Collected ${mutatorsToRemove.length} detached mutators.`);
