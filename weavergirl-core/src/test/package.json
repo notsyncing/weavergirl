@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "mocha": "^3.2.0",
-    "requirejs": "^2.3.3",
+    "proxy-polyfill": "^0.1.6",
     "should": "^11.2.1"
   }
 }

@@ -1,17 +1,10 @@
 buildscript {
-    ext.kotlin_version = '1.1.0'
-
     repositories {
         mavenCentral()
-
-        maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-        }
     }
 
     dependencies {
         classpath 'org.apache.ant:ant:1.9.7'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -26,7 +19,7 @@ project.ext {
 
 subprojects {
     apply plugin: "maven-publish"
-    apply plugin: "kotlin2js"
+    apply plugin: "java"
 
     def ver = rootProject.ext.ver
     def grp = rootProject.ext.grp
@@ -39,10 +32,6 @@ subprojects {
         mavenCentral()
 
         maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-        }
-
-        maven {
             url "https://dl.bintray.com/notsyncing/maven/"
         }
 
@@ -50,46 +39,5 @@ subprojects {
     }
 
     dependencies {
-        compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-        //compile "io.github.notsyncing.kotlin.js.ext:kotlin-js-ext:0.1.0"
-    }
-
-    def outputDir = "${projectDir}/../out/production"
-
-    compileKotlin2Js {
-        kotlinOptions {
-            outputFile = "${outputDir}/${project.name}.js"
-            metaInfo = true
-            sourceMap = true
-        }
-    }
-
-    compileTestKotlin2Js {
-        kotlinOptions {
-            outputFile = "${outputDir}/../test/${project.name}.js"
-            metaInfo = true
-            sourceMap = true
-        }
-    }
-
-    task publishJar(type: Jar) {
-        from outputDir
-        include("${project.name}.js", "${project.name}.meta.js", "${project.name}/**")
-    }
-
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier "sources"
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier "javadoc"
-        from javadoc.destinationDir
-    }
-
-    uploadArchives {
-        repositories {
-            mavenLocal()
-        }
     }
 }

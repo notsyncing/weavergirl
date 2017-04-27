@@ -1,35 +1,76 @@
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId rootProject.ext.grp
-            artifactId 'weavergirl-core'
-            version rootProject.ext.ver
-            artifact publishJar
+import org.apache.tools.ant.taskdefs.condition.Os
 
-            artifact sourceJar
-            artifact javadocJar
-        }
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath "io.github.notsyncing.weavergirl:weavergirl-gradle-plugin:0.1.0"
     }
 }
+
+plugins {
+    id "de.richsource.gradle.plugins.typescript" version "1.8.0"
+}
+
+apply plugin: "io.github.notsyncing.weavergirl.gradle"
 
 dependencies {
+    compile 'org.webjars.bower:framework7:1.6.0'
+    compile 'org.webjars.npm:proxy-polyfill:0.1.6'
 }
 
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
+compileTypeScript {
+    sourcemap = true
+    target = "es6"
+    pretty = true
 
-    pkg {
-        repo = 'maven'
-        name = 'weavergirl-core'
-        licenses = [ 'GPL-3.0' ]
-        vcsUrl = 'https://github.com/notsyncing/weavergirl'
+    if (Os.isFamily(Os.FAMILY_MAC)) {
+        compilerExecutable = "/usr/local/bin/node /usr/local/bin/tsc"
+    }
+}
 
-        version {
-            name = rootProject.ext.ver
-            vcsTag = rootProject.ext.ver
-        }
+weavergirl {
+    additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl.js").toString()]
+
+    useBabel = true
+    babelSkipFiles = ["weavergirl.js"]
+}
+
+task webpack() {
+    def tsOutPath = project.buildDir.toPath().resolve("ts")
+
+    copy {
+        from "webpack.config.js"
+        into tsOutPath.toFile()
     }
 
-    publications = [ 'maven' ]
+    doLast {
+        exec {
+            workingDir tsOutPath.toFile()
+
+            if (Os.isFamily(Os.FAMILY_MAC)) {
+                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill"
+            } else {
+                commandLine "npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill"
+            }
+        }
+
+        exec {
+            workingDir tsOutPath.toFile()
+
+            if (Os.isFamily(Os.FAMILY_MAC)) {
+                commandLine "/usr/local/bin/node", "/usr/local/bin/webpack", "--config", "webpack.config.js"
+            } else {
+                commandLine "webpack", "--config", "webpack.config.js"
+            }
+        }
+    }
+}
+
+project.afterEvaluate {
+    webpack.dependsOn(compileTypeScript)
+    makeWeavergirlApp.dependsOn(webpack)
 }
