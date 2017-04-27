@@ -124,7 +124,7 @@ export default class Component extends HTMLElement {
 
         await this.loadDependencies();
 
-        let r = this.getRenderContent();
+        let r = this.getRenderedContent();
         let renderedContent;
 
         if (r instanceof Promise) {
@@ -290,7 +290,7 @@ export default class Component extends HTMLElement {
         this.rendered = true;
     }
 
-    private getRenderContent(): any {
+    private getRenderedContent(): any {
         if (!this.contentUrl) {
             this.content = this.view();
             return this.content;
@@ -479,8 +479,9 @@ export default class Component extends HTMLElement {
 
         let found = 0;
 
-        if (this.stage.mutatorHub.mutators.has(mutatorExpression)) {
-            let mutators = this.stage.mutatorHub.mutators.get(mutatorExpression);
+        let mutators = this.stage.mutatorHub.getMutatorsByExpression(mutatorExpression);
+
+        if (mutators) {
             let mutatorsToRemove: Array<Mutator> = [];
 
             for (let mutator of mutators) {
@@ -509,7 +510,7 @@ export default class Component extends HTMLElement {
             }
         } else {
             this.walkSelfMutators(mutator => {
-                if (mutator.info.expression === mutatorExpression) {
+                if (mutator.info.expressions.indexOf(mutatorExpression) >= 0) {
                     found = 2;
                     this.processMutator(mutator);
                 }

@@ -10,7 +10,7 @@ describe("Stage", () => {
             newWatchedObject = Weavergirl._tests.Stage.newWatchedObject;
             getFullExpression = Weavergirl._tests.Stage.getFullExpression;
 
-            o = newWatchedObject({
+            o = newWatchedObject({}, {
                 set: function (target, key, value) {
                     expr = getFullExpression(target, key);
                 }

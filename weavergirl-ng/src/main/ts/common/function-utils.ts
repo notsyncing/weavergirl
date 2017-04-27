@@ -7,7 +7,8 @@ export default class FunctionUtils {
             .replace(/function\s*\((.*?)\)\s*/g, "")
             .replace(/{\s*return\s*/g, "")
             .replace(/;\s*}/g, "")
-            .replace(/[a-zA-Z0-9_]*this[a-zA-Z0-9_]*\.stage\.state\./g, "");
+            .replace(/[a-zA-Z0-9_]*this[a-zA-Z0-9_]*\.stage\.state\./g, "")
+            .replace(/\(\)/g, "");
     }
 
     static getFunctionArguments(func: Function): Array<string> {

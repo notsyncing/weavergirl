@@ -1,9 +1,15 @@
 class FirstPageStage extends Weavergirl.Stage {
     stageWillEnter() {
-        this.state.counter = 0;
-        this.state.text = "";
-        this.state.switchOn = false;
-        this.state.type = "text";
+        this.state = {
+            counter: 0,
+            text: "",
+            switchOn: false,
+            type: "text",
+
+            computed: function () {
+                return this.counter + this.text;
+            }
+        };
     }
 
     incCounter() {
@@ -60,6 +66,10 @@ class FirstPage extends Weavergirl.Component {
     <div>
         <input ${T.attr("type", () => this.stage.state.type)}>
         <button id="btnToggleType" onclick="this.stage.toggleType()">${I("Toggle {0}", 2)}</button>    
+    </div>
+    
+    <div>
+        <span>Computed: ${() => this.stage.state.computed()}</span>    
     </div>
 </div>
 `;

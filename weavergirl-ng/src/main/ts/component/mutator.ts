@@ -14,7 +14,7 @@ export interface Mutator {
 export interface MutatorInfo {
     id: number;
     type: string;
-    expression: string;
+    expressions: Array<string>;
 }
 
 export interface AttributeMutatorInfo extends MutatorInfo {

@@ -12,6 +12,8 @@ export default class MutatorHub {
 
     mutators = new Map<string, Array<Mutator>>();
 
+    private mutatorExprDeps = new Map<string, Array<string>>();
+
     constructor(private stage: Stage) {
 
     }
@@ -44,18 +46,20 @@ export default class MutatorHub {
     }
 
     registerMutator(mutator: Mutator, _into = this.mutators): void {
-        if (!_into.has(mutator.info.expression)) {
-            _into.set(mutator.info.expression, [mutator]);
-        } else {
-            let l = _into.get(mutator.info.expression);
+        for (let expression of mutator.info.expressions) {
+            if (!_into.has(expression)) {
+                _into.set(expression, [mutator]);
+            } else {
+                let l = _into.get(expression);
 
-            for (let m of l) {
-                if (m.info.id === mutator.info.id) {
-                    return;
+                for (let m of l) {
+                    if (m.info.id === mutator.info.id) {
+                        return;
+                    }
                 }
-            }
 
-            l.push(mutator);
+                l.push(mutator);
+            }
         }
     }
 
@@ -96,5 +100,49 @@ export default class MutatorHub {
         console.info(`Mutator cache collection result: previous ${MutatorHub.mutatorFunctions.size}, now ${newFunctionMap.size}, collected ${MutatorHub.mutatorFunctions.size - newFunctionMap.size}`);
 
         MutatorHub.mutatorFunctions = newFunctionMap;
+    }
+
+    private resolveMutatorExpressionDependencies(expr: string, into: Array<Mutator>): void {
+        if (!this.mutatorExprDeps.has(expr)) {
+            return;
+        }
+
+        for (let e of this.mutatorExprDeps.get(expr)) {
+            if (this.mutators.has(e)) {
+                for (let m of this.mutators.get(e)) {
+                    into.push(m);
+                }
+            }
+
+            this.resolveMutatorExpressionDependencies(e, into);
+        }
+    }
+
+    getMutatorsByExpression(expr: string): Array<Mutator> {
+        let l: Array<Mutator> = [];
+
+        if (this.mutators.has(expr)) {
+            l = l.concat(this.mutators.get(expr));
+        }
+
+        this.resolveMutatorExpressionDependencies(expr, l);
+
+        console.dir(l);
+
+        return l;
+    }
+
+    registerMutatorExpressionDependencies(expr: string, deps: Array<string>): void {
+        for (let d of deps) {
+            if (this.mutatorExprDeps.has(d)) {
+                let l = this.mutatorExprDeps.get(d);
+
+                if (l.indexOf(expr) < 0) {
+                    l.push(expr);
+                }
+            } else {
+                this.mutatorExprDeps.set(d, [expr]);
+            }
+        }
     }
 }

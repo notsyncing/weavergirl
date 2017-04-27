@@ -31,6 +31,12 @@ describe("FunctionUtils", () => {
             let r = Weavergirl._tests.FunctionUtils.extractExpressionFromFunction(f);
             r.should.equal("o.a");
         });
+
+        it("should return o.a for () => this.stage.state.o.a()", () => {
+            let f = () => this.stage.state.o.a;
+            let r = Weavergirl._tests.FunctionUtils.extractExpressionFromFunction(f);
+            r.should.equal("o.a");
+        });
     });
 
     describe("#getFunctionArguments", () => {

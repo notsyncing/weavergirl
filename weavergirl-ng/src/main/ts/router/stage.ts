@@ -5,12 +5,40 @@ import MutatorHub from "../component/mutator-hub";
 export default class Stage {
     mutatorHub = new MutatorHub(this);
 
-    public state: any = null;
+    private _state: any = null;
+    private watcher: any = {};
+    recordStack: Array<Array<string>> = [];
 
     constructor(public rootComponent: Component) {
         let __this = this;
 
-        let watcher = {
+        let callRecorder = function (oldCall, fullExpr) {
+            return function () {
+                let recordedExpressions: Array<string> = [];
+                __this.beginRecord(recordedExpressions);
+
+                let r = oldCall.apply(this, arguments);
+
+                __this.endRecord();
+                __this.mutatorHub.registerMutatorExpressionDependencies(fullExpr, recordedExpressions);
+
+                return r;
+            };
+        };
+
+        this.watcher = {
+            get: function (target, key, result) {
+                if ((typeof target[key] === "function") && (target.hasOwnProperty(key))) {
+                    return callRecorder(result, Stage.getFullExpression(target, key));
+                } else {
+                    if (__this.recordStack.length > 0) {
+                        let l = __this.recordStack[__this.recordStack.length - 1];
+                        l.push(Stage.getFullExpression(target, key));
+                    }
+
+                    return result;
+                }
+            },
             set: function (target, key, value) {
                 console.dir(target);
                 console.info(`Stage ${__this.constructor.name} state change detected: on ${target} key ${key} value ${value}`);
@@ -20,11 +48,19 @@ export default class Stage {
             }
         };
 
-        this.state = Stage.newWatchedObject(watcher);
+        this.state = {};
 
         setTimeout(() => {
             this.stageWillEnter();
         }, 0);
+    }
+
+    get state(): any {
+        return this._state;
+    }
+
+    set state(s: any) {
+        this._state = Stage.newWatchedObject(s, this.watcher);
     }
 
     handleMutatorNode(node: Node, tempStack: Array<Mutator>, handler: (mutator: Mutator) => void): void {
@@ -129,22 +165,30 @@ export default class Stage {
         return s;
     }
 
-    static newWatchedObject(handlers): any {
+    static newWatchedObject(obj, handlers): any {
         let watcher = {
             get: function (target, key) {
+                let r: any;
+
                 if ((typeof target[key] === "object") && (target[key] !== null)) {
                     let p = new Proxy(target[key], watcher) as any;
                     p.parentProxy = target;
                     p.proxyFieldName = key;
 
-                    return p;
+                    r = p;
                 } else {
-                    if (handlers.get) {
-                        handlers.get(target, key);
-                    }
-
-                    return target[key];
+                    r = target[key];
                 }
+
+                if (handlers.get) {
+                    let r2 = handlers.get(target, key, r);
+
+                    if (r2 !== r) {
+                        r = r2;
+                    }
+                }
+
+                return r;
             },
             set: function (target, key, value) {
                 if ((key === "parentProxy") || (key === "proxyFieldName")) {
@@ -162,11 +206,19 @@ export default class Stage {
             }
         };
 
-        return new Proxy({}, watcher);
+        return new Proxy(obj, watcher);
     }
 
     rootComponentRendered(): void {
     }
 
     stageWillEnter(): void {}
+
+    beginRecord(into: Array<string>): void {
+        this.recordStack.push(into);
+    }
+
+    endRecord(): void {
+        this.recordStack.pop();
+    }
 }

@@ -20,21 +20,21 @@ describe("TemplateUtils", () => {
         it("should generate inline mutator for dynamic value", () => {
             let n = 1;
             let s = T.html`<div>a: ${() => n}</div>`;
-            s.should.equal(`<div>a: <!--#weavergirl-mutator {"id":0,"type":"inline","expression":"n"}-->1<!--#/weavergirl-mutator--></div>`);
+            s.should.equal(`<div>a: <!--#weavergirl-mutator {"id":0,"type":"inline","expressions":["n"]}-->1<!--#/weavergirl-mutator--></div>`);
         });
 
         it("should generate multiple inline mutators for the same dynamic value", () => {
             let n = 1;
             let s = T.html`<div>a: ${() => n}, b: ${() => n}</div>`;
-            s.should.equal("<div>a: <!--#weavergirl-mutator {\"id\":0,\"type\":\"inline\",\"expression\":\"n\"}-->1<!--#/weavergirl-mutator-->" +
-                ", b: <!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expression\":\"n\"}-->1<!--#/weavergirl-mutator--></div>");
+            s.should.equal("<div>a: <!--#weavergirl-mutator {\"id\":0,\"type\":\"inline\",\"expressions\":[\"n\"]}-->1<!--#/weavergirl-mutator-->" +
+                ", b: <!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"n\"]}-->1<!--#/weavergirl-mutator--></div>");
         });
 
         it("should generate multiple inline mutators for two dynamic values", () => {
             let n = 1, m = 2;
             let s = T.html`<div>a: ${() => n}, b: ${() => m}</div>`;
-            s.should.equal("<div>a: <!--#weavergirl-mutator {\"id\":0,\"type\":\"inline\",\"expression\":\"n\"}-->1<!--#/weavergirl-mutator-->" +
-                ", b: <!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expression\":\"m\"}-->2<!--#/weavergirl-mutator--></div>");
+            s.should.equal("<div>a: <!--#weavergirl-mutator {\"id\":0,\"type\":\"inline\",\"expressions\":[\"n\"]}-->1<!--#/weavergirl-mutator-->" +
+                ", b: <!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"m\"]}-->2<!--#/weavergirl-mutator--></div>");
         });
     });
 
@@ -90,10 +90,10 @@ describe("TemplateUtils", () => {
                 return T.html`<div>Hello${m}</div>`;
             });
 
-            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expression\":\"l.length\"}-->" +
-                "<!--#weavergirl-mutator {\"id\":1,\"type\":\"repeater\",\"expression\":\"l[0]\"}--><div>Hello1</div><!--#/weavergirl-mutator-->" +
-                "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expression\":\"l[1]\"}--><div>Hello2</div><!--#/weavergirl-mutator-->" +
-                "<!--#weavergirl-mutator {\"id\":3,\"type\":\"repeater\",\"expression\":\"l[2]\"}--><div>Hello3</div><!--#/weavergirl-mutator-->" +
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l.length\"]}-->" +
+                "<!--#weavergirl-mutator {\"id\":1,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}--><div>Hello1</div><!--#/weavergirl-mutator-->" +
+                "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[1]\"]}--><div>Hello2</div><!--#/weavergirl-mutator-->" +
+                "<!--#weavergirl-mutator {\"id\":3,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}--><div>Hello3</div><!--#/weavergirl-mutator-->" +
                 "<!--#/weavergirl-mutator-->");
         });
     });
@@ -166,7 +166,7 @@ describe("TemplateUtils", () => {
                 .otherwise(() => `<div>World</div>`)
                 .toString();
 
-            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expression\":\"c\"}--><div>Whoa</div><!--#/weavergirl-mutator-->");
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"c\"]}--><div>Whoa</div><!--#/weavergirl-mutator-->");
         });
     });
 });

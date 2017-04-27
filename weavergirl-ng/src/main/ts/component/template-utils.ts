@@ -99,7 +99,7 @@ export default class TemplateUtils {
         let mutatorId = MutatorHub.allocateMutatorId();
         MutatorHub.setMutatorFunction(mutatorId, funcContainsExpression);
 
-        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expression: expression })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
+        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expressions: [expression] })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
     }
 
     static forEach(list: Function | Array<any>, handler: (item: any, index: number) => string, _noMutatorNode = false): string {
@@ -119,7 +119,7 @@ export default class TemplateUtils {
                 mutatorBegin = {
                     id: MutatorHub.allocateMutatorId(),
                     type: "repeater",
-                    expression: expression + ".length"
+                    expressions: [expression + ".length"]
                 };
 
                 MutatorHub.setMutatorFunction(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
@@ -146,7 +146,7 @@ export default class TemplateUtils {
                 let itemMutatorBegin = {
                     id: MutatorHub.allocateMutatorId(),
                     type: "repeater",
-                    expression: `${expression}[${i}]`
+                    expressions: [`${expression}[${i}]`]
                 };
 
                 MutatorHub.setMutatorFunction(itemMutatorBegin.id, () => {
@@ -187,7 +187,7 @@ export default class TemplateUtils {
             let mutator: AttributeMutatorInfo = {
                 id: MutatorHub.allocateMutatorId(),
                 type: "attribute",
-                expression: FunctionUtils.extractExpressionFromFunction(value),
+                expressions: [FunctionUtils.extractExpressionFromFunction(value)],
                 attribute: name
             };
 
@@ -216,7 +216,7 @@ class SwitchTemplate {
                 this.mutatorBegin = {
                     id: MutatorHub.allocateMutatorId(),
                     type: "repeater",
-                    expression: expression
+                    expressions: [expression]
                 };
 
                 MutatorHub.setMutatorFunction(this.mutatorBegin.id, () => {
