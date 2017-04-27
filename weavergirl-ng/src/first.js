@@ -8,6 +8,10 @@ class FirstPageStage extends Weavergirl.Stage {
 
             computed: function () {
                 return this.counter + this.text;
+            },
+
+            switchOnComputed: function () {
+                return this.switchOn;
             }
         };
     }
@@ -70,6 +74,14 @@ class FirstPage extends Weavergirl.Component {
     
     <div>
         <span>Computed: ${() => this.stage.state.computed()}</span>    
+    </div>
+    
+    <div>
+        ${T.when(() => this.stage.state.switchOnComputed())
+            .is(true, () =>
+                `<div>I'm on!</div>`)
+            .otherwise(() =>
+                `<div>I'm off!</div>`)}
     </div>
 </div>
 `;
