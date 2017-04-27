@@ -10,8 +10,7 @@ export default class MutatorHub {
 
     static mutatorFunctions = new Map<number, Function>();
 
-    mutators = new Map<string, Array<Mutator>>();
-
+    private mutators = new Map<string, Array<Mutator>>();
     private mutatorExprDeps = new Map<string, Array<string>>();
 
     constructor(private stage: Stage) {
@@ -144,5 +143,9 @@ export default class MutatorHub {
                 this.mutatorExprDeps.set(d, [expr]);
             }
         }
+    }
+
+    deleteMutatorsByExpression(expr: string): void {
+        this.mutators.delete(expr);
     }
 }

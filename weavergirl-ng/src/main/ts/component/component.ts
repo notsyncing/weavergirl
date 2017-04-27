@@ -503,7 +503,7 @@ export default class Component extends HTMLElement {
                 }
 
                 if (mutators.length <= 0) {
-                    this.stage.mutatorHub.mutators.delete(mutatorExpression);
+                    this.stage.mutatorHub.deleteMutatorsByExpression(mutatorExpression);
                 }
 
                 console.info(`Collected ${mutatorsToRemove.length} detached mutators.`);
