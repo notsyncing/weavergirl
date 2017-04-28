@@ -19,7 +19,7 @@ apply plugin: "io.github.notsyncing.weavergirl.gradle"
 
 compileTypeScript {
     sourcemap = true
-    target = "es6"
+    target = "ES2015"
     pretty = true
 
     if (Os.isFamily(Os.FAMILY_MAC)) {
@@ -72,6 +72,16 @@ publishing {
 
             artifact(file("${buildDir}/weavergirl/${project.name}-${rootProject.ext.ver}.jar")) {
                 builtBy makeWeavergirlJar
+            }
+
+            pom.withXml {
+                def dependencies = asNode().appendNode('dependencies')
+                configurations.compile.getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+                    def dependency = dependencies.appendNode('dependency')
+                    dependency.appendNode('groupId', it.moduleGroup)
+                    dependency.appendNode('artifactId', it.moduleName)
+                    dependency.appendNode('version', it.moduleVersion)
+                }
             }
         }
     }

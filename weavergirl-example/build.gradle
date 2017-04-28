@@ -14,6 +14,7 @@ apply plugin: "io.github.notsyncing.weavergirl.gradle"
 dependencies {
     compile "io.github.notsyncing.weavergirl:weavergirl-core:0.1.0"
     compile 'org.webjars.npm:proxy-polyfill:0.1.6'
+    compile "org.webjars.npm:webcomponents__custom-elements:1.0.0-rc.3"
 }
 
 weavergirl {
