@@ -238,6 +238,7 @@ class WeavergirlPlugin implements Plugin<Project> {
 
         project.afterEvaluate {
             makeAppPackageTask.dependsOn(makeAppTask)
+            makeJarTask.dependsOn(makeAppTask)
         }
     }
 }
