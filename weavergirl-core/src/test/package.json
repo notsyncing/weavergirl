@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@webcomponents/custom-elements": "^1.0.0-rc.3",
     "mocha": "^3.2.0",
     "proxy-polyfill": "^0.1.6",
     "should": "^11.2.1"

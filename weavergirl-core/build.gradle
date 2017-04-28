@@ -32,15 +32,16 @@ weavergirl {
     additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl-core.js").toString()]
 }
 
-task webpack() {
+void doWebpack(Task task, boolean test = false) {
     def tsOutPath = project.buildDir.toPath().resolve("ts")
+    def configFile = test ? "webpack.test.config.js" : "webpack.config.js"
 
     copy {
-        from "webpack.config.js"
+        from configFile
         into tsOutPath.toFile()
     }
 
-    doLast {
+    task.doLast {
         exec {
             workingDir tsOutPath.toFile()
 
@@ -55,12 +56,20 @@ task webpack() {
             workingDir tsOutPath.toFile()
 
             if (Os.isFamily(Os.FAMILY_MAC)) {
-                commandLine "/usr/local/bin/node", "/usr/local/bin/webpack", "--config", "webpack.config.js"
+                commandLine "/usr/local/bin/node", "/usr/local/bin/webpack", "--config", configFile
             } else {
-                commandLine "webpack", "--config", "webpack.config.js"
+                commandLine "webpack", "--config", configFile
             }
         }
     }
+}
+
+task webpack() {
+    doWebpack(it, false)
+}
+
+task webpackTest() {
+    doWebpack(it, true)
 }
 
 publishing {
@@ -88,6 +97,7 @@ publishing {
 }
 
 project.afterEvaluate {
+    webpackTest.dependsOn(compileTypeScript)
     webpack.dependsOn(compileTypeScript)
     makeWeavergirlApp.dependsOn(webpack)
 }
