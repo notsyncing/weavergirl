@@ -150,10 +150,12 @@ class WeavergirlPlugin implements Plugin<Project> {
 
             Files.createDirectories(appDir)
 
-            project.copy {
-                from project.extensions.weavergirl.srcDir
-                into appDir.toFile()
-                exclude 'index.html'
+            if (project.extensions.weavergirl.srcDir != null) {
+                project.copy {
+                    from project.extensions.weavergirl.srcDir
+                    into appDir.toFile()
+                    exclude 'index.html'
+                }
             }
 
             for (f in project.extensions.weavergirl.additionalFiles) {
@@ -208,10 +210,12 @@ class WeavergirlPlugin implements Plugin<Project> {
                 Files.delete(s)
             }
 
-            project.copy {
-                from project.extensions.weavergirl.srcDir
-                into jarDir.toFile()
-                exclude 'index.html'
+            if (project.extensions.weavergirl.srcDir != null) {
+                project.copy {
+                    from project.extensions.weavergirl.srcDir
+                    into jarDir.toFile()
+                    exclude 'index.html'
+                }
             }
 
             for (f in project.extensions.weavergirl.additionalFiles) {

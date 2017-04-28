@@ -52,18 +52,14 @@ class WeavergirlLayout extends Weavergirl.Component {
 
     view() {
         return `
-<ons-splitter>
-    <ons-splitter-side side="left" width="220px">
-        <ons-page>
-            <ons-list>
-                ${T.forEach(() => this.stage.state.menus, (m, i) =>
-                    this.html`<ons-list-item tappable href="${m.href}" onclick="this.stage.go(event, '${m.href}')">${() => this.stage.state.menus[i].name}</ons-list-item>`
-                )}
-            </ons-list>
-        </ons-page>
-    </ons-splitter-side>
-    <ons-splitter-content weavergirl-slot></ons-splitter-content>
-</ons-splitter>
+<div>
+    <div>
+        ${T.forEach(() => this.stage.state.menus, (m, i) =>
+            this.html`<a href="${m.href}" onclick="this.stage.go(event, '${m.href}')">${() => this.stage.state.menus[i].name}</a>`
+        )}
+    </div>
+    <div weavergirl-slot></div>
+</div>
 `;
     }
 }

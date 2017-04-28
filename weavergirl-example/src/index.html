@@ -6,11 +6,8 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
-    <link type="text/css" rel="stylesheet" href="framework7/1.6.0/dist/css/framework7.ios.css">
-
-    <script type="text/javascript" src="framework7/1.6.0/dist/js/framework7.js"></script>
     <script type="text/javascript" src="proxy-polyfill/0.1.6/proxy.js"></script>
-    <script type="text/javascript" src="weavergirl-ng/weavergirl.js"></script>
+    <script type="text/javascript" src="weavergirl-core/weavergirl-core.js"></script>
 
     <script type="text/javascript">
         window.menus = [
@@ -33,32 +30,32 @@
                 {
                     route: "",
                     component: {
-                        url: "/weavergirl-ng/layout/layout.js",
+                        url: "/weavergirl-example/layout/layout.js",
                         id: "layout"
                     },
                     children: [
                         {
                             route: "/",
-                            component: "/weavergirl-ng/first.js"
+                            component: "/weavergirl-example/first.js"
                         },
                         {
                             route: "/second",
-                            component: "/weavergirl-ng/second.js"
+                            component: "/weavergirl-example/second.js"
                         },
                         {
                             route: "/third",
-                            component: "/weavergirl-ng/third.js"
+                            component: "/weavergirl-example/third.js"
                         }
                     ]
                 },
                 {
                     route: "/fourth",
-                    component: "/weavergirl-ng/fourth.js"
+                    component: "/weavergirl-example/fourth.js"
                 }
             ]);
         });
 
-        Weavergirl.Language.setLanguageFileBase("/weavergirl-ng/lang/");
+        Weavergirl.Language.setLanguageFileBase("/weavergirl-example/lang/");
         Weavergirl.Language.init();
         Weavergirl.Language.setLocale("zh-CN");
     </script>

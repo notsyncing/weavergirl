@@ -1,4 +1,5 @@
 rootProject.name = 'weavergirl'
 include 'weavergirl-gradle-plugin'
 include 'weavergirl-core'
+include 'weavergirl-example'
 

@@ -3,7 +3,7 @@ const webpack = require("webpack");
 module.exports = {
     entry: ["babel-polyfill", "./main.js"],
     output: {
-        filename: "weavergirl.js"
+        filename: "weavergirl-core.js"
     },
     plugins: [
         new webpack.optimize.UglifyJsPlugin({

@@ -17,11 +17,6 @@ plugins {
 
 apply plugin: "io.github.notsyncing.weavergirl.gradle"
 
-dependencies {
-    compile 'org.webjars.bower:framework7:1.6.0'
-    compile 'org.webjars.npm:proxy-polyfill:0.1.6'
-}
-
 compileTypeScript {
     sourcemap = true
     target = "es6"
@@ -33,10 +28,8 @@ compileTypeScript {
 }
 
 weavergirl {
-    additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl.js").toString()]
-
-    useBabel = true
-    babelSkipFiles = ["weavergirl.js"]
+    srcDir = null
+    additionalFiles = [project.buildDir.toPath().resolve("ts/weavergirl-core.js").toString()]
 }
 
 task webpack() {
@@ -65,6 +58,20 @@ task webpack() {
                 commandLine "/usr/local/bin/node", "/usr/local/bin/webpack", "--config", "webpack.config.js"
             } else {
                 commandLine "webpack", "--config", "webpack.config.js"
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId rootProject.ext.grp
+            artifactId 'weavergirl-core'
+            version rootProject.ext.ver
+
+            artifact(file("${buildDir}/weavergirl/${project.name}-${rootProject.ext.ver}.jar")) {
+                builtBy makeWeavergirlJar
             }
         }
     }

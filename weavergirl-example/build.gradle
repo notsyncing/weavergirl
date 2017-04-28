@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath "io.github.notsyncing.weavergirl:weavergirl-gradle-plugin:0.1.0"
+    }
+}
+
+apply plugin: "io.github.notsyncing.weavergirl.gradle"
+
+dependencies {
+    compile "io.github.notsyncing.weavergirl:weavergirl-core:0.1.0"
+    compile 'org.webjars.npm:proxy-polyfill:0.1.6'
+}
+
+weavergirl {
+    useBabel = true
+}
