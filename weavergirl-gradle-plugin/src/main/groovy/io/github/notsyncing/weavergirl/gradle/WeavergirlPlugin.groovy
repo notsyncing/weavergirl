@@ -106,18 +106,18 @@ class WeavergirlPlugin implements Plugin<Project> {
 
             Files.createDirectories(outputDir)
 
-            for (d in project.configurations.compile) {
-                if (!d.isFile()) {
+            for (d in project.configurations.compile.resolvedConfiguration.resolvedArtifacts) {
+                if (!d.file.isFile()) {
                     continue
                 }
 
-                if (!d.getName().endsWith(".jar")) {
+                if (!d.file.getName().endsWith(".jar")) {
                     continue
                 }
 
                 def type = DependencyType.PlainJar
 
-                FileSystems.newFileSystem(d.toPath(), null).withCloseable { fs ->
+                FileSystems.newFileSystem(d.file.toPath(), null).withCloseable { fs ->
                     def p = fs.getPath("META-INF/resources/webjars")
 
                     if (Files.exists(p)) {
@@ -130,14 +130,14 @@ class WeavergirlPlugin implements Plugin<Project> {
                 switch (type) {
                     case DependencyType.PlainJar:
                         project.copy {
-                            from project.zipTree(d)
+                            from project.zipTree(d.file)
                             into outputDir.toFile()
                             exclude 'META-INF/**'
                         }
 
                         break
                     case DependencyType.WebJar:
-                        copySubdirectoryFromFileTree(project, project.zipTree(d),
+                        copySubdirectoryFromFileTree(project, project.zipTree(d.file),
                                 "META-INF/resources/webjars", outputDir)
 
                         break
