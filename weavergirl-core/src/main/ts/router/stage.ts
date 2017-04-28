@@ -7,6 +7,8 @@ export default class Stage {
 
     private _state: any = null;
     private watcher: any = {};
+    private inInit = true;
+
     recordStack: Array<Array<string>> = [];
 
     constructor(public rootComponent: Component) {
@@ -40,6 +42,10 @@ export default class Stage {
                 }
             },
             set: function (target, key, value) {
+                if (__this.inInit) {
+                    return;
+                }
+
                 console.dir(target);
                 console.info(`Stage ${__this.constructor.name} state change detected: on ${target} key ${key} value ${value}`);
 
@@ -50,9 +56,17 @@ export default class Stage {
 
         this.state = {};
 
+        this.init();
+
         setTimeout(() => {
             this.stageWillEnter();
         }, 0);
+
+        this.inInit = false;
+    }
+
+    init() {
+
     }
 
     get state(): any {

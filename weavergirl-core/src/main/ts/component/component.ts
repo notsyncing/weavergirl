@@ -147,7 +147,7 @@ export default class Component extends HTMLElement {
     protected afterRender(): void {}
 
     connectedCallback() {
-        console.info(`Attached ${this.id || this.tagName} to DOM, contentUrl ${this.contentUrl}`);
+        console.info(`Attached ${this.id || this.tagName} to DOM, contentUrl ${this.contentUrl}, stage ${this.stage.constructor.name}`);
         console.dir(this);
 
         this.render()
