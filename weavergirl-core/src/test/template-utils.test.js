@@ -210,11 +210,37 @@ describe("TemplateUtils", () => {
         });
     });
 
+    describe("#attr", () => {
+        beforeEach(() => {
+            Weavergirl.MutatorHub.resetMutators();
+        });
+
+        it("should generate correct static attribute for element", () => {
+            let c = 2;
+
+            let s = T.attr("value", c);
+
+            s.should.equal("value=\"2\"");
+        });
+
+        it("should generate correct dynamic attribute for element", () => {
+            let c = 2;
+
+            let s = T.attr("value", () => c);
+
+            s.should.equal("value=\"2\" weavergirl-mutator-0=\"{%22id%22:0,%22type%22:%22attribute%22,%22expressions%22:[%22c%22],%22attribute%22:%22value%22}\"");
+        });
+    });
+
     describe("#bind", () => {
-        it("should generate correct attribute for element", () => {
+        beforeEach(() => {
+            Weavergirl.MutatorHub.resetMutators();
+        });
+
+        it("should generate correct bind attribute for element", () => {
             let s = T.bind(() => c);
 
-            s.should.equal("data-weavergirl-bind-mutator=\"{%22id%22:1,%22type%22:%22delegate%22,%22expressions%22:[%22c%22],%22delegate%22:%22this.bindMutatorHandler%22}\"");
+            s.should.equal("data-weavergirl-bind-mutator=\"{%22id%22:0,%22type%22:%22delegate%22,%22expressions%22:[%22c%22],%22delegate%22:%22this.bindMutatorHandler%22}\"");
         });
     });
 });

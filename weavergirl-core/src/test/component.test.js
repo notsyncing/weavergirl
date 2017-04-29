@@ -334,6 +334,73 @@ describe("Component", () => {
         }, 0);
     });
 
+    it("should correctly render a simple immutable attribute component", (done) => {
+        class TestImmutableAttributeComponentStage extends Weavergirl.Stage {
+            init() {
+                this.state.value = 1;
+            }
+        }
+
+        class TestImmutableAttributeComponent extends Weavergirl.Component {
+            get stageClass() {
+                return TestImmutableAttributeComponentStage;
+            }
+
+            view() {
+                return `<input ${T.attr("value", this.stage.state.value)}>`;
+            }
+        }
+
+        tester.renderSimple(TestImmutableAttributeComponent);
+
+        setTimeout(() => {
+            let r = tester.content;
+            r.should.equal("<test-immutable-attribute-component>" +
+                "<input value=\"1\">" +
+                "</test-immutable-attribute-component>");
+
+            done();
+        }, 0);
+    });
+
+    it("should change attribute in a simple mutable attribute component when state changed", (done) => {
+        class TestMutableAttributeComponentStage extends Weavergirl.Stage {
+            init() {
+                this.state.value = 1;
+            }
+        }
+
+        class TestMutableAttributeComponent extends Weavergirl.Component {
+            get stageClass() {
+                return TestMutableAttributeComponentStage;
+            }
+
+            view() {
+                return `<input ${T.attr("value", () => this.stage.state.value)}>`;
+            }
+        }
+
+        let elem = tester.renderSimple(TestMutableAttributeComponent);
+
+        let expected = "<test-mutable-attribute-component>" +
+            "<input value=\"2\" " +
+            "weavergirl-mutator-0=\"{%22id%22:0,%22type%22:%22attribute%22,%22expressions%22:[%22value%22],%22attribute%22:%22value%22}\">" +
+            "</test-mutable-attribute-component>";
+
+        setTimeout(() => {
+            let r = tester.content;
+            r.should.not.equal(expected);
+
+            elem.stage.state.value = 2;
+
+            setTimeout(() => {
+                tester.content.should.equal(expected);
+
+                done();
+            }, 0);
+        }, 0);
+    });
+
     it("should change binded element value when state changed", (done) => {
         class TestBindComponentStage extends Weavergirl.Stage {
             init() {
