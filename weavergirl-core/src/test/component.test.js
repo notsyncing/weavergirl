@@ -333,4 +333,91 @@ describe("Component", () => {
             }, 0);
         }, 0);
     });
+
+    it("should change binded element value when state changed", (done) => {
+        class TestBindComponentStage extends Weavergirl.Stage {
+            init() {
+                this.state.input = "old";
+            }
+        }
+
+        class TestBindComponent extends Weavergirl.Component {
+            get stageClass() {
+                return TestBindComponentStage;
+            }
+
+            view() {
+                console.dir(this.stage.state);
+                return `<input id="testInput" weavergirl-keep-id ${T.bind(() => this.stage.state.input)}>`;
+            }
+        }
+
+        let elem = tester.renderSimple(TestBindComponent);
+
+        let expected = "<test-bind-component>" +
+            "<input id=\"testInput\" weavergirl-keep-id=\"\" " +
+            "data-weavergirl-bind-mutator=\"%7B%22id%22%3A0%2C%22type%22%3A%22delegate%22%2C%22expressions%22%3A%5B%22input%22%5D%2C%22delegate%22%3A%22this.bindMutatorHandler%22%7D\">" +
+            "</test-bind-component>";
+
+        setTimeout(() => {
+            let r = tester.content;
+            r.should.equal(expected);
+            elem.querySelector("#testInput").value.should.equal("old");
+
+            elem.stage.state.input = "new";
+
+            setTimeout(() => {
+                elem.querySelector("#testInput").value.should.equal("new");
+
+                done();
+            }, 0);
+        }, 0);
+    });
+
+    it("should change binded field in state when input changed", (done) => {
+        class TestBindComponentStage2 extends Weavergirl.Stage {
+            init() {
+                this.state.input = "old";
+            }
+        }
+
+        class TestBindComponent2 extends Weavergirl.Component {
+            get stageClass() {
+                return TestBindComponentStage2;
+            }
+
+            view() {
+                console.dir(this.stage.state);
+                return `<input id="testInput" weavergirl-keep-id ${T.bind(() => this.stage.state.input)}>`;
+            }
+        }
+
+        let elem = tester.renderSimple(TestBindComponent2);
+
+        let expected = "<test-bind-component2>" +
+            "<input id=\"testInput\" weavergirl-keep-id=\"\" " +
+            "data-weavergirl-bind-mutator=\"%7B%22id%22%3A0%2C%22type%22%3A%22delegate%22%2C%22expressions%22%3A%5B%22input%22%5D%2C%22delegate%22%3A%22this.bindMutatorHandler%22%7D\">" +
+            "</test-bind-component2>";
+
+        setTimeout(() => {
+            let r = tester.content;
+            r.should.equal(expected);
+            elem.querySelector("#testInput").value.should.equal("old");
+
+            elem.querySelector("#testInput").value = "new";
+
+            let event = new Event("input", {
+                'bubbles': true,
+                'cancelable': true
+            });
+
+            elem.querySelector("#testInput").dispatchEvent(event);
+
+            setTimeout(() => {
+                elem.stage.state.input.should.equal("new");
+
+                done();
+            }, 0);
+        }, 0);
+    });
 });

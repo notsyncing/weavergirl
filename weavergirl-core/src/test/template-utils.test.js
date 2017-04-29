@@ -169,4 +169,12 @@ describe("TemplateUtils", () => {
             s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"c\"]}--><div>Whoa</div><!--#/weavergirl-mutator-->");
         });
     });
+
+    describe("#bind", () => {
+        it("should generate correct attribute for element", () => {
+            let s = T.bind(() => c);
+
+            s.should.equal("data-weavergirl-bind-mutator=\"%7B%22id%22%3A1%2C%22type%22%3A%22delegate%22%2C%22expressions%22%3A%5B%22c%22%5D%2C%22delegate%22%3A%22this.bindMutatorHandler%22%7D\"");
+        });
+    });
 });

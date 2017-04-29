@@ -20,3 +20,7 @@ export interface MutatorInfo {
 export interface AttributeMutatorInfo extends MutatorInfo {
     attribute: string;
 }
+
+export interface DelegateMutatorInfo extends MutatorInfo {
+    delegate: string | ((elem: Element, newValue: any) => void);
+}

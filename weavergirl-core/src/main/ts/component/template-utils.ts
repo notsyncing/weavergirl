@@ -1,4 +1,4 @@
-import {AttributeMutatorInfo, MutatorInfo} from "./mutator";
+import {AttributeMutatorInfo, DelegateMutatorInfo, MutatorInfo} from "./mutator";
 import FunctionUtils from "../common/function-utils";
 import MutatorHub from "./mutator-hub";
 
@@ -197,6 +197,19 @@ export default class TemplateUtils {
         } else {
             return `${name}="${value}"`;
         }
+    }
+
+    static bind(toField: Function): string {
+        let mutator: DelegateMutatorInfo = {
+            id: MutatorHub.allocateMutatorId(),
+            type: "delegate",
+            expressions: [FunctionUtils.extractExpressionFromFunction(toField)],
+            delegate: "this.bindMutatorHandler"
+        };
+
+        MutatorHub.setMutatorFunction(mutator.id, toField);
+
+        return `data-weavergirl-bind-mutator="${encodeURIComponent(JSON.stringify(mutator))}"`;
     }
 }
 

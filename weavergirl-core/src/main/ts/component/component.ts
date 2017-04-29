@@ -2,7 +2,7 @@ import TemplateUtils from "./template-utils";
 import Loader from "../loader/loader";
 import {ComponentDependencies} from "./component-dependencies";
 import Stage from "../router/stage";
-import {AttributeMutatorInfo, Mutator} from "./mutator";
+import {AttributeMutatorInfo, DelegateMutatorInfo, Mutator} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
 import MutatorHub from "./mutator-hub";
 
@@ -250,12 +250,77 @@ export default class Component extends HTMLElement {
             this.stage.mutatorHub.registerMutator(m);
 
             if (MutatorHub.mutatorFunctions.has(m.info.id)) {
-                if (m.info.type !== "attribute") {
+                if ((m.info.type !== "attribute") && (m.info.type !== "delegate")) {
                     m.beginPatternNode["_weavergirlMutatorFunction"] = MutatorHub.mutatorFunctions.get(m.info.id);
                     MutatorHub.mutatorFunctions.delete(m.info.id);
                 }
             }
+
+            if (m.info.type === "delegate") {
+                this.processBindMutator(m);
+            }
         }, this);
+    }
+
+    private bindMutatorHandler(elem, newValue) {
+        if (elem["__weavergirlBindSetInProgress"] === true) {
+            return;
+        }
+
+        if (elem instanceof HTMLInputElement) {
+            if ((elem.type === "checkbox") || (elem.type === "radio")) {
+                elem.checked = newValue;
+            } else if (elem.type !== "file") {
+                elem.value = newValue;
+            }
+        } else if (elem instanceof HTMLTextAreaElement) {
+            elem.value = newValue;
+        }
+    }
+
+    private processBindMutator(m: Mutator): void {
+        let e = m.parent as Element;
+
+        if (!e.hasAttribute("data-weavergirl-bind-mutator")) {
+            return;
+        }
+
+        if (!((e instanceof HTMLInputElement) || (e instanceof HTMLTextAreaElement))) {
+            return;
+        }
+
+        let bindTo = m.info.expressions[0];
+        let writeFn = new Function("value", `this.stage.state.${bindTo} = value;`).bind(this);
+        let readFn = new Function(`return this.stage.state.${bindTo};`).bind(this);
+
+        let eventHandler = function (event) {
+            e["__weavergirlBindSetInProgress"] = true;
+
+            if (e instanceof HTMLInputElement) {
+                if ((e.type === "checkbox") || (e.type === "radio")) {
+                    writeFn(e.checked);
+                } else if (e.type !== "file") {
+                    writeFn(e.value);
+                }
+            } else if (e instanceof HTMLTextAreaElement) {
+                writeFn(e.value);
+            }
+
+            e["__weavergirlBindSetInProgress"] = false;
+        };
+
+        if (e instanceof HTMLInputElement) {
+            if ((e.type === "checkbox") || (e.type === "radio")) {
+                e.addEventListener("click", eventHandler);
+                e.checked = readFn();
+            } else if (e.type !== "file") {
+                e.addEventListener("input", eventHandler);
+                e.value = readFn();
+            }
+        } else if (e instanceof HTMLTextAreaElement) {
+            e.addEventListener("input", eventHandler);
+            e.value = readFn();
+        }
     }
 
     private attachRenderedContentToDom(renderedContent: string): void {
@@ -421,7 +486,7 @@ export default class Component extends HTMLElement {
     private processMutator(mutator: Mutator): void {
         let f: Function;
 
-        if (mutator.info.type === "attribute") {
+        if ((mutator.info.type === "attribute") || (mutator.info.type === "delegate")) {
             f = MutatorHub.mutatorFunctions.get(mutator.info.id).bind(this);
         } else {
             f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || MutatorHub.mutatorFunctions.get(mutator.info.id)).bind(this);
@@ -457,8 +522,19 @@ export default class Component extends HTMLElement {
 
                 break;
             case "attribute":
-                let info = mutator.info as AttributeMutatorInfo;
-                (mutator.parent as Element).setAttribute(info.attribute, f());
+                let attrInfo = mutator.info as AttributeMutatorInfo;
+                (mutator.parent as Element).setAttribute(attrInfo.attribute, f());
+
+                break;
+            case "delegate":
+                let delegateInfo = mutator.info as DelegateMutatorInfo;
+
+                if (typeof delegateInfo.delegate === "function") {
+                    (delegateInfo.delegate as Function).call(this, mutator.parent as Element, f());
+                } else {
+                    let delegate = eval(delegateInfo.delegate as string) as Function;
+                    delegate.call(this, mutator.parent as Element, f());
+                }
 
                 break;
             default:
@@ -485,7 +561,7 @@ export default class Component extends HTMLElement {
             let mutatorsToRemove: Array<Mutator> = [];
 
             for (let mutator of mutators) {
-                if (mutator.info.type !== "attribute") {
+                if ((mutator.info.type !== "attribute") && (mutator.info.type !== "delegate")) {
                     if (!Component.ifNodeAttachedToDom(mutator.beginPatternNode)) {
                         mutatorsToRemove.push(mutator);
                         continue;

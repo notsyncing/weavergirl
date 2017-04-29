@@ -132,6 +132,21 @@ export default class Stage {
                     };
 
                     handler(mutator);
+                } else if (a.name === "data-weavergirl-bind-mutator") {
+                    let mutatorInfo = JSON.parse(decodeURIComponent(a.value));
+
+                    let mutator: Mutator = {
+                        stage: this,
+                        info: mutatorInfo,
+                        parent: node,
+                        beginPatternNode: null,
+                        beginIndex: -1,
+                        endPatternNode: null,
+                        endIndex: -1,
+                        childNodes: null
+                    };
+
+                    handler(mutator);
                 }
             }
         }

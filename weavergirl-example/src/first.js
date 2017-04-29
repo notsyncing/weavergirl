@@ -5,6 +5,7 @@ class FirstPageStage extends Weavergirl.Stage {
             text: "",
             switchOn: false,
             type: "text",
+            inputData: "old",
 
             computed: function () {
                 return this.counter + this.text;
@@ -34,6 +35,10 @@ class FirstPageStage extends Weavergirl.Stage {
         } else {
             this.state.type = "checkbox";
         }
+    }
+
+    setInputData() {
+        this.state.inputData = "reset";
     }
 }
 
@@ -82,6 +87,12 @@ class FirstPage extends Weavergirl.Component {
                 `<div>I'm on!</div>`)
             .otherwise(() =>
                 `<div>I'm off!</div>`)}
+    </div>
+    
+    <div>
+        <input ${T.bind(() => this.stage.state.inputData)}>
+        <span>Entered: ${() => this.stage.state.inputData}</span>
+        <button onclick="this.stage.setInputData()">Set</button>
     </div>
 </div>
 `;
