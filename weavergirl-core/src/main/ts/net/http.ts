@@ -134,7 +134,7 @@ export class Http {
                 }
             }
 
-            localStorage.setItem("cookies", JSON.stringify(cookies));
+            localStorage.setItem(Http.COOKIE_STORE_NAME, JSON.stringify(cookies));
         }
     }
 
