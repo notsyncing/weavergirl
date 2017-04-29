@@ -55,7 +55,7 @@ class WeavergirlLayout extends Weavergirl.Component {
 <div>
     <div>
         ${T.forEach(() => this.stage.state.menus, (m, i) =>
-            this.html`<a href="${m.href}" onclick="this.stage.go(event, '${m.href}')">${() => this.stage.state.menus[i].name}</a>`
+            this.html`<a href="${m.href}" onclick="this.stage.go(event, '${m.href}')">${() => m.name}</a>`
         )}
     </div>
     <div weavergirl-slot></div>
