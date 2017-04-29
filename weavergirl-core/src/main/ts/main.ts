@@ -8,6 +8,7 @@ import {RouterCommand, RouterMode} from "./router/enums";
 import FunctionUtils from "./common/function-utils";
 import {Language} from "./i18n/lang";
 import MutatorHub from "./component/mutator-hub";
+import {Http} from "./net/http";
 
 export let Weavergirl = {
     Loader: Loader,
@@ -22,6 +23,8 @@ export let Weavergirl = {
     Stage: Stage,
 
     Language: Language,
+
+    Http: Http,
 
     _tests: {
         Stage: {
