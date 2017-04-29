@@ -109,11 +109,11 @@ export default class Component extends HTMLElement {
         }
     }
 
-    private attachStageToSelfElements(): void {
+    private attachStageToSelfElements(inNode: Node = this): void {
         this.walkSelfElements(elem => {
             elem["stage"] = this.stage;
             return true;
-        }, this);
+        }, inNode);
     }
 
     async render(): Promise<void> {
@@ -245,7 +245,7 @@ export default class Component extends HTMLElement {
         _process(this);
     }
 
-    private registerSelfMutators(): void {
+    private registerSelfMutators(inNode: Node = this): void {
         this.walkSelfMutators(m => {
             this.stage.mutatorHub.registerMutator(m);
 
@@ -259,13 +259,15 @@ export default class Component extends HTMLElement {
             if (m.info.type === "delegate") {
                 this.processBindMutator(m);
             }
-        }, this);
+        }, inNode);
     }
 
     private bindMutatorHandler(elem, newValue) {
         if (elem["__weavergirlBindSetInProgress"] === true) {
             return;
         }
+
+        console.info(`Bind mutator handler for ${elem.id || elem.tagName}, new value ${newValue}`);
 
         if (elem instanceof HTMLInputElement) {
             if ((elem.type === "checkbox") || (elem.type === "radio")) {
@@ -321,6 +323,8 @@ export default class Component extends HTMLElement {
             e.addEventListener("input", eventHandler);
             e.value = readFn();
         }
+
+        console.info(`Processed bind mutator id ${m.info.id}, for element ${(m.parent as Element).id || (m.parent as Element).tagName}`)
     }
 
     private attachRenderedContentToDom(renderedContent: string): void {
@@ -517,8 +521,8 @@ export default class Component extends HTMLElement {
                     mutator.parent.insertBefore(e.childNodes[0], mutator.endPatternNode);
                 }
 
-                this.attachStageToSelfElements();
-                this.registerSelfMutators();
+                this.attachStageToSelfElements(mutator.parent);
+                this.registerSelfMutators(mutator.parent);
 
                 break;
             case "attribute":
