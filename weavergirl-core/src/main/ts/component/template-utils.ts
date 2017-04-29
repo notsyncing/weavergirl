@@ -54,6 +54,10 @@ export default class TemplateUtils {
         return state;
     }
 
+    private static escapeQuotes(str: string): string {
+        return str.replace(/"/g, "%22");
+    }
+
     static html(strings, ...values): string {
         let i = 0, j = 0;
         let s = "";
@@ -179,7 +183,7 @@ export default class TemplateUtils {
     }
 
     private static makeAttributeMutator(info: MutatorInfo): string {
-        return `weavergirl-mutator-${info.id}="${encodeURIComponent(JSON.stringify(info))}"`;
+        return `weavergirl-mutator-${info.id}="${TemplateUtils.escapeQuotes(JSON.stringify(info))}"`;
     }
 
     static attr(name: string, value: string | Function): string {
@@ -209,7 +213,7 @@ export default class TemplateUtils {
 
         MutatorHub.setMutatorFunction(mutator.id, toField);
 
-        return `data-weavergirl-bind-mutator="${encodeURIComponent(JSON.stringify(mutator))}"`;
+        return `data-weavergirl-bind-mutator="${TemplateUtils.escapeQuotes(JSON.stringify(mutator))}"`;
     }
 }
 

@@ -356,7 +356,7 @@ describe("Component", () => {
 
         let expected = "<test-bind-component>" +
             "<input id=\"testInput\" weavergirl-keep-id=\"\" " +
-            "data-weavergirl-bind-mutator=\"%7B%22id%22%3A0%2C%22type%22%3A%22delegate%22%2C%22expressions%22%3A%5B%22input%22%5D%2C%22delegate%22%3A%22this.bindMutatorHandler%22%7D\">" +
+            "data-weavergirl-bind-mutator=\"{%22id%22:0,%22type%22:%22delegate%22,%22expressions%22:[%22input%22],%22delegate%22:%22this.bindMutatorHandler%22}\">" +
             "</test-bind-component>";
 
         setTimeout(() => {
@@ -396,7 +396,7 @@ describe("Component", () => {
 
         let expected = "<test-bind-component2>" +
             "<input id=\"testInput\" weavergirl-keep-id=\"\" " +
-            "data-weavergirl-bind-mutator=\"%7B%22id%22%3A0%2C%22type%22%3A%22delegate%22%2C%22expressions%22%3A%5B%22input%22%5D%2C%22delegate%22%3A%22this.bindMutatorHandler%22%7D\">" +
+            "data-weavergirl-bind-mutator=\"{%22id%22:0,%22type%22:%22delegate%22,%22expressions%22:[%22input%22],%22delegate%22:%22this.bindMutatorHandler%22}\">" +
             "</test-bind-component2>";
 
         setTimeout(() => {

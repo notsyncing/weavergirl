@@ -174,7 +174,7 @@ describe("TemplateUtils", () => {
         it("should generate correct attribute for element", () => {
             let s = T.bind(() => c);
 
-            s.should.equal("data-weavergirl-bind-mutator=\"%7B%22id%22%3A1%2C%22type%22%3A%22delegate%22%2C%22expressions%22%3A%5B%22c%22%5D%2C%22delegate%22%3A%22this.bindMutatorHandler%22%7D\"");
+            s.should.equal("data-weavergirl-bind-mutator=\"{%22id%22:1,%22type%22:%22delegate%22,%22expressions%22:[%22c%22],%22delegate%22:%22this.bindMutatorHandler%22}\"");
         });
     });
 });
