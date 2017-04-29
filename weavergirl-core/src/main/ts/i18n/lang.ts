@@ -49,7 +49,7 @@ export class Language {
     }
 
     static getText(key: string, ...args: Array<string>): string {
-        let s = Language.enable ? Language.currentLanguageData[key] : key;
+        let s = Language.enable ? (Language.currentLanguageData || {})[key] : key;
 
         if (!s) {
             s = key;
