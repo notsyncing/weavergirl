@@ -138,6 +138,13 @@ export default class TemplateUtils {
             let item = handler(l[i], i);
 
             if (listIsFunction) {
+                let itemVarName = handlerArgs[0];
+
+                if (itemVarName) {
+                    let p = new RegExp(`([^a-zA-Z0-9_])(${itemVarName})([^a-zA-Z0-9_])`, "g");
+                    item = item.replace(p, `$1${expression}[${i}]$3`);
+                }
+
                 let indexVarName = handlerArgs[1];
 
                 if (indexVarName) {

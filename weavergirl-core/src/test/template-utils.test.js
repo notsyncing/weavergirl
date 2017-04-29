@@ -96,6 +96,46 @@ describe("TemplateUtils", () => {
                 "<!--#weavergirl-mutator {\"id\":3,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}--><div>Hello3</div><!--#/weavergirl-mutator-->" +
                 "<!--#/weavergirl-mutator-->");
         });
+
+        it("should replace index variables for every item for dynamic list", () => {
+            let l = [1,2,3];
+
+            let s = T.forEach(() => l, (m, i) => {
+                return T.html`<div>Hello${() => l[i]}</div>`;
+            });
+
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l.length\"]}-->" +
+                "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
+                "</div><!--#/weavergirl-mutator-->" +
+                "<!--#weavergirl-mutator {\"id\":4,\"type\":\"repeater\",\"expressions\":[\"l[1]\"]}-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"l[1]\"]}-->2<!--#/weavergirl-mutator-->" +
+                "</div><!--#/weavergirl-mutator-->" +
+                "<!--#weavergirl-mutator {\"id\":6,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"l[2]\"]}-->3<!--#/weavergirl-mutator-->" +
+                "</div><!--#/weavergirl-mutator-->" +
+                "<!--#/weavergirl-mutator-->");
+        });
+
+        it("should replace item variables for every item for dynamic list", () => {
+            let l = [1,2,3];
+
+            let s = T.forEach(() => l, (m) => {
+                return T.html`<div>Hello${() => m}</div>`;
+            });
+
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l.length\"]}-->" +
+                "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
+                "</div><!--#/weavergirl-mutator-->" +
+                "<!--#weavergirl-mutator {\"id\":4,\"type\":\"repeater\",\"expressions\":[\"l[1]\"]}-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"l[1]\"]}-->2<!--#/weavergirl-mutator-->" +
+                "</div><!--#/weavergirl-mutator-->" +
+                "<!--#weavergirl-mutator {\"id\":6,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"l[2]\"]}-->3<!--#/weavergirl-mutator-->" +
+                "</div><!--#/weavergirl-mutator-->" +
+                "<!--#/weavergirl-mutator-->");
+        });
     });
 
     describe("#when", () => {
