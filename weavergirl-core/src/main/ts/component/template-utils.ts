@@ -58,6 +58,10 @@ export default class TemplateUtils {
         return str.replace(/"/g, "%22");
     }
 
+    private static escapeRegExp(str) {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+    }
+
     static html(strings, ...values): string {
         let i = 0, j = 0;
         let s = "";
@@ -141,14 +145,14 @@ export default class TemplateUtils {
                 let itemVarName = handlerArgs[0];
 
                 if (itemVarName) {
-                    let p = new RegExp(`([^a-zA-Z0-9_])(${itemVarName})([^a-zA-Z0-9_])`, "g");
+                    let p = new RegExp(`([^a-zA-Z0-9_])(${TemplateUtils.escapeRegExp(itemVarName)})([^a-zA-Z0-9_])`, "g");
                     item = item.replace(p, `$1${expression}[${i}]$3`);
                 }
 
                 let indexVarName = handlerArgs[1];
 
                 if (indexVarName) {
-                    let p = new RegExp(`([^a-zA-Z0-9_])(${indexVarName})([^a-zA-Z0-9_])`, "g");
+                    let p = new RegExp(`([^a-zA-Z0-9_])(${TemplateUtils.escapeRegExp(indexVarName)})([^a-zA-Z0-9_])`, "g");
                     item = item.replace(p, `$1${i}$3`);
                 }
             }
