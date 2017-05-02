@@ -126,7 +126,7 @@ export class Http {
                     }
                 } else if (cookieData.expires) {
                     let expireDate = Date.parse(cookieData.expires);
-                    let nowDate = new Date();
+                    let nowDate = Date.now();
 
                     if (expireDate < nowDate) {
                         delete cookies[cookieData.name];
@@ -138,7 +138,7 @@ export class Http {
         }
     }
 
-    static ajax(method: string, url: string, data: any = null, xhrFields: any = {}): Promise {
+    static ajax(method: string, url: string, data: any = null, xhrFields: any = {}): Promise<any> {
         return new Promise((resolve, reject) => {
             try {
                 let xhr = new XMLHttpRequest();
@@ -191,19 +191,19 @@ export class Http {
         });
     }
 
-    static get(url: string, xhrFields: any = {}): Promise {
+    static get(url: string, xhrFields: any = {}): Promise<any> {
         return Http.ajax("GET", url, null, xhrFields);
     }
 
-    static post(url: string, data: any, xhrFields: any = {}): Promise {
+    static post(url: string, data: any, xhrFields: any = {}): Promise<any> {
         return Http.ajax("POST", url, data, xhrFields);
     }
 
-    static put(url: string, data: any, xhrFields: any = {}): Promise {
+    static put(url: string, data: any, xhrFields: any = {}): Promise<any> {
         return Http.ajax("PUT", url, data, xhrFields);
     }
 
-    static deleteUrl(url: string, xhrFields: any = {}): Promise {
+    static deleteUrl(url: string, xhrFields: any = {}): Promise<any> {
         return Http.ajax("DELETE", url, null, xhrFields);
     }
 }
