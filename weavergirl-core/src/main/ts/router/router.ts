@@ -6,8 +6,8 @@ import {ResolvedRoute, Route, RouteCommand, RouteComponentInfo, RouteMatchResult
 import MutatorHub from "../component/mutator-hub";
 
 export default class Router {
-    routes: Array<Route> = [];
-    mode = RouterMode.Direct;
+    private routes: Array<Route> = [];
+    private mode = RouterMode.Direct;
 
     constructor() {
     }
@@ -24,7 +24,7 @@ export default class Router {
         }
     }
 
-    getCurrentPath(): string {
+    private getCurrentPath(): string {
         switch (this.mode) {
             case RouterMode.Direct:
                 return location.pathname;
@@ -36,7 +36,7 @@ export default class Router {
         }
     }
 
-    getQueryStringParameters(query: string): any {
+    private getQueryStringParameters(query: string): any {
         if (!query) {
             return {};
         }
@@ -50,7 +50,7 @@ export default class Router {
             }, {});
     }
 
-    matchPathWithRoute(path: string, route: Route): boolean | RouteMatchResult {
+    private matchPathWithRoute(path: string, route: Route): boolean | RouteMatchResult {
         let pattern = route.route;
 
         if ((pattern.indexOf("/:") < 0) && (pattern.indexOf("*") < 0)) {
@@ -112,7 +112,7 @@ export default class Router {
         };
     }
 
-    _resolve(currPath: string, currRoute: Route, prevResult: Array<RouteCommand>) {
+    private _resolve(currPath: string, currRoute: Route, prevResult: Array<RouteCommand>): Array<RouteCommand> {
         let _matchResult = this.matchPathWithRoute(currPath, currRoute);
 
         if (_matchResult === false) {
