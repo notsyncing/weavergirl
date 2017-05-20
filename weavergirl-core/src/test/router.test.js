@@ -302,4 +302,38 @@ describe("Router", () => {
             r.commands[0].url.should.equal("/test-module.js");
         });
     });
+
+    describe("#getRoute", () => {
+        it("should get correct route by path", () => {
+            let routes = [
+                {
+                    route: "/simple",
+                    component: "/test-module.js"
+                }
+            ];
+
+            Weavergirl.Router.init(routes, Weavergirl.RouterMode.Direct, true);
+
+            let r = Weavergirl.Router.getRoute("/simple");
+            r.should.equal(routes[0]);
+        });
+    });
+
+    describe("#addRoute", () => {
+        it("should correctly add a route to current routes", () => {
+            let routes = [
+                {
+                    route: "/simple",
+                    component: "/test-module.js"
+                }
+            ];
+
+            let routeToAdd = { route: "/inner", component: "/test2.js" };
+
+            Weavergirl.Router.init(routes, Weavergirl.RouterMode.Direct, true);
+            Weavergirl.Router.addRoute(routeToAdd, Weavergirl.Router.getRoute("/simple"));
+
+            routes[0].children[0].should.equal(routeToAdd);
+        });
+    });
 });

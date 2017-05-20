@@ -24,6 +24,28 @@ export default class Router {
         }
     }
 
+    addRoute(route: Route, parentRoute: Route = null): void {
+        if (parentRoute != null) {
+            if (!parentRoute.children) {
+                parentRoute.children = [];
+            }
+
+            parentRoute.children.push(route);
+        } else {
+            this.routes.push(route);
+        }
+    }
+
+    getRoute(path: string): Route {
+        let resolvedRoute = this.resolve(path, "");
+
+        if (resolvedRoute == null) {
+            return null;
+        }
+
+        return resolvedRoute.commands[resolvedRoute.commands.length - 1].rawRoute;
+    }
+
     private getCurrentPath(): string {
         switch (this.mode) {
             case RouterMode.Direct:
@@ -137,7 +159,8 @@ export default class Router {
             command: RouterCommand.Load,
             url: componentUrl,
             componentId: componentId,
-            parameters: matchResult.parameters
+            parameters: matchResult.parameters,
+            rawRoute: currRoute
         });
 
         currPath = matchResult.remainPath;
