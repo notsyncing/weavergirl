@@ -141,7 +141,9 @@ export default class Component extends HTMLElement {
             this.stage.rootComponentRendered();
         }
 
-        this.afterRender();
+        setTimeout(() => {
+            this.afterRender();
+        }, 0);
     }
 
     protected afterRender(): void {}
