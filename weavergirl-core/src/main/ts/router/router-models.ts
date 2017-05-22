@@ -22,6 +22,7 @@ export interface RouteCommand {
     url?: string;
     componentId?: string;
     parameters?: any;
+    rawRoute: Route;
 }
 
 export interface RouteMatchResult {
