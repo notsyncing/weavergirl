@@ -254,13 +254,12 @@ export default class Router {
                         currLayout.appendChild(elem);
                         currLayout = elem;
                     } else {
-                        console.info(`Layout element ${alreadyLoaded.id || alreadyLoaded.tagName} already present on page, refresh it.`);
+                        console.info(`Layout element ${alreadyLoaded.id || alreadyLoaded.tagName} already present on page, notify it.`);
 
                         currLayout = alreadyLoaded;
 
                         if (alreadyLoaded instanceof Component) {
                             alreadyLoaded.routeChanged(resolvedRoute);
-                            alreadyLoaded.refresh();
                         }
                     }
 

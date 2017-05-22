@@ -19,6 +19,8 @@ export default class Component extends HTMLElement {
     private refreshPlanned = false;
     private rendered = false;
 
+    public noRefreshOnRouteChanged = false;
+
     constructor(private contentUrl: string,
                 private stylesheetUrls: Array<string> = null,
                 private scriptUrls: Array<string> = null) {
@@ -430,6 +432,11 @@ export default class Component extends HTMLElement {
 
         if ((this.stage) && (this.stage.rootComponent === this)) {
             this.stage.stageWillEnter();
+        }
+
+        if (!this.noRefreshOnRouteChanged) {
+            console.info(`Component ${this.id || this.tagName} needs to be refreshed on route change, refresh it.`);
+            this.refresh();
         }
     }
 
