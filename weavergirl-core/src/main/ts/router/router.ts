@@ -37,6 +37,16 @@ export default class Router {
     }
 
     getRoute(path: string): Route {
+        if (path === "") {
+            for (let r of this.routes) {
+                if (r.route === "") {
+                    return r;
+                }
+            }
+
+            return null;
+        }
+
         let resolvedRoute = this.resolve(path, "");
 
         if (resolvedRoute == null) {
