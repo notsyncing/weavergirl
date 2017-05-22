@@ -180,6 +180,10 @@ export default class Router {
     }
 
     async go(resolvedRoute: ResolvedRoute, needToPushState = false): Promise<void> {
+        if (!resolvedRoute) {
+            throw new Error("No resolved route to go to!");
+        }
+
         console.info(`Go to resolved route: ${JSON.stringify(resolvedRoute)}, need to push state ${needToPushState}`);
 
         let currLayout: Element = document.body;
