@@ -523,11 +523,12 @@ export default class Component extends HTMLElement {
                     mutator.parent.removeChild(mutator.parent.childNodes[mutator.beginIndex + 1]);
                 }
 
-                let e = document.createElement("div");
+                let e = document.createElement("template");
                 e.innerHTML = f();
+                let content = document.importNode(e.content, true);
 
-                while (e.childNodes.length > 0) {
-                    mutator.parent.insertBefore(e.childNodes[0], mutator.endPatternNode);
+                while (content.childNodes.length > 0) {
+                    mutator.parent.insertBefore(content.childNodes[0], mutator.endPatternNode);
                 }
 
                 this.attachStageToSelfElements(mutator.parent);
