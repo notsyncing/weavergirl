@@ -127,7 +127,7 @@ export default class TemplateUtils {
                 mutatorBegin = {
                     id: MutatorHub.allocateMutatorId(),
                     type: "repeater",
-                    expressions: [expression + ".length"]
+                    expressions: [expression, expression + ".length"]
                 };
 
                 MutatorHub.setMutatorFunction(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
