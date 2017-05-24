@@ -445,6 +445,10 @@ export default class Component extends HTMLElement {
 
     protected onRouteChanged(route): void {}
 
+    getRoute(): any {
+        return this.route;
+    }
+
     private walkChildNodes(handler: (node: Node) => boolean, elem: Node): void {
         for (let e of elem.childNodes) {
             if (handler(e)) {
