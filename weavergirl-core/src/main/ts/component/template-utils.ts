@@ -104,10 +104,11 @@ export default class TemplateUtils {
 
     private static convertExpressionToMutatorElement(funcContainsExpression: Function): string {
         let expression = FunctionUtils.extractExpressionFromFunction(funcContainsExpression);
+        let exprList = FunctionUtils.expandExpression(expression);
         let mutatorId = MutatorHub.allocateMutatorId();
         MutatorHub.setMutatorFunction(mutatorId, funcContainsExpression);
 
-        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expressions: [expression] })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
+        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expressions: exprList })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
     }
 
     static forEach(list: Function | Array<any>, handler: (item: any, index: number) => string, _noMutatorNode = false): string {
@@ -121,13 +122,15 @@ export default class TemplateUtils {
         if (typeof list === "function") {
             listIsFunction = true;
             expression = FunctionUtils.extractExpressionFromFunction(list as Function);
+            let exprList = FunctionUtils.expandExpression(expression);
+            exprList.push(expression + ".length");
             handlerArgs = FunctionUtils.getFunctionArguments(handler);
 
             if (!_noMutatorNode) {
                 mutatorBegin = {
                     id: MutatorHub.allocateMutatorId(),
                     type: "repeater",
-                    expressions: [expression, expression + ".length"]
+                    expressions: exprList
                 };
 
                 MutatorHub.setMutatorFunction(mutatorBegin.id, () => TemplateUtils.forEach(list, handler, true));
@@ -199,10 +202,13 @@ export default class TemplateUtils {
 
     static attr(name: string, value: string | Function): string {
         if (typeof value === "function") {
+            let expr = FunctionUtils.extractExpressionFromFunction(value);
+            let exprList = FunctionUtils.expandExpression(expr);
+
             let mutator: AttributeMutatorInfo = {
                 id: MutatorHub.allocateMutatorId(),
                 type: "attribute",
-                expressions: [FunctionUtils.extractExpressionFromFunction(value)],
+                expressions: exprList,
                 attribute: name
             };
 
@@ -215,10 +221,13 @@ export default class TemplateUtils {
     }
 
     static bind(toField: Function): string {
+        let expr = FunctionUtils.extractExpressionFromFunction(toField);
+        let exprList = FunctionUtils.expandExpression(expr);
+
         let mutator: DelegateMutatorInfo = {
             id: MutatorHub.allocateMutatorId(),
             type: "delegate",
-            expressions: [FunctionUtils.extractExpressionFromFunction(toField)],
+            expressions: exprList,
             delegate: "this.bindMutatorHandler"
         };
 
@@ -241,10 +250,12 @@ class SwitchTemplate {
             let expression = FunctionUtils.extractExpressionFromFunction(field);
 
             if (expression) {
+                let exprList = FunctionUtils.expandExpression(expression);
+
                 this.mutatorBegin = {
                     id: MutatorHub.allocateMutatorId(),
                     type: "repeater",
-                    expressions: [expression]
+                    expressions: exprList
                 };
 
                 MutatorHub.setMutatorFunction(this.mutatorBegin.id, () => {

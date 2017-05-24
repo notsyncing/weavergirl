@@ -11,6 +11,25 @@ export default class FunctionUtils {
             .replace(/\(\)/g, "");
     }
 
+    static expandExpression(expr: string): Array<string> {
+        if (expr.indexOf(".") < 0) {
+            return [expr];
+        }
+
+        let l = [expr];
+        let lastIndex = expr.lastIndexOf(".");
+
+        while (lastIndex >= 0) {
+            let s = expr.substring(0, lastIndex);
+            l.push(s);
+            expr = s;
+
+            lastIndex = expr.lastIndexOf(".");
+        }
+
+        return l;
+    }
+
     static getFunctionArguments(func: Function): Array<string> {
         let source = func.toString();
 

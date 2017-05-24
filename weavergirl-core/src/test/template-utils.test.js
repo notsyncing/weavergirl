@@ -90,7 +90,7 @@ describe("TemplateUtils", () => {
                 return T.html`<div>Hello${m}</div>`;
             });
 
-            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l.length\"]}-->" +
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l\",\"l.length\"]}-->" +
                 "<!--#weavergirl-mutator {\"id\":1,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}--><div>Hello1</div><!--#/weavergirl-mutator-->" +
                 "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[1]\"]}--><div>Hello2</div><!--#/weavergirl-mutator-->" +
                 "<!--#weavergirl-mutator {\"id\":3,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}--><div>Hello3</div><!--#/weavergirl-mutator-->" +
@@ -104,7 +104,7 @@ describe("TemplateUtils", () => {
                 return T.html`<div>Hello${() => l[i]}</div>`;
             });
 
-            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l.length\"]}-->" +
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l\",\"l.length\"]}-->" +
                 "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}-->" +
                 "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
@@ -124,7 +124,7 @@ describe("TemplateUtils", () => {
                 return T.html`<div>Hello${() => m}</div>`;
             });
 
-            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l.length\"]}-->" +
+            s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l\",\"l.length\"]}-->" +
                 "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}-->" +
                 "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +

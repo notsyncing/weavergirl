@@ -39,6 +39,20 @@ describe("FunctionUtils", () => {
         });
     });
 
+    describe("#expandExpression", () => {
+        it("should return an array with one element for a", () => {
+            let expr = "a";
+            let r = Weavergirl._tests.FunctionUtils.expandExpression(expr);
+            r.should.eql(["a"]);
+        });
+
+        it("should return an array with three elements for a.b.c", () => {
+            let expr = "a.b.c";
+            let r = Weavergirl._tests.FunctionUtils.expandExpression(expr);
+            r.should.eql(["a.b.c", "a.b", "a"]);
+        });
+    });
+
     describe("#getFunctionArguments", () => {
         it("should return [a, b, c] for (a, b, c) => something", () => {
             let f = (a, b, c) => something;
