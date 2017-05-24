@@ -276,7 +276,11 @@ export default class Router {
         MutatorHub.collectUnusedMutatorId();
     }
 
-    navigate(url: string): Promise<void> {
+    navigate(url: string, event: Event = null): Promise<void> {
+        if (event) {
+            event.preventDefault();
+        }
+
         let elem = document.createElement("a");
         elem.href = url;
 
