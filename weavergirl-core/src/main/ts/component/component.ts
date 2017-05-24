@@ -427,6 +427,7 @@ export default class Component extends HTMLElement {
         }
 
         this.route = {
+            url: resolvedRoute.url,
             parameters: params
         };
 
@@ -438,7 +439,11 @@ export default class Component extends HTMLElement {
             console.info(`Component ${this.id || this.tagName} needs to be refreshed on route change, refresh it.`);
             this.refresh();
         }
+
+        this.onRouteChanged(this.route);
     }
+
+    protected onRouteChanged(route): void {}
 
     private walkChildNodes(handler: (node: Node) => boolean, elem: Node): void {
         for (let e of elem.childNodes) {
