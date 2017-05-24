@@ -58,10 +58,6 @@ export default class Stage {
 
         this.init();
 
-        setTimeout(() => {
-            this.stageWillEnter();
-        }, 0);
-
         this.inInit = false;
     }
 

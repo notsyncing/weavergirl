@@ -417,7 +417,7 @@ export default class Component extends HTMLElement {
         console.info(`End cascade refresh of ${this.id || this.tagName}`);
     }
 
-    routeChanged(resolvedRoute: ResolvedRoute, justLoaded: boolean = false): void {
+    routeChanged(resolvedRoute: ResolvedRoute): void {
         let params = resolvedRoute.queries || {};
 
         for (let c of resolvedRoute.commands) {
@@ -430,15 +430,13 @@ export default class Component extends HTMLElement {
             parameters: params
         };
 
-        if (!justLoaded) {
-            if ((this.stage) && (this.stage.rootComponent === this)) {
-                this.stage.stageWillEnter();
-            }
+        if ((this.stage) && (this.stage.rootComponent === this)) {
+            this.stage.stageWillEnter();
+        }
 
-            if (!this.noRefreshOnRouteChanged) {
-                console.info(`Component ${this.id || this.tagName} needs to be refreshed on route change, refresh it.`);
-                this.refresh();
-            }
+        if (!this.noRefreshOnRouteChanged) {
+            console.info(`Component ${this.id || this.tagName} needs to be refreshed on route change, refresh it.`);
+            this.refresh();
         }
     }
 

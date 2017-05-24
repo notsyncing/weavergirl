@@ -241,7 +241,7 @@ export default class Router {
                             elem.id = cmd.componentId;
                         }
 
-                        elem.routeChanged(resolvedRoute, true);
+                        elem.routeChanged(resolvedRoute);
 
                         if (currLayout instanceof Component) {
                             currLayout = (currLayout as Component).findSlotElement();
