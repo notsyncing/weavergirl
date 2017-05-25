@@ -79,7 +79,12 @@ export default class Component extends HTMLElement {
 
         if (deps.scripts.length > 0) {
             for (let url of deps.scripts) {
-                await Loader.load(url);
+                if (typeof url === "object") {
+                    let u: any = url;
+                    await Loader.load(u.url, u.global);
+                } else {
+                    await Loader.load(url);
+                }
             }
         }
 

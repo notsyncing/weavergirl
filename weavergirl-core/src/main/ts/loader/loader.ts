@@ -46,7 +46,7 @@ export default class Loader {
         return this.fetch(url);
     }
 
-    static async load(pathOrUrl: string): Promise<any> {
+    static async load(pathOrUrl: string, global: boolean = false): Promise<any> {
         if (!/^[a-zA-Z0-9]+:\/\//.test(pathOrUrl)) {
             pathOrUrl = this.absolute(pathOrUrl);
         }
@@ -56,25 +56,36 @@ export default class Loader {
         }
 
         const script = await this.loadFromUrl(pathOrUrl);
-        let exports = {};
 
-        this.modules.set(pathOrUrl, {
-            script: script,
-            exports: exports
-        });
+        if (!global) {
+            let exports = {};
 
-        let _module = {exports: exports};
+            this.modules.set(pathOrUrl, {
+                script: script,
+                exports: exports
+            });
 
-        let f = new Function("module", "exports", script);
-        f.call({}, _module, exports);
+            let _module = {exports: exports};
 
-        this.modules.get(pathOrUrl).exports = _module.exports;
+            let f = new Function("module", "exports", script);
+            f.call({}, _module, exports);
 
-        for (let h of this.afterLoadHandlers) {
-            h(_module.exports);
+            this.modules.get(pathOrUrl).exports = _module.exports;
+
+            for (let h of this.afterLoadHandlers) {
+                h(_module.exports);
+            }
+
+            return _module.exports;
+        } else {
+            let elem = document.createElement("script");
+            elem.type = "text/javascript";
+            elem.src = pathOrUrl;
+
+            document.head.appendChild(elem);
+
+            return null;
         }
-
-        return _module.exports;
     }
 
     static async loadAsset(pathOrUrl: string): Promise<string> {
