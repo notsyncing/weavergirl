@@ -55,9 +55,9 @@ export default class Loader {
             return this.modules.get(pathOrUrl).exports;
         }
 
-        const script = await this.loadFromUrl(pathOrUrl);
-
         if (!global) {
+            const script = await this.loadFromUrl(pathOrUrl);
+
             let exports = {};
 
             this.modules.set(pathOrUrl, {
@@ -83,6 +83,11 @@ export default class Loader {
             elem.src = pathOrUrl;
 
             document.head.appendChild(elem);
+
+            this.modules.set(pathOrUrl, {
+                script: null,
+                exports: null
+            });
 
             return null;
         }
