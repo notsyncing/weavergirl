@@ -239,6 +239,8 @@ export default class Stage {
 
     stageWillEnter(): void {}
 
+    stageDidEnter(): void {}
+
     beginRecord(into: Array<string>): void {
         this.recordStack.push(into);
     }

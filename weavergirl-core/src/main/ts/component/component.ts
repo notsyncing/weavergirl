@@ -150,6 +150,10 @@ export default class Component extends HTMLElement {
 
         setTimeout(() => {
             this.afterRender();
+
+            if ((this.stage) && (this.stage.rootComponent === this)) {
+                this.stage.stageDidEnter();
+            }
         }, 0);
     }
 
