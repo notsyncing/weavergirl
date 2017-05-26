@@ -535,22 +535,25 @@ export default class Component extends HTMLElement {
             f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || MutatorHub.mutatorFunctions.get(mutator.info.id)).bind(this);
         }
 
+        let mutatorBeginIndex = Array.prototype.indexOf.call(mutator.parent.childNodes, mutator.beginPatternNode);
+        let mutatorEndIndex = Array.prototype.indexOf.call(mutator.parent.childNodes, mutator.endPatternNode);
+
         switch (mutator.info.type) {
             case "inline":
-                if (mutator.endIndex - mutator.beginIndex - 1 > 0) {
-                    mutator.parent.childNodes.item(mutator.endIndex - 1).textContent = f();
+                if (mutatorEndIndex - mutatorBeginIndex - 1 > 0) {
+                    mutator.parent.childNodes.item(mutatorEndIndex - 1).textContent = f();
                 } else {
                     let n = document.createTextNode(f());
                     mutator.parent.insertBefore(n, mutator.endPatternNode);
-                    mutator.endIndex++;
+                    mutatorEndIndex++;
                 }
 
                 break;
             case "repeater":
-                let nodeCount = mutator.endIndex - mutator.beginIndex - 1;
+                let nodeCount = mutatorEndIndex - mutatorBeginIndex - 1;
 
                 for (let i = 0; i < nodeCount; i++) {
-                    mutator.parent.removeChild(mutator.parent.childNodes[mutator.beginIndex + 1]);
+                    mutator.parent.removeChild(mutator.parent.childNodes[mutatorBeginIndex + 1]);
                 }
 
                 let e = document.createElement("template");
@@ -560,6 +563,8 @@ export default class Component extends HTMLElement {
                 while (content.childNodes.length > 0) {
                     mutator.parent.insertBefore(content.childNodes[0], mutator.endPatternNode);
                 }
+
+                mutatorEndIndex = Array.prototype.indexOf.call(content.childNodes, mutator.endPatternNode);
 
                 this.attachStageToSelfElements(mutator.parent);
                 this.registerSelfMutators(mutator.parent);

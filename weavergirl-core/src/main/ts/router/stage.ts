@@ -86,10 +86,7 @@ export default class Stage {
                     info: mutatorInfo,
                     parent: node.parentNode,
                     beginPatternNode: node,
-                    beginIndex: Array.prototype.indexOf.call(node.parentNode.childNodes, node),
-                    endPatternNode: null,
-                    endIndex: -1,
-                    childNodes: null
+                    endPatternNode: null
                 });
             } else if (s === MutatorHub.mutatorEndPattern) {
                 let mutator = tempStack.pop();
@@ -100,12 +97,6 @@ export default class Stage {
                 }
 
                 mutator.endPatternNode = node;
-                mutator.endIndex = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-                mutator.childNodes = [];
-
-                for (let i = mutator.beginIndex + 1; i < mutator.endIndex; i++) {
-                    mutator.childNodes.push(mutator.parent.childNodes[i]);
-                }
 
                 handler(mutator);
             }
@@ -121,10 +112,7 @@ export default class Stage {
                         info: mutatorInfo,
                         parent: node,
                         beginPatternNode: null,
-                        beginIndex: -1,
-                        endPatternNode: null,
-                        endIndex: -1,
-                        childNodes: null
+                        endPatternNode: null
                     };
 
                     handler(mutator);
@@ -136,10 +124,7 @@ export default class Stage {
                         info: mutatorInfo,
                         parent: node,
                         beginPatternNode: null,
-                        beginIndex: -1,
-                        endPatternNode: null,
-                        endIndex: -1,
-                        childNodes: null
+                        endPatternNode: null
                     };
 
                     handler(mutator);
