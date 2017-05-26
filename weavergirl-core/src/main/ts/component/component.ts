@@ -643,7 +643,7 @@ Loader.addAfterLoadHandler(function (exports) {
     }
 
     if (Component.isPrototypeOf(exports)) {
-        let name = exports.name.replace(/(?:^|\.?)([A-Z])/g, (x, y) => "-" + y.toLowerCase()).replace(/^-/, "");
+        let name = exports.defineTagName || exports.name.replace(/(?:^|\.?)([A-Z])/g, (x, y) => "-" + y.toLowerCase()).replace(/^-/, "");
         customElements.define(name, exports);
     }
 });
