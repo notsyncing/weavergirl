@@ -4,10 +4,13 @@ import Component from "../component/component";
 import {Weavergirl} from "../main";
 import {ResolvedRoute, Route, RouteCommand, RouteComponentInfo, RouteMatchResult} from "./router-models";
 import MutatorHub from "../component/mutator-hub";
+import Stage from "./stage";
 
 export default class Router {
     private routes: Array<Route> = [];
     private mode = RouterMode.Direct;
+
+    static stages = new Map<string, Stage>();
 
     constructor() {
     }
@@ -237,11 +240,15 @@ export default class Router {
                     if (!alreadyLoaded) {
                         let elem = new elemClass();
 
+                        if (elem instanceof Component) {
+                            Router.stages.set(elem.constructor.name, elem.stage);
+                        }
+
                         if (cmd.componentId) {
                             elem.id = cmd.componentId;
                         }
 
-                        elem.routeChanged(resolvedRoute);
+                        elem.routeChanged(resolvedRoute, true);
 
                         if (currLayout instanceof Component) {
                             currLayout = (currLayout as Component).findSlotElement();

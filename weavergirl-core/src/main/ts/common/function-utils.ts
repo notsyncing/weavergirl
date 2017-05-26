@@ -33,8 +33,6 @@ export default class FunctionUtils {
     static getFunctionArguments(func: Function): Array<string> {
         let source = func.toString();
 
-        console.info("getFunctionArguments: " + source);
-
         let s = source.replace(/\/\*(.*?)\*\//g, "")
             .replace(/[\r\t]/g, "\s")
             .replace(/function\s*/g, "");

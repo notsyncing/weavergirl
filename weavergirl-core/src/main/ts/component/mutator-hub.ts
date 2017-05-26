@@ -1,6 +1,6 @@
 import {Mutator} from "./mutator";
 import Stage from "../router/stage";
-import Component from "./component";
+import Router from "../router/router";
 
 export default class MutatorHub {
     private static mutatorCounter = 0;
@@ -37,7 +37,7 @@ export default class MutatorHub {
     }
 
     static resetMutators(): void {
-        for (let s of Component.stages.values()) {
+        for (let s of Router.stages.values()) {
             s.mutatorHub.clearMutators();
         }
 
@@ -87,7 +87,7 @@ export default class MutatorHub {
             }
         }
 
-        for (let s of Component.stages.values()) {
+        for (let s of Router.stages.values()) {
             newStageMutatorMap.set(s, new Map());
             _process(s, elem);
 

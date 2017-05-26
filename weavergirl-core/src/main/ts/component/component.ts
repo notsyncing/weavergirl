@@ -5,15 +5,15 @@ import Stage from "../router/stage";
 import {AttributeMutatorInfo, DelegateMutatorInfo, Mutator} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
 import MutatorHub from "./mutator-hub";
+import Router from "../router/router";
 
 export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
     static fragments = new Map<string, string>();
-    static stages = new Map<string, Stage>();
 
     private content: string = "";
     private route = null;
-    private stage: Stage = null;
+    private _stage: Stage = null;
 
     private allDependenciesLoaded = false;
     private refreshPlanned = false;
@@ -29,17 +29,26 @@ export default class Component extends HTMLElement {
         console.info(`Constructor: contentUrl ${contentUrl}`);
 
         if (this.stageClass) {
-            if (Component.stages.has(this.constructor.name)) {
-                this.stage = Component.stages.get(this.constructor.name);
-                this.stage.rootComponent = this;
+            if (Router.stages.has(this.constructor.name)) {
+                this._stage = Router.stages.get(this.constructor.name);
             } else {
                 let c = this.stageClass as any;
-                this.stage = new c(this);
-                Component.stages.set(this.constructor.name, this.stage);
+                this._stage = new c(this);
             }
         } else {
-            this.stage = new Stage(this);
+            this._stage = new Stage(this);
         }
+
+        this._stage.rootComponent = this;
+    }
+
+    set stage(stage: Stage) {
+        this._stage = stage;
+        this._stage.rootComponent = this;
+    }
+
+    get stage(): Stage {
+        return this._stage;
     }
 
     private loadStylesheet(url: string): void {
@@ -118,7 +127,10 @@ export default class Component extends HTMLElement {
 
     private attachStageToSelfElements(inNode: Node = this): void {
         this.walkSelfElements(elem => {
-            elem["stage"] = this.stage;
+            if (!(elem instanceof Component)) {
+                elem["stage"] = this._stage;
+            }
+
             return true;
         }, inNode);
     }
@@ -144,15 +156,15 @@ export default class Component extends HTMLElement {
         this.attachElementsToProperties();
         this.attachStageToSelfElements();
 
-        if ((this.stage) && (this.stage.rootComponent === this)) {
-            this.stage.rootComponentRendered();
+        if ((this._stage) && (this._stage.rootComponent === this)) {
+            this._stage.rootComponentRendered();
         }
 
         setTimeout(() => {
             this.afterRender();
 
-            if ((this.stage) && (this.stage.rootComponent === this)) {
-                this.stage.stageDidEnter();
+            if ((this._stage) && (this._stage.rootComponent === this)) {
+                this._stage.stageDidEnter();
             }
         }, 0);
     }
@@ -160,7 +172,7 @@ export default class Component extends HTMLElement {
     protected afterRender(): void {}
 
     connectedCallback() {
-        console.info(`Attached ${this.id || this.tagName} to DOM, contentUrl ${this.contentUrl}, stage ${this.stage.constructor.name}`);
+        console.info(`Attached ${this.id || this.tagName} to DOM, contentUrl ${this.contentUrl}, stage ${this._stage.constructor.name}`);
         console.dir(this);
 
         this.render()
@@ -234,7 +246,7 @@ export default class Component extends HTMLElement {
 
     private attachElementsToProperties(): void {
         let __this = this;
-        let attachToStage = (this.stage) && (this.stage.rootComponent === this);
+        let attachToStage = (this._stage) && (this._stage.rootComponent === this);
 
         function _process(elem) {
             if (!(elem instanceof Element)) {
@@ -246,7 +258,7 @@ export default class Component extends HTMLElement {
                 __this[id] = elem;
 
                 if (attachToStage) {
-                    __this.stage[id] = elem;
+                    __this._stage[id] = elem;
                 }
             }
 
@@ -260,7 +272,7 @@ export default class Component extends HTMLElement {
 
     private registerSelfMutators(inNode: Node = this): void {
         this.walkSelfMutators(m => {
-            this.stage.mutatorHub.registerMutator(m);
+            this._stage.mutatorHub.registerMutator(m);
 
             if (MutatorHub.mutatorFunctions.has(m.info.id)) {
                 if ((m.info.type !== "attribute") && (m.info.type !== "delegate")) {
@@ -426,7 +438,7 @@ export default class Component extends HTMLElement {
         console.info(`End cascade refresh of ${this.id || this.tagName}`);
     }
 
-    routeChanged(resolvedRoute: ResolvedRoute): void {
+    routeChanged(resolvedRoute: ResolvedRoute, noRefresh: boolean = false): void {
         let params = resolvedRoute.queries || {};
 
         for (let c of resolvedRoute.commands) {
@@ -440,11 +452,11 @@ export default class Component extends HTMLElement {
             parameters: params
         };
 
-        if ((this.stage) && (this.stage.rootComponent === this)) {
-            this.stage.stageWillEnter();
+        if ((this._stage) && (this._stage.rootComponent === this)) {
+            this._stage.stageWillEnter();
         }
 
-        if (!this.noRefreshOnRouteChanged) {
+        if ((!this.noRefreshOnRouteChanged) && (!noRefresh)) {
             console.info(`Component ${this.id || this.tagName} needs to be refreshed on route change, refresh it.`);
             this.refresh();
         }
@@ -505,7 +517,7 @@ export default class Component extends HTMLElement {
         let mutators = [];
 
         this.walkChildNodes(n => {
-            this.stage.handleMutatorNode(n, mutatorStack, m => mutators.push(m));
+            this._stage.handleMutatorNode(n, mutatorStack, m => mutators.push(m));
             return true;
         }, elem);
 
@@ -587,7 +599,7 @@ export default class Component extends HTMLElement {
 
         let found = 0;
 
-        let mutators = this.stage.mutatorHub.getMutatorsByExpression(mutatorExpression);
+        let mutators = this._stage.mutatorHub.getMutatorsByExpression(mutatorExpression);
 
         if (mutators) {
             let mutatorsToRemove: Array<Mutator> = [];
@@ -611,7 +623,7 @@ export default class Component extends HTMLElement {
                 }
 
                 if (mutators.length <= 0) {
-                    this.stage.mutatorHub.deleteMutatorsByExpression(mutatorExpression);
+                    this._stage.mutatorHub.deleteMutatorsByExpression(mutatorExpression);
                 }
 
                 console.info(`Collected ${mutatorsToRemove.length} detached mutators.`);
