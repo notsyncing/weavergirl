@@ -49,7 +49,7 @@ export default class FormUtils {
             }
         } else if (inputElem instanceof HTMLSelectElement) {
             if ((inputElem.options.length > 0) && (inputElem.selectedIndex >= 0)) {
-                return (inputElem.options[inputElem.selectedIndex] as HTMLSelectElement).value;
+                return (inputElem.options[inputElem.selectedIndex] as HTMLOptionElement).value;
             } else {
                 return null;
             }
