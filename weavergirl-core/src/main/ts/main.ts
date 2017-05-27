@@ -9,10 +9,12 @@ import FunctionUtils from "./common/function-utils";
 import {Language} from "./i18n/lang";
 import MutatorHub from "./component/mutator-hub";
 import {Http} from "./net/http";
-import FormUtils from "./common/form-utils";
+import FormUtils from "./form/form-utils";
+import FormValidation from "./form/form-validation";
 
 export let Weavergirl = {
     Form: FormUtils,
+    FormValidation: FormValidation,
 
     Loader: Loader,
 
