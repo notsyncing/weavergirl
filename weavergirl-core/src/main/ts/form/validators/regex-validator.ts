@@ -1,5 +1,4 @@
 import Validator from "../validator";
-import FormValidation from "../form-validation";
 
 export class RegexValidator extends Validator {
     check(elem: HTMLElement, parameters: any = null): boolean {
@@ -23,4 +22,3 @@ export class RegexValidator extends Validator {
     }
 }
 
-FormValidation.addValidator(RegexValidator);

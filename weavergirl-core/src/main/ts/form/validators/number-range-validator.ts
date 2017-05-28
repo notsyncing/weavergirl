@@ -1,5 +1,4 @@
 import Validator from "../validator";
-import FormValidation from "../form-validation";
 
 export class NumberRangeValidator extends Validator {
     private checkRange(num: number, rule: any) {
@@ -59,4 +58,3 @@ export class NumberRangeValidator extends Validator {
     }
 }
 
-FormValidation.addValidator(NumberRangeValidator);

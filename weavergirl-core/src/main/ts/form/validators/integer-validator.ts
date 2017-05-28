@@ -1,5 +1,4 @@
 import Validator from "../validator";
-import FormValidation from "../form-validation";
 
 Number.isInteger = Number.isInteger || function(value) {
     return typeof value === 'number' &&
@@ -29,4 +28,3 @@ export class IntegerValidator extends Validator {
     }
 }
 
-FormValidation.addValidator(IntegerValidator);

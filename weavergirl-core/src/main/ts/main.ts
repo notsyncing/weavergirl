@@ -11,6 +11,13 @@ import MutatorHub from "./component/mutator-hub";
 import {Http} from "./net/http";
 import FormUtils from "./form/form-utils";
 import FormValidation from "./form/form-validation";
+import {RegexValidator} from "./form/validators/regex-validator";
+import {NumberValidator} from "./form/validators/number-validator";
+import {NumberRangeValidator} from "./form/validators/number-range-validator";
+import {NotEmptyValidator} from "./form/validators/not-empty-validator";
+import {MatchValidator} from "./form/validators/match-validator";
+import {LengthValidator} from "./form/validators/length-validator";
+import {IntegerValidator} from "./form/validators/integer-validator";
 
 export let Weavergirl = {
     Form: FormUtils,
@@ -45,4 +52,12 @@ if (!window["Weavergirl"]) {
 
     window["T"] = TemplateUtils;
     window["I"] = Language.getText;
+
+    FormValidation.addValidator(IntegerValidator);
+    FormValidation.addValidator(LengthValidator);
+    FormValidation.addValidator(MatchValidator);
+    FormValidation.addValidator(NotEmptyValidator);
+    FormValidation.addValidator(NumberRangeValidator);
+    FormValidation.addValidator(NumberValidator);
+    FormValidation.addValidator(RegexValidator);
 }

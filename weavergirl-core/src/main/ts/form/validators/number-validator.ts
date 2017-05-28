@@ -1,5 +1,4 @@
 import Validator from "../validator";
-import FormValidation from "../form-validation";
 
 export class NumberValidator extends Validator {
     check(elem: HTMLElement, parameters: any = null): boolean {
@@ -19,4 +18,3 @@ export class NumberValidator extends Validator {
     }
 }
 
-FormValidation.addValidator(NumberValidator);

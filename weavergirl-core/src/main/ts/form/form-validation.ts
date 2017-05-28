@@ -1,7 +1,8 @@
 import {ValidationRule} from "./validation-rule";
+import Validator from "./validator";
 
 export default class FormValidation {
-    private static validators = new Map<string, Function>();
+    private static validators = new Map<string, Validator>();
 
     static addValidator(validator: any) {
         let v = new validator();
@@ -12,16 +13,14 @@ export default class FormValidation {
         let l = [];
 
         function _process(elem) {
-            for (let e of elem.children) {
-                if (e.hasAttribute("name")) {
-                    if (name === e.getAttribute("name")) {
-                        l.push(e);
-                    }
+            if (elem.hasAttribute("name")) {
+                if (name === elem.getAttribute("name")) {
+                    l.push(elem);
                 }
+            }
 
-                for (let c of e.children) {
-                    _process(c);
-                }
+            for (let e of elem.children) {
+                _process(e);
             }
         }
 
@@ -52,19 +51,19 @@ export default class FormValidation {
                 continue;
             }
 
-            let validator = FormValidation.validators.get(rule.rule) as any;
+            let validator = FormValidation.validators.get(rule.rule);
 
             if (!validator) {
                 throw new Error(`Unknown validator ${rule.rule} for ${JSON.stringify(rule)} on form ${form} found!`);
             }
 
             for (let elem of elements) {
-                if (elem.getComputedStyle().display === "none") {
+                if (window.getComputedStyle(elem).display === "none") {
                     continue;
                 }
 
                 try {
-                    let r = new validator().check(elem);
+                    let r = validator.check(elem, rule.parameters);
 
                     if (r) {
                         passes.push({element: elem});
