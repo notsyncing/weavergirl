@@ -59,6 +59,10 @@ export default class FormValidation {
             }
 
             for (let elem of elements) {
+                if (elem.getComputedStyle().display === "none") {
+                    continue;
+                }
+
                 try {
                     let r = new validator().check(elem);
 
