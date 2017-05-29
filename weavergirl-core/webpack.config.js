@@ -6,9 +6,9 @@ module.exports = {
         filename: "weavergirl-core.js"
     },
     plugins: [
-        new webpack.optimize.UglifyJsPlugin({
+        /*new webpack.optimize.UglifyJsPlugin({
             sourceMap: true
-        })
+        })*/
     ],
     module: {
         loaders: [
