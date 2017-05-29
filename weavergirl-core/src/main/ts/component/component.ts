@@ -253,8 +253,15 @@ export default class Component extends HTMLElement {
                 return;
             }
 
+            let id = null;
+
             if (elem.hasAttribute("data-weavergirl-id")) {
-                let id = elem.getAttribute("data-weavergirl-id");
+                id = elem.getAttribute("data-weavergirl-id");
+            } else if (elem.hasAttribute("weavergirl-keep-id")) {
+                id = elem.id;
+            }
+
+            if (id != null) {
                 __this[id] = elem;
 
                 if (attachToStage) {
