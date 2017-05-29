@@ -297,5 +297,9 @@ export default class Router {
 }
 
 window.onpopstate = function (event) {
+    if (!event.state) {
+        return;
+    }
+
     Weavergirl.Router.go(event.state, false);
 };
