@@ -11,6 +11,7 @@ import org.gradle.api.file.FileTree
 
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.zip.Adler32
 
 class WeavergirlPlugin implements Plugin<Project> {
     private void copySubdirectoryFromFileTree(Project project, FileTree fromTree, String dirToCopy, Path toDir) {
@@ -29,6 +30,13 @@ class WeavergirlPlugin implements Plugin<Project> {
         project.delete(tempDir)
     }
 
+    private long checksum(Path file) {
+        def m = new Adler32()
+        m.update(Files.readAllBytes(file))
+
+        return m.value
+    }
+
     private void babelDirectory(Project project, Path dir, String[] skipFiles) {
         project.exec {
             workingDir dir.toFile()
@@ -37,6 +45,15 @@ class WeavergirlPlugin implements Plugin<Project> {
                 commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "babel-preset-es2015", "babel-preset-env"
             } else {
                 commandLine "npm", "link", "babel-preset-es2015", "babel-preset-env"
+            }
+        }
+
+        def checksumFile = dir.resolve("../../.weavergirlBabelChecksums")
+        def checksums = new HashMap<String, Long>()
+
+        if (Files.exists(checksumFile)) {
+            new ObjectInputStream(Files.newInputStream(checksumFile)).withCloseable {
+                checksums = it.readObject()
             }
         }
 
@@ -61,6 +78,16 @@ class WeavergirlPlugin implements Plugin<Project> {
                 }
 
                 def f = dir.relativize(file)
+                def newChecksum = checksum(file)
+
+                if (checksums.containsKey(f.toString())) {
+                    def oldChecksum = checksums.get(f.toString())
+
+                    if (oldChecksum == newChecksum) {
+                        println("up-to-date: ${file}")
+                        return FileVisitResult.CONTINUE
+                    }
+                }
 
                 project.exec {
                     workingDir dir.toFile()
@@ -73,6 +100,8 @@ class WeavergirlPlugin implements Plugin<Project> {
                 }
 
                 println("babel: ${file}")
+
+                checksums.put(f.toString(), newChecksum)
 
                 return FileVisitResult.CONTINUE
             }
@@ -91,6 +120,10 @@ class WeavergirlPlugin implements Plugin<Project> {
         })
 
         project.delete(dir.resolve("node_modules").toFile())
+
+        new ObjectOutputStream(Files.newOutputStream(checksumFile)).withCloseable {
+            it.writeObject(checksums)
+        }
     }
 
     @Override
