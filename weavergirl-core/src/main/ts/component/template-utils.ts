@@ -277,11 +277,11 @@ class SwitchTemplate {
         return this;
     }
 
-    toString() {
+    toString(): string {
         return this.toStringWithoutMutator(false);
     }
 
-    toStringWithoutMutator(without = true) {
+    toStringWithoutMutator(without = true): string {
         let str = "";
         let result: any;
 
@@ -294,7 +294,15 @@ class SwitchTemplate {
         let noOtherwise = false;
 
         for (let c of this.conditions) {
-            if (c.condition === result) {
+            let passed = false;
+
+            if (typeof c.condition === "function") {
+                passed = c.condition(result);
+            } else {
+                passed = c.condition === result;
+            }
+
+            if (passed) {
                 noOtherwise = true;
                 str += c.handler();
             }
