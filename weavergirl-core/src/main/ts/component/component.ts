@@ -132,9 +132,33 @@ export default class Component extends HTMLElement {
     }
 
     private attachStageToSelfElements(inNode: Node = this): void {
+        let stageGetter = function () {
+            let c = this;
+
+            while (c.parentNode) {
+                if (!c["_stageGetterDefined"]) {
+                    if (c["stage"]) {
+                        return c["stage"];
+                    }
+                }
+
+                c = c.parentNode;
+            }
+
+            return null;
+        };
+
         this.walkSelfElements(elem => {
             if (!(elem instanceof Component)) {
-                elem["stage"] = this._stage;
+                if (elem["_stageGetterDefined"]) {
+                    return true;
+                }
+
+                Object.defineProperty(elem, "stage", {
+                    get: stageGetter
+                });
+
+                elem["_stageGetterDefined"] = true;
             }
 
             return true;
