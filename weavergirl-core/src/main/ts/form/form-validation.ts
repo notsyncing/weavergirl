@@ -58,7 +58,7 @@ export default class FormValidation {
             }
 
             for (let elem of elements) {
-                if (window.getComputedStyle(elem).display === "none") {
+                if ((elem.offsetHeight === 0) && (elem.offsetWidth === 0)) {
                     continue;
                 }
 
