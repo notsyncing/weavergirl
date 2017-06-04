@@ -40,6 +40,12 @@ export default class Component extends HTMLElement {
         }
 
         this._stage.rootComponent = this;
+
+        this.init();
+    }
+
+    protected init() {
+
     }
 
     set stage(stage: Stage) {
