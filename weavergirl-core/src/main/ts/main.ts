@@ -50,7 +50,7 @@ export let Weavergirl = {
 if (!window["Weavergirl"]) {
     window["Weavergirl"] = Weavergirl;
 
-    window["T"] = TemplateUtils;
+    window["T"] = (component: Component) => new TemplateUtils(component);
     window["I"] = Language.getText;
 
     FormValidation.addValidator(IntegerValidator);

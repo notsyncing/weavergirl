@@ -3,7 +3,6 @@ import Loader from "../loader/loader";
 import Component from "../component/component";
 import {Weavergirl} from "../main";
 import {ResolvedRoute, Route, RouteCommand, RouteComponentInfo, RouteMatchResult} from "./router-models";
-import MutatorHub from "../component/mutator-hub";
 import Stage from "./stage";
 
 export default class Router {
@@ -280,7 +279,9 @@ export default class Router {
             history.pushState(resolvedRoute, "", resolvedRoute.url);
         }
 
-        MutatorHub.collectUnusedMutatorId();
+        for (let s of Router.stages.values()) {
+            s.mutatorHub.collectUnusedMutatorId();
+        }
     }
 
     navigate(url: string, event: Event = null): Promise<void> {

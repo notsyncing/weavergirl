@@ -179,7 +179,7 @@ describe("Component", () => {
 
             view() {
                 console.dir(this.stage.state);
-                return this.html`<div>${T.forEach(this.stage.state.list, (m, i) => `<div>${m}</div>`)}</div>`;
+                return this.html`<div>${T(this).forEach(this.stage.state.list, (m, i) => `<div>${m}</div>`)}</div>`;
             }
         }
 
@@ -223,7 +223,7 @@ describe("Component", () => {
 
             view() {
                 console.dir(this.stage.state);
-                return this.html`<div>${T.forEach(() => this.stage.state.list, 
+                return this.html`<div>${T(this).forEach(() => this.stage.state.list, 
                     (m, i) => this.html`<div>${() => this.stage.state.list[i].name}</div>`)}</div>`;
             }
         }
@@ -272,7 +272,7 @@ describe("Component", () => {
 
             view() {
                 console.dir(this.stage.state);
-                return this.html`<div>${T.when(this.stage.state.show)
+                return this.html`<div>${T(this).when(this.stage.state.show)
                     .is(true, () => `<div>A</div>`)
                     .otherwise(() => `<div>B</div>`)}</div>`;
             }
@@ -306,7 +306,7 @@ describe("Component", () => {
 
             view() {
                 console.dir(this.stage.state);
-                return this.html`<div>${T.when(() => this.stage.state.show)
+                return this.html`<div>${T(this).when(() => this.stage.state.show)
                     .is(true, () => `<div>A</div>`)
                     .otherwise(() => `<div>B</div>`)}</div>`;
             }
@@ -347,7 +347,7 @@ describe("Component", () => {
             }
 
             view() {
-                return `<input ${T.attr("value", this.stage.state.value)}>`;
+                return `<input ${T(this).attr("value", this.stage.state.value)}>`;
             }
         }
 
@@ -376,7 +376,7 @@ describe("Component", () => {
             }
 
             view() {
-                return `<input ${T.attr("value", () => this.stage.state.value)}>`;
+                return `<input ${T(this).attr("value", () => this.stage.state.value)}>`;
             }
         }
 
@@ -415,7 +415,7 @@ describe("Component", () => {
 
             view() {
                 console.dir(this.stage.state);
-                return `<input id="testInput" weavergirl-keep-id ${T.bind(() => this.stage.state.input)}>`;
+                return `<input id="testInput" weavergirl-keep-id ${T(this).bind(() => this.stage.state.input)}>`;
             }
         }
 
@@ -455,7 +455,7 @@ describe("Component", () => {
 
             view() {
                 console.dir(this.stage.state);
-                return `<input id="testInput" weavergirl-keep-id ${T.bind(() => this.stage.state.input)}>`;
+                return `<input id="testInput" weavergirl-keep-id ${T(this).bind(() => this.stage.state.input)}>`;
             }
         }
 

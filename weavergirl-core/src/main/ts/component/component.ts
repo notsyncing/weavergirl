@@ -4,7 +4,6 @@ import {ComponentDependencies} from "./component-dependencies";
 import Stage from "../router/stage";
 import {AttributeMutatorInfo, DelegateMutatorInfo, Mutator} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
-import MutatorHub from "./mutator-hub";
 import Router from "../router/router";
 
 export default class Component extends HTMLElement {
@@ -80,7 +79,7 @@ export default class Component extends HTMLElement {
     }
 
     html(strings, ...values): string {
-        return TemplateUtils.html(strings, ...values);
+        return new TemplateUtils(this).html(strings, ...values);
     }
 
     private async loadDependencies(): Promise<void> {
@@ -311,10 +310,10 @@ export default class Component extends HTMLElement {
         this.walkSelfMutators(m => {
             this._stage.mutatorHub.registerMutator(m);
 
-            if (MutatorHub.mutatorFunctions.has(m.info.id)) {
+            if (this.stage.mutatorHub.mutatorFunctions.has(m.info.id)) {
                 if ((m.info.type !== "attribute") && (m.info.type !== "delegate")) {
-                    m.beginPatternNode["_weavergirlMutatorFunction"] = MutatorHub.mutatorFunctions.get(m.info.id);
-                    MutatorHub.mutatorFunctions.delete(m.info.id);
+                    m.beginPatternNode["_weavergirlMutatorFunction"] = this.stage.mutatorHub.mutatorFunctions.get(m.info.id);
+                    this.stage.mutatorHub.mutatorFunctions.delete(m.info.id);
                 }
             }
 
@@ -567,9 +566,9 @@ export default class Component extends HTMLElement {
         let f: Function;
 
         if ((mutator.info.type === "attribute") || (mutator.info.type === "delegate")) {
-            f = MutatorHub.mutatorFunctions.get(mutator.info.id).bind(this);
+            f = this.stage.mutatorHub.mutatorFunctions.get(mutator.info.id).bind(this);
         } else {
-            f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || MutatorHub.mutatorFunctions.get(mutator.info.id)).bind(this);
+            f = (mutator.beginPatternNode["_weavergirlMutatorFunction"] || this.stage.mutatorHub.mutatorFunctions.get(mutator.info.id)).bind(this);
         }
 
         let mutatorBeginIndex = Array.prototype.indexOf.call(mutator.parent.childNodes, mutator.beginPatternNode);

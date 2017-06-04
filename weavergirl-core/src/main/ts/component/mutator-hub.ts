@@ -8,7 +8,7 @@ export default class MutatorHub {
     static mutatorBeginPattern = "#weavergirl-mutator ";
     static mutatorEndPattern = "#/weavergirl-mutator";
 
-    static mutatorFunctions = new Map<number, Function>();
+    mutatorFunctions = new Map<number, Function>();
 
     private mutators = new Map<string, Array<Mutator>>();
     private mutatorExprDeps = new Map<string, Array<string>>();
@@ -23,13 +23,13 @@ export default class MutatorHub {
         return n;
     }
 
-    static setMutatorFunction(id: number, func: Function): void {
-        MutatorHub.mutatorFunctions.set(id, func);
+    setMutatorFunction(id: number, func: Function): void {
+        this.mutatorFunctions.set(id, func);
     }
 
     clearMutators(): void {
         this.mutators.clear();
-        MutatorHub.mutatorFunctions.clear();
+        this.mutatorFunctions.clear();
     }
 
     static resetMutatorId(): void {
@@ -62,8 +62,8 @@ export default class MutatorHub {
         }
     }
 
-    static collectUnusedMutatorId(elem: Node = document): void {
-        if (MutatorHub.mutatorFunctions.size <= 0) {
+    collectUnusedMutatorId(elem: Node = document): void {
+        if (this.mutatorFunctions.size <= 0) {
             console.info(`Mutator cache collection result: no need to collect.`);
             return;
         }
@@ -75,8 +75,8 @@ export default class MutatorHub {
 
         function _process(stage: Stage, n: Node) {
             stage.handleMutatorNode(n, mutatorStack, m => {
-                if (MutatorHub.mutatorFunctions.has(m.info.id)) {
-                    newFunctionMap.set(m.info.id, MutatorHub.mutatorFunctions.get(m.info.id));
+                if (this.mutatorFunctions.has(m.info.id)) {
+                    newFunctionMap.set(m.info.id, this.mutatorFunctions.get(m.info.id));
                 }
 
                 stage.mutatorHub.registerMutator(m, newStageMutatorMap.get(stage));
@@ -96,9 +96,9 @@ export default class MutatorHub {
             s.mutatorHub.mutators = newStageMutatorMap.get(s);
         }
 
-        console.info(`Mutator cache collection result: previous ${MutatorHub.mutatorFunctions.size}, now ${newFunctionMap.size}, collected ${MutatorHub.mutatorFunctions.size - newFunctionMap.size}`);
+        console.info(`Mutator cache collection result: previous ${this.mutatorFunctions.size}, now ${newFunctionMap.size}, collected ${this.mutatorFunctions.size - newFunctionMap.size}`);
 
-        MutatorHub.mutatorFunctions = newFunctionMap;
+        this.mutatorFunctions = newFunctionMap;
     }
 
     private resolveMutatorExpressionDependencies(expr: string, into: Array<Mutator>): void {

@@ -63,7 +63,7 @@ class FirstPage extends Weavergirl.Component {
     </div>
     
     <div>
-        ${T.when(() => this.stage.state.switchOn)
+        ${T(this).when(() => this.stage.state.switchOn)
             .is(true, () =>
                 `<div>I'm on!</div>`)
             .otherwise(() =>
@@ -73,7 +73,7 @@ class FirstPage extends Weavergirl.Component {
     </div>
     
     <div>
-        <input ${T.attr("type", () => this.stage.state.type)}>
+        <input ${T(this).attr("type", () => this.stage.state.type)}>
         <button id="btnToggleType" onclick="this.stage.toggleType()">${I("Toggle {0}", 2)}</button>    
     </div>
     
@@ -82,7 +82,7 @@ class FirstPage extends Weavergirl.Component {
     </div>
     
     <div>
-        ${T.when(() => this.stage.state.switchOnComputed())
+        ${T(this).when(() => this.stage.state.switchOnComputed())
             .is(true, () =>
                 `<div>I'm on!</div>`)
             .otherwise(() =>
@@ -90,7 +90,7 @@ class FirstPage extends Weavergirl.Component {
     </div>
     
     <div>
-        <input ${T.bind(() => this.stage.state.inputData)}>
+        <input ${T(this).bind(() => this.stage.state.inputData)}>
         <span>Entered: ${() => this.stage.state.inputData}</span>
         <button onclick="this.stage.setInputData()">Set</button>
     </div>
