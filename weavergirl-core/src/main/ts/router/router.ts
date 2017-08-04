@@ -140,6 +140,12 @@ export default class Router {
             }
         }
 
+        if (route.parameters) {
+            for (let m of Object.keys(route.parameters)) {
+                parameters[m] = route.parameters[m];
+            }
+        }
+
         return {
             parameters: parameters,
             remainPath: "/" + pathParts.slice(patternParts.length).join("/")

@@ -3,6 +3,7 @@ import {RouterCommand} from "./enums";
 export interface Route {
     route: string;
     component: string | RouteComponentInfo;
+    parameters?: any;
     children?: Array<Route>;
 }
 

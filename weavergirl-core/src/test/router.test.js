@@ -301,6 +301,27 @@ describe("Router", () => {
             r.commands[0].command.should.equal(Weavergirl.RouterCommand.Load);
             r.commands[0].url.should.equal("/test-module.js");
         });
+
+        it("should contain parameters in route config", () => {
+            Weavergirl.Router.init([
+                {
+                    route: "/simple",
+                    component: "/test-module.js",
+                    parameters: {
+                        id: 3
+                    }
+                }
+            ], Weavergirl.RouterMode.Direct, true);
+
+            let r = Weavergirl.Router.resolve("/simple");
+            should.exists(r);
+
+            r.commands.length.should.equal(1);
+
+            should.exists(r.commands[0].parameters);
+            should.exists(r.commands[0].parameters.id);
+            r.commands[0].parameters.id.should.equal(3);
+        });
     });
 
     describe("#getRoute", () => {
