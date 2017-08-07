@@ -250,7 +250,7 @@ export default class Component extends HTMLElement {
         let elem = document.createElement("div");
         elem.innerHTML = content;
 
-        function _process(e) {
+        let _process = function (e) {
             if (!(e instanceof Element)) {
                 return;
             }
@@ -266,7 +266,7 @@ export default class Component extends HTMLElement {
             for (let c of e.childNodes) {
                 _process(c);
             }
-        }
+        };
 
         _process(elem);
 

@@ -73,7 +73,7 @@ export default class MutatorHub {
 
         let mutatorStack: Array<Mutator> = [];
 
-        function _process(stage: Stage, n: Node) {
+        let _process = function (stage: Stage, n: Node) {
             stage.handleMutatorNode(n, mutatorStack, m => {
                 if (this.mutatorFunctions.has(m.info.id)) {
                     newFunctionMap.set(m.info.id, this.mutatorFunctions.get(m.info.id));
@@ -85,7 +85,7 @@ export default class MutatorHub {
             for (let c of n.childNodes) {
                 _process(stage, c);
             }
-        }
+        };
 
         for (let s of Router.stages.values()) {
             newStageMutatorMap.set(s, new Map());

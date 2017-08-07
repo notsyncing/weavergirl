@@ -12,7 +12,7 @@ export default class FormValidation {
     static _findElementsByName(name: string, element: Element): Array<HTMLElement> {
         let l = [];
 
-        function _process(elem) {
+        let _process = function (elem) {
             if (elem.hasAttribute("name")) {
                 if (name === elem.getAttribute("name")) {
                     l.push(elem);
@@ -22,7 +22,7 @@ export default class FormValidation {
             for (let e of elem.children) {
                 _process(e);
             }
-        }
+        };
 
         _process(element);
 

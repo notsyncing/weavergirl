@@ -290,7 +290,7 @@ class SwitchTemplate {
         let result: any;
 
         if (this.fieldIsFunction) {
-            result = this.field();
+            result = (this.field as Function)();
         } else {
             result = this.field;
         }
