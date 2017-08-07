@@ -233,13 +233,13 @@ describe("Component", () => {
         let expected = "<test-mutable-item-repeater-component>" +
             "<div><!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"list\",\"list.length\"]}-->" +
             "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"list[0]\"]}--><div>" +
-            "<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"list[0].name\",\"list[0]\"]}-->1<!--#/weavergirl-mutator-->" +
+            "<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"list\",\"list[0]\",\"list[0].name\"]}-->1<!--#/weavergirl-mutator-->" +
             "</div><!--#/weavergirl-mutator-->" +
             "<!--#weavergirl-mutator {\"id\":4,\"type\":\"repeater\",\"expressions\":[\"list[1]\"]}--><div>" +
-            "<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"list[1].name\",\"list[1]\"]}-->4<!--#/weavergirl-mutator-->" +
+            "<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"list\",\"list[1]\",\"list[1].name\"]}-->4<!--#/weavergirl-mutator-->" +
             "</div><!--#/weavergirl-mutator-->" +
             "<!--#weavergirl-mutator {\"id\":6,\"type\":\"repeater\",\"expressions\":[\"list[2]\"]}--><div>" +
-            "<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"list[2].name\",\"list[2]\"]}-->3<!--#/weavergirl-mutator-->" +
+            "<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"list\",\"list[2]\",\"list[2].name\"]}-->3<!--#/weavergirl-mutator-->" +
             "</div><!--#/weavergirl-mutator-->" +
             "<!--#/weavergirl-mutator--></div>" +
             "</test-mutable-item-repeater-component>";

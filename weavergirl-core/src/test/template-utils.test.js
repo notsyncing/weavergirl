@@ -1,7 +1,19 @@
 "use strict";
 
 class TestComponent extends Weavergirl.Component {
-    
+    get stageClass() {
+        return TestComponentStage;
+    }
+}
+
+class TestComponentStage extends Weavergirl.Stage {
+    init() {
+        super.init();
+
+        this.state = {
+
+        };
+    }
 }
 
 customElements.define("test-component", TestComponent);
@@ -22,27 +34,28 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct HTML with static value", () => {
-            let n = 1;
-            let s = T(tc).html`<div>a: ${n}</div>`;
+            tc.stage.state.n = 1;
+            let s = T(tc).html`<div>a: ${tc.stage.state.n}</div>`;
             s.should.equal("<div>a: 1</div>");
         });
 
         it("should generate inline mutator for dynamic value", () => {
-            let n = 1;
-            let s = T(tc).html`<div>a: ${() => n}</div>`;
+            tc.stage.state.n = 1;
+            let s = T(tc).html`<div>a: ${() => tc.stage.state.n}</div>`;
             s.should.equal(`<div>a: <!--#weavergirl-mutator {"id":0,"type":"inline","expressions":["n"]}-->1<!--#/weavergirl-mutator--></div>`);
         });
 
         it("should generate multiple inline mutators for the same dynamic value", () => {
-            let n = 1;
-            let s = T(tc).html`<div>a: ${() => n}, b: ${() => n}</div>`;
+            tc.stage.state.n = 1;
+            let s = T(tc).html`<div>a: ${() => tc.stage.state.n}, b: ${() => tc.stage.state.n}</div>`;
             s.should.equal("<div>a: <!--#weavergirl-mutator {\"id\":0,\"type\":\"inline\",\"expressions\":[\"n\"]}-->1<!--#/weavergirl-mutator-->" +
                 ", b: <!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"n\"]}-->1<!--#/weavergirl-mutator--></div>");
         });
 
         it("should generate multiple inline mutators for two dynamic values", () => {
-            let n = 1, m = 2;
-            let s = T(tc).html`<div>a: ${() => n}, b: ${() => m}</div>`;
+            tc.stage.state.n = 1;
+            tc.stage.state.m = 2;
+            let s = T(tc).html`<div>a: ${() => tc.stage.state.n}, b: ${() => tc.stage.state.m}</div>`;
             s.should.equal("<div>a: <!--#weavergirl-mutator {\"id\":0,\"type\":\"inline\",\"expressions\":[\"n\"]}-->1<!--#/weavergirl-mutator-->" +
                 ", b: <!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"m\"]}-->2<!--#/weavergirl-mutator--></div>");
         });
@@ -98,9 +111,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate mutators for the whole list and every item for dynamic list", () => {
-            let l = [1,2,3];
+            tc.stage.state.l = [1,2,3];
 
-            let s = T(tc).forEach(() => l, (m) => {
+            let s = T(tc).forEach(() => tc.stage.state.l, (m) => {
                 return T(tc).html`<div>Hello${m}</div>`;
             });
 
@@ -112,41 +125,41 @@ describe("TemplateUtils", () => {
         });
 
         it("should replace index variables for every item for dynamic list", () => {
-            let l = [1,2,3];
+            tc.stage.state.l = [1,2,3];
 
-            let s = T(tc).forEach(() => l, (m, i) => {
-                return T(tc).html`<div>Hello${() => l[i]}</div>`;
+            let s = T(tc).forEach(() => tc.stage.state.l, (m, i) => {
+                return T(tc).html`<div>Hello${() => tc.stage.state.l[i]}</div>`;
             });
 
             s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l\",\"l.length\"]}-->" +
                 "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}-->" +
-                "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l\",\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
                 "<!--#weavergirl-mutator {\"id\":4,\"type\":\"repeater\",\"expressions\":[\"l[1]\"]}-->" +
-                "<div>Hello<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"l[1]\"]}-->2<!--#/weavergirl-mutator-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"l\",\"l[1]\"]}-->2<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
                 "<!--#weavergirl-mutator {\"id\":6,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}-->" +
-                "<div>Hello<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"l[2]\"]}-->3<!--#/weavergirl-mutator-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"l\",\"l[2]\"]}-->3<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
                 "<!--#/weavergirl-mutator-->");
         });
 
         it("should replace item variables for every item for dynamic list", () => {
-            let l = [1,2,3];
+            tc.stage.state.l = [{ v: 1 }, { v: 2 }, { v: 3 }];
 
-            let s = T(tc).forEach(() => l, (m) => {
-                return T(tc).html`<div>Hello${() => m}</div>`;
+            let s = T(tc).forEach(() => tc.stage.state.l, (m) => {
+                return T(tc).html`<div>Hello${() => m.v}</div>`;
             });
 
             s.should.equal("<!--#weavergirl-mutator {\"id\":0,\"type\":\"repeater\",\"expressions\":[\"l\",\"l.length\"]}-->" +
                 "<!--#weavergirl-mutator {\"id\":2,\"type\":\"repeater\",\"expressions\":[\"l[0]\"]}-->" +
-                "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0]\"]}-->1<!--#/weavergirl-mutator-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":1,\"type\":\"inline\",\"expressions\":[\"l[0].v\"]}-->1<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
                 "<!--#weavergirl-mutator {\"id\":4,\"type\":\"repeater\",\"expressions\":[\"l[1]\"]}-->" +
-                "<div>Hello<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"l[1]\"]}-->2<!--#/weavergirl-mutator-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":3,\"type\":\"inline\",\"expressions\":[\"l[1].v\"]}-->2<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
                 "<!--#weavergirl-mutator {\"id\":6,\"type\":\"repeater\",\"expressions\":[\"l[2]\"]}-->" +
-                "<div>Hello<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"l[2]\"]}-->3<!--#/weavergirl-mutator-->" +
+                "<div>Hello<!--#weavergirl-mutator {\"id\":5,\"type\":\"inline\",\"expressions\":[\"l[2].v\"]}-->3<!--#/weavergirl-mutator-->" +
                 "</div><!--#/weavergirl-mutator-->" +
                 "<!--#/weavergirl-mutator-->");
         });
@@ -162,9 +175,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct simple HTML for one positive branch", () => {
-            let c = true;
+            tc.stage.state.c = true;
 
-            let s = T(tc).when(c)
+            let s = T(tc).when(tc.stage.state.c)
                 .is(true, () => `<div>Hello</div>`)
                 .toString();
 
@@ -172,9 +185,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct simple HTML for one negative branch", () => {
-            let c = false;
+            tc.stage.state.c = false;
 
-            let s = T(tc).when(c)
+            let s = T(tc).when(tc.stage.state.c)
                 .is(true, () => `<div>Hello</div>`)
                 .toString();
 
@@ -182,9 +195,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct simple HTML for the positive in two branches", () => {
-            let c = true;
+            tc.stage.state.c = true;
 
-            let s = T(tc).when(c)
+            let s = T(tc).when(tc.stage.state.c)
                 .is(true, () => `<div>Hello</div>`)
                 .otherwise(() => `<div>World</div>`)
                 .toString();
@@ -193,9 +206,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct simple HTML for the negative in two branches", () => {
-            let c = false;
+            tc.stage.state.c = false;
 
-            let s = T(tc).when(c)
+            let s = T(tc).when(tc.stage.state.c)
                 .is(true, () => `<div>Hello</div>`)
                 .otherwise(() => `<div>World</div>`)
                 .toString();
@@ -204,9 +217,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct simple HTML for three branches", () => {
-            let c = 2;
+            tc.stage.state.c = 2;
 
-            let s = T(tc).when(c)
+            let s = T(tc).when(tc.stage.state.c)
                 .is(1, () => `<div>Hello</div>`)
                 .is(2, () => `<div>Whoa</div>`)
                 .otherwise(() => `<div>World</div>`)
@@ -216,9 +229,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate mutators for branches", () => {
-            let c = 2;
+            tc.stage.state.c = 2;
 
-            let s = T(tc).when(() => c)
+            let s = T(tc).when(() => tc.stage.state.c)
                 .is(1, () => `<div>Hello</div>`)
                 .is(2, () => `<div>Whoa</div>`)
                 .otherwise(() => `<div>World</div>`)
@@ -246,9 +259,9 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct dynamic attribute for element", () => {
-            let c = 2;
+            tc.stage.state.c = 2;
 
-            let s = T(tc).attr("value", () => c);
+            let s = T(tc).attr("value", () => tc.stage.state.c);
 
             s.should.equal("value=\"2\" weavergirl-mutator-0=\"{%22id%22:0,%22type%22:%22attribute%22,%22expressions%22:[%22c%22],%22attribute%22:%22value%22}\"");
         });
@@ -264,7 +277,8 @@ describe("TemplateUtils", () => {
         });
 
         it("should generate correct bind attribute for element", () => {
-            let s = T(tc).bind(() => c);
+            tc.stage.state.c = 0;
+            let s = T(tc).bind(() => tc.stage.state.c);
 
             s.should.equal("data-weavergirl-bind-mutator=\"{%22id%22:0,%22type%22:%22delegate%22,%22expressions%22:[%22c%22],%22delegate%22:%22this.bindMutatorHandler%22}\"");
         });

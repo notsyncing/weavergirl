@@ -1,5 +1,4 @@
 import {AttributeMutatorInfo, DelegateMutatorInfo, MutatorInfo} from "./mutator";
-import FunctionUtils from "../common/function-utils";
 import MutatorHub from "./mutator-hub";
 import Component from "./component";
 
@@ -86,7 +85,7 @@ export default class TemplateUtils {
                 if (v instanceof Promise) {
                     // TODO: Implement this!
                 } else if (v instanceof ContextContent) {
-                    s += (v as ContextContent).getContent({ state: state });
+                    s += (v as ContextContent).getContent({state: state});
                 } else if (typeof v === "function") {
                     s += this.convertExpressionToMutatorElement(v);
                 } else {
@@ -107,28 +106,38 @@ export default class TemplateUtils {
     }
 
     private convertExpressionToMutatorElement(funcContainsExpression: Function): string {
-        let expression = FunctionUtils.extractExpressionFromFunction(funcContainsExpression);
-        let exprList = FunctionUtils.expandExpression(expression);
+        let exprList = [];
         let mutatorId = MutatorHub.allocateMutatorId();
         this.component.stage.mutatorHub.setMutatorFunction(mutatorId, funcContainsExpression);
 
-        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expressions: exprList })}${funcContainsExpression()}${this.makeMutatorEnd()}`;
+        this.component.stage.beginRecord(exprList);
+
+        let inner = funcContainsExpression();
+
+        this.component.stage.endRecord();
+
+        return `${this.makeMutatorBegin({ id: mutatorId, type: "inline", expressions: exprList })}${inner}${this.makeMutatorEnd()}`;
     }
 
     forEach(list: Function | Array<any>, handler: (item: any, index: number) => string, _noMutatorNode = false): string {
         let s = "";
         let l: Array<any>;
         let mutatorBegin: MutatorInfo = null;
-        let handlerArgs: Array<string>;
         let listIsFunction = false;
         let expression: string;
 
         if (typeof list === "function") {
             listIsFunction = true;
-            expression = FunctionUtils.extractExpressionFromFunction(list as Function);
-            let exprList = FunctionUtils.expandExpression(expression);
+            let exprList = [];
+
+            this.component.stage.beginRecord(exprList);
+
+            l = list() as Array<any>;
+
+            this.component.stage.endRecord();
+
+            expression = exprList[exprList.length - 1];
             exprList.push(expression + ".length");
-            handlerArgs = FunctionUtils.getFunctionArguments(handler);
 
             if (!_noMutatorNode) {
                 mutatorBegin = {
@@ -137,32 +146,15 @@ export default class TemplateUtils {
                     expressions: exprList
                 };
 
-                this.component.stage.mutatorHub.setMutatorFunction(mutatorBegin.id, () => this.forEach(list, handler, true));
+                this.component.stage.mutatorHub.setMutatorFunction(mutatorBegin.id,
+                    () => this.forEach(list, handler, true));
             }
-
-            l = list() as Array<any>;
         } else {
             l = list as Array<any>;
         }
 
         for (let i = 0; i < l.length; i++) {
             let item = handler(l[i], i);
-
-            if (listIsFunction) {
-                let itemVarName = handlerArgs[0];
-
-                if (itemVarName) {
-                    let p = new RegExp(`([^a-zA-Z0-9_])(${this.escapeRegExp(itemVarName)})([^a-zA-Z0-9_])`, "g");
-                    item = item.replace(p, `$1${expression}[${i}]$3`);
-                }
-
-                let indexVarName = handlerArgs[1];
-
-                if (indexVarName) {
-                    let p = new RegExp(`([^a-zA-Z0-9_])(${this.escapeRegExp(indexVarName)})([^a-zA-Z0-9_])`, "g");
-                    item = item.replace(p, `$1${i}$3`);
-                }
-            }
 
             if (expression) {
                 let itemMutatorBegin = {
@@ -206,8 +198,13 @@ export default class TemplateUtils {
 
     attr(name: string, value: string | Function): string {
         if (typeof value === "function") {
-            let expr = FunctionUtils.extractExpressionFromFunction(value);
-            let exprList = FunctionUtils.expandExpression(expr);
+            let exprList = [];
+
+            this.component.stage.beginRecord(exprList);
+
+            let v = value();
+
+            this.component.stage.endRecord();
 
             let mutator: AttributeMutatorInfo = {
                 id: MutatorHub.allocateMutatorId(),
@@ -218,15 +215,20 @@ export default class TemplateUtils {
 
             this.component.stage.mutatorHub.setMutatorFunction(mutator.id, value);
 
-            return `${name}="${value()}" ${this.makeAttributeMutator(mutator)}`;
+            return `${name}="${v}" ${this.makeAttributeMutator(mutator)}`;
         } else {
             return `${name}="${value}"`;
         }
     }
 
     bind(toField: Function): string {
-        let expr = FunctionUtils.extractExpressionFromFunction(toField);
-        let exprList = FunctionUtils.expandExpression(expr);
+        let exprList = [];
+
+        this.component.stage.beginRecord(exprList);
+
+        toField();
+
+        this.component.stage.endRecord();
 
         let mutator: DelegateMutatorInfo = {
             id: MutatorHub.allocateMutatorId(),
@@ -251,21 +253,23 @@ class SwitchTemplate {
         if (typeof field === "function") {
             this.fieldIsFunction = true;
 
-            let expression = FunctionUtils.extractExpressionFromFunction(field);
+            let exprList = [];
 
-            if (expression) {
-                let exprList = FunctionUtils.expandExpression(expression);
+            templateUtils.component.stage.beginRecord(exprList);
 
-                this.mutatorBegin = {
-                    id: MutatorHub.allocateMutatorId(),
-                    type: "repeater",
-                    expressions: exprList
-                };
+            this.toStringWithoutMutator();
 
-                this.templateUtils.component.stage.mutatorHub.setMutatorFunction(this.mutatorBegin.id, () => {
-                    return this.toStringWithoutMutator();
-                });
-            }
+            templateUtils.component.stage.endRecord();
+
+            this.mutatorBegin = {
+                id: MutatorHub.allocateMutatorId(),
+                type: "repeater",
+                expressions: exprList
+            };
+
+            this.templateUtils.component.stage.mutatorHub.setMutatorFunction(this.mutatorBegin.id, () => {
+                return this.toStringWithoutMutator();
+            });
         }
     }
 

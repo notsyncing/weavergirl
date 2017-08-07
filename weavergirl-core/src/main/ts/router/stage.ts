@@ -30,16 +30,12 @@ export default class Stage {
 
         this.watcher = {
             get: function (target, key, result) {
-                if ((typeof target[key] === "function") && (target.hasOwnProperty(key))) {
-                    return callRecorder(result, Stage.getFullExpression(target, key));
-                } else {
-                    if (__this.recordStack.length > 0) {
-                        let l = __this.recordStack[__this.recordStack.length - 1];
-                        l.push(Stage.getFullExpression(target, key));
-                    }
-
-                    return result;
+                if (__this.recordStack.length > 0) {
+                    let l = __this.recordStack[__this.recordStack.length - 1];
+                    l.push(Stage.getFullExpression(target, key));
                 }
+
+                return result;
             },
             set: function (target, key, value) {
                 if (__this.inInit) {
