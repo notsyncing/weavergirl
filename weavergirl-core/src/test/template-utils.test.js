@@ -265,6 +265,12 @@ describe("TemplateUtils", () => {
 
             s.should.equal("value=\"2\" weavergirl-mutator-0=\"{%22id%22:0,%22type%22:%22attribute%22,%22expressions%22:[%22c%22],%22attribute%22:%22value%22}\"");
         });
+
+        it("should skip this attribute when value is undefined", () => {
+            let s = T(tc).attr("value", () => tc.stage.state.d);
+
+            s.should.equal(" weavergirl-mutator-0=\"{%22id%22:0,%22type%22:%22attribute%22,%22expressions%22:[%22d%22],%22attribute%22:%22value%22}\"");
+        })
     });
 
     describe("#bind", () => {

@@ -215,9 +215,25 @@ export default class TemplateUtils {
 
             this.component.stage.mutatorHub.setMutatorFunction(mutator.id, value);
 
-            return `${name}="${v}" ${this.makeAttributeMutator(mutator)}`;
+            let s = "";
+
+            if ((v === null) || (v === undefined)) {
+                s = "";
+            } else {
+                s = `${name}="${v}"`
+            }
+
+            return `${s} ${this.makeAttributeMutator(mutator)}`;
         } else {
-            return `${name}="${value}"`;
+            let s = "";
+
+            if ((value === null) || (value === undefined)) {
+                s = "";
+            } else {
+                s = `${name}="${value}"`
+            }
+
+            return s;
         }
     }
 
