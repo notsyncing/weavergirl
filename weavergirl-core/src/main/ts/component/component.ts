@@ -20,6 +20,8 @@ export default class Component extends HTMLElement {
 
     public noRefreshOnRouteChanged = false;
 
+    protected T = new TemplateUtils(this);
+
     constructor(private contentUrl: string,
                 private stylesheetUrls: Array<string> = null,
                 private scriptUrls: Array<string> = null) {
