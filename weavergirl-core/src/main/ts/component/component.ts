@@ -637,7 +637,7 @@ export default class Component extends HTMLElement {
         return node === document;
     }
 
-    updateMutator(mutatorExpression: string, changeType: string, newValue: any): boolean {
+    updateMutators(mutatorExpression: string, changeType: string, newValue: any): boolean {
         console.info(`Update mutators on ${this.id || this.tagName} with expression ${mutatorExpression} = ${newValue}, key/changeType ${changeType}`);
 
         let found = 0;

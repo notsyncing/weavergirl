@@ -14,20 +14,6 @@ export default class Stage {
     constructor(public rootComponent: Component) {
         let __this = this;
 
-        let callRecorder = function (oldCall, fullExpr) {
-            return function () {
-                let recordedExpressions: Array<string> = [];
-                __this.beginRecord(recordedExpressions);
-
-                let r = oldCall.apply(this, arguments);
-
-                __this.endRecord();
-                __this.mutatorHub.registerMutatorExpressionDependencies(fullExpr, recordedExpressions);
-
-                return r;
-            };
-        };
-
         this.watcher = {
             get: function (target, key, result) {
                 if (__this.recordStack.length > 0) {
@@ -46,7 +32,7 @@ export default class Stage {
                 console.info(`Stage ${__this.constructor.name} state change detected: on ${target} key ${key} value ${value}`);
 
                 let expr = Stage.getFullExpression(target, key);
-                __this.rootComponent.updateMutator(expr, key, value);
+                __this.rootComponent.updateMutators(expr, key, value);
             }
         };
 
