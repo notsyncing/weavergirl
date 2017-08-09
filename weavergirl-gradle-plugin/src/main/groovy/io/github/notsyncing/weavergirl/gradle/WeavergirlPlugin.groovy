@@ -37,9 +37,9 @@ class WeavergirlPlugin implements Plugin<Project> {
         return m.value
     }
 
-    private void babelDirectory(Project project, Path dir, String[] skipFiles) {
+    private void babelDirectory(Project project, Path srcDir, Path targetDir, String[] skipFiles) {
         project.exec {
-            workingDir dir.toFile()
+            workingDir targetDir.toFile()
 
             if (Os.isFamily(Os.FAMILY_MAC)) {
                 commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "babel-preset-es2015",
@@ -50,7 +50,7 @@ class WeavergirlPlugin implements Plugin<Project> {
             }
         }
 
-        def checksumFile = dir.resolve("../../.weavergirlBabelChecksums")
+        def checksumFile = targetDir.resolve("../../.weavergirlBabelChecksums")
         def checksums = new HashMap<String, Long>()
 
         if (Files.exists(checksumFile)) {
@@ -59,7 +59,7 @@ class WeavergirlPlugin implements Plugin<Project> {
             }
         }
 
-        Files.walkFileTree(dir, new FileVisitor<Path>() {
+        Files.walkFileTree(srcDir, new FileVisitor<Path>() {
             @Override
             FileVisitResult preVisitDirectory(Path d, BasicFileAttributes attrs) throws IOException {
                 if (d.fileName.toString() == "node_modules") {
@@ -79,11 +79,11 @@ class WeavergirlPlugin implements Plugin<Project> {
                     return FileVisitResult.CONTINUE
                 }
 
-                def f = dir.relativize(file)
+                def relFile = srcDir.relativize(file)
                 def newChecksum = checksum(file)
 
-                if (checksums.containsKey(f.toString())) {
-                    def oldChecksum = checksums.get(f.toString())
+                if (checksums.containsKey(relFile.toString())) {
+                    def oldChecksum = checksums.get(relFile.toString())
 
                     if (oldChecksum == newChecksum) {
                         println("up-to-date: ${file}")
@@ -91,21 +91,35 @@ class WeavergirlPlugin implements Plugin<Project> {
                     }
                 }
 
+                def targetFile = targetDir.resolve(relFile)
+
+                if (!Files.exists(targetFile.parent)) {
+                    Files.createDirectories(targetFile.parent)
+                }
+
                 project.exec {
-                    workingDir dir.toFile()
+                    workingDir targetDir.toFile()
+
+                    def parameters = [
+                            file.toString(),
+                            "--presets", targetDir.resolve("node_modules/babel-preset-es2015"),
+                            "--plugins", targetDir.resolve("node_modules/babel-plugin-transform-decorators-legacy").toString(),
+                            "-o", relFile.toString()
+                    ]
 
                     if (Os.isFamily(Os.FAMILY_MAC)) {
-                        commandLine "/usr/local/bin/node", "/usr/local/bin/babel", f.toString(),
-                                "--presets=es2015", "--plugins", "transform-decorators-legacy", "-o", f.toString()
+                        parameters.add(0, "/usr/local/bin/node")
+                        parameters.add(1, "/usr/local/bin/babel")
                     } else {
-                        commandLine "babel", f.toString(), "--presets=es2015", "--plugins", "transform-decorators-legacy",
-                                "-o", f.toString()
+                        parameters.add(0, "babel")
                     }
+
+                    commandLine(*parameters)
                 }
 
                 println("babel: ${file}")
 
-                checksums.put(f.toString(), newChecksum)
+                checksums.put(relFile.toString(), newChecksum)
 
                 return FileVisitResult.CONTINUE
             }
@@ -123,7 +137,7 @@ class WeavergirlPlugin implements Plugin<Project> {
             }
         })
 
-        project.delete(dir.resolve("node_modules").toFile())
+        project.delete(targetDir.resolve("node_modules").toFile())
 
         new ObjectOutputStream(Files.newOutputStream(checksumFile)).withCloseable {
             it.writeObject(checksums)
@@ -137,11 +151,9 @@ class WeavergirlPlugin implements Plugin<Project> {
         def makeAppTask = project.task("makeWeavergirlApp").doLast {
             def outputDir = project.buildDir.toPath().resolve("weavergirl/app")
 
-            if (Files.exists(outputDir)) {
-                project.delete(outputDir.toFile())
+            if (!Files.exists(outputDir)) {
+                Files.createDirectories(outputDir)
             }
-
-            Files.createDirectories(outputDir)
 
             for (d in project.configurations.compile.resolvedConfiguration.resolvedArtifacts) {
                 if (!d.file.isFile()) {
@@ -162,6 +174,13 @@ class WeavergirlPlugin implements Plugin<Project> {
                     }
 
                     null
+                }
+
+                def depItemDirName = d.file.getName().substring(0, d.file.getName().lastIndexOf("."))
+                def depItemDir = outputDir.resolve(depItemDirName)
+
+                if (Files.exists(depItemDir)) {
+                    project.delete(depItemDir.toFile())
                 }
 
                 switch (type) {
@@ -185,13 +204,17 @@ class WeavergirlPlugin implements Plugin<Project> {
 
             def appDir = outputDir.resolve(project.name)
 
-            Files.createDirectories(appDir)
+            if (!Files.exists(appDir)) {
+                Files.createDirectories(appDir)
+            }
 
-            if (project.extensions.weavergirl.srcDir != null) {
-                project.copy {
-                    from project.extensions.weavergirl.srcDir
-                    into appDir.toFile()
-                    exclude 'index.html'
+            if (!project.extensions.weavergirl.useBabel) {
+                if (project.extensions.weavergirl.srcDir != null) {
+                    project.copy {
+                        from project.extensions.weavergirl.srcDir
+                        into appDir.toFile()
+                        exclude 'index.html'
+                    }
                 }
             }
 
@@ -205,11 +228,13 @@ class WeavergirlPlugin implements Plugin<Project> {
             def indexFile = Paths.get(project.extensions.weavergirl.srcDir, "index.html")
 
             if (Files.exists(indexFile)) {
-                Files.copy(indexFile, outputDir.resolve("index.html"))
+                Files.copy(indexFile, outputDir.resolve("index.html"), StandardCopyOption.REPLACE_EXISTING)
             }
 
             if (project.extensions.weavergirl.useBabel) {
-                babelDirectory(project, appDir, project.extensions.weavergirl.babelSkipFiles)
+                def srcDir = project.projectDir.toPath().resolve(project.extensions.weavergirl.srcDir)
+
+                babelDirectory(project, srcDir, appDir, project.extensions.weavergirl.babelSkipFiles)
             }
         }
 
