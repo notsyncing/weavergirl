@@ -18,9 +18,11 @@ import {MatchValidator} from "./form/validators/match-validator";
 import {LengthValidator} from "./form/validators/length-validator";
 import {IntegerValidator} from "./form/validators/integer-validator";
 import {EventHandler, OnClick, OnInput} from "./wiring/wire-decorators";
+import {FormSubmit} from "./form/form-submit";
 
 export let Weavergirl = {
     Form: FormUtils,
+    FormSubmit: FormSubmit,
     FormValidation: FormValidation,
 
     Loader: Loader,

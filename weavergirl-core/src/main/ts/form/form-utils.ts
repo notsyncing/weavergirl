@@ -180,6 +180,155 @@ export default class FormUtils {
         return obj;
     }
 
+    private static setInputElementValue(inputElem: Element, value: any) {
+        let type = inputElem.getAttribute("type");
+
+        if ((type === "button") || (type === "submit")) {
+            return;
+        }
+
+        if (inputElem instanceof HTMLInputElement) {
+            if (type === "file") {
+                return;
+            }
+
+            if (type === "checkbox") {
+                if (inputElem.getAttribute("value") != null) {
+                    inputElem.checked = value == inputElem.getAttribute("value");
+                } else {
+                    inputElem.checked = value;
+                }
+            } else if (type === "radio") {
+                inputElem.checked = (inputElem.value == value);
+            } else if (type === "number") {
+                inputElem.value = Number(value).toString();
+            } else {
+                inputElem.value = value;
+            }
+        } else if (inputElem instanceof HTMLSelectElement) {
+            for (let i = 0; i < inputElem.options.length; i++) {
+                if (inputElem.options[i].value == value) {
+                    inputElem.selectedIndex = i;
+                    break;
+                }
+            }
+        } else if (inputElem instanceof HTMLTextAreaElement) {
+            inputElem.value = value;
+        }
+    }
+
+    private static parseInputElement(arrayCounters: any, inputElem: HTMLInputElement | HTMLTextAreaElement,
+                                     data: any): void {
+        let name = inputElem.getAttribute("name");
+        let rawName = name;
+        let type = inputElem.getAttribute("type");
+
+        if ((!name) || (name.length <= 0)) {
+            return;
+        }
+
+        let value;
+
+        if (data instanceof Array) {
+            let skip = 0;
+
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].name === rawName) {
+                    if ((type === "checkbox") && (inputElem.value != null) && (inputElem.value != data[i].value)) {
+                        skip++;
+                        continue;
+                    }
+
+                    if (!arrayCounters[rawName]) {
+                        arrayCounters[rawName] = 0;
+                    } else if (skip < arrayCounters[rawName]) {
+                        skip++;
+                        continue;
+                    }
+
+                    value = data[i].value;
+                    arrayCounters[rawName]++;
+
+                    break;
+                }
+            }
+        } else {
+            let lastIndexName;
+
+            while (name.indexOf("[]") >= 0) {
+                let unindexedArrayEnd = name.indexOf("[]");
+
+                if (arrayCounters[name] === undefined) {
+                    arrayCounters[name] = -1;
+                }
+
+                lastIndexName = name;
+                arrayCounters[name]++;
+                name = name.substring(0, unindexedArrayEnd) + "[" +
+                    arrayCounters[name] + "]" + name.substring(unindexedArrayEnd + 2);
+            }
+
+            let split = ".";
+
+            if (name.indexOf("[") === 0) {
+                split = "";
+            }
+
+            value = (new Function("data", "return data" + split + name + ";"))(data);
+
+            if ((type === "checkbox") && (inputElem.value != null) && (value != inputElem.value)) {
+                arrayCounters[lastIndexName]--;
+            }
+        }
+
+        FormUtils.setInputElementValue(inputElem, value);
+    }
+
+    private static serializeInputElementSimple(inputElem: HTMLInputElement | HTMLTextAreaElement,
+                                               uncheckedAsFalse: boolean = true): any {
+        let name = inputElem.getAttribute("name");
+
+        if ((!name) || (name.length <= 0)) {
+            return;
+        }
+
+        let value = FormUtils.getInputElementValue(inputElem, uncheckedAsFalse);
+
+        if ((value === null) || (value === undefined)) {
+            return;
+        }
+
+        return { name: name, value: value };
+    }
+
+    static parse(formElem: Element, data: any): void {
+        let inputElems = formElem.querySelectorAll("input, select, textarea");
+        let arrayCounters = {};
+
+        for (let i = 0; i < inputElems.length; i++) {
+            FormUtils.parseInputElement(arrayCounters, inputElems.item(i) as (HTMLInputElement | HTMLTextAreaElement),
+                data);
+        }
+    };
+
+    static serializeSimple(formElem: Element, uncheckedAsFalse: boolean = true): any {
+        let arr = [];
+        let inputElems = formElem.querySelectorAll("input, select, textarea");
+
+        for (let i = 0; i < inputElems.length; i++) {
+            let p = FormUtils.serializeInputElementSimple(inputElems.item(i) as (HTMLInputElement | HTMLTextAreaElement),
+                uncheckedAsFalse);
+
+            if (!p) {
+                continue;
+            }
+
+            arr.push(p);
+        }
+
+        return arr;
+    };
+
     static serializeToJson(formElem: Element): any {
         let obj = {};
         let inputElems = formElem.querySelectorAll("input, select, textarea");
