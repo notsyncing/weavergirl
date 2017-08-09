@@ -21,6 +21,7 @@ compileTypeScript {
     sourcemap = true
     target = "ES2015"
     pretty = true
+    experimentalDecorators = true
 
     if (Os.isFamily(Os.FAMILY_MAC)) {
         compilerExecutable = "/usr/local/bin/node /usr/local/bin/tsc"
@@ -46,9 +47,12 @@ void doWebpack(Task task, boolean test = false) {
             workingDir tsOutPath.toFile()
 
             if (Os.isFamily(Os.FAMILY_MAC)) {
-                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill"
+                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "webpack", "babel-loader",
+                        "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill",
+                        "babel-plugin-transform-decorators-legacy"
             } else {
-                commandLine "npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015", "babel-preset-env", "babel-polyfill"
+                commandLine "npm", "link", "webpack", "babel-loader", "babel-core", "babel-preset-es2015",
+                        "babel-preset-env", "babel-polyfill", "babel-plugin-transform-decorators-legacy"
             }
         }
 

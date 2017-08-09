@@ -17,18 +17,22 @@ class FirstPageStage extends Weavergirl.Stage {
         };
     }
 
+    @OnClick("#btnIncrease")
     incCounter() {
         this.state.counter++;
     }
 
+    @OnInput("#txtInput")
     changeText() {
         this.state.text = this.txtInput.value;
     }
 
+    @OnClick("#btnToggle")
     toggleSwitch() {
         this.state.switchOn = !this.state.switchOn;
     }
 
+    @OnClick("#btnToggleType")
     toggleType() {
         if (this.state.type === "checkbox") {
             this.state.type = "text";
@@ -37,6 +41,7 @@ class FirstPageStage extends Weavergirl.Stage {
         }
     }
 
+    @OnClick("#btnSet")
     setInputData() {
         this.state.inputData = "reset";
     }
@@ -55,11 +60,11 @@ class FirstPage extends Weavergirl.Component {
 <div>
     <div>I'm first page!</div>
     <div>Counter: ${() => this.stage.state.counter}</div>
-    <button id="btnIncrease" onclick="this.stage.incCounter()">Increase</button>
+    <button id="btnIncrease" weavergirl-keep-id>Increase</button>
     
     <div>
         <div>Text: ${() => this.stage.state.text}</div>
-        <input id="txtInput" type="text" oninput="this.stage.changeText()">
+        <input id="txtInput" weavergirl-keep-id type="text">
     </div>
     
     <div>
@@ -69,12 +74,12 @@ class FirstPage extends Weavergirl.Component {
             .otherwise(() =>
                 `<div>I'm off!</div>`)}
         
-        <button id="btnToggle" onclick="this.stage.toggleSwitch()">${I("Toggle")}</button>
+        <button id="btnToggle" weavergirl-keep-id>${I("Toggle")}</button>
     </div>
     
     <div>
         <input ${T(this).attr("type", () => this.stage.state.type)}>
-        <button id="btnToggleType" onclick="this.stage.toggleType()">${I("Toggle {0}", 2)}</button>    
+        <button id="btnToggleType" weavergirl-keep-id>${I("Toggle {0}", 2)}</button>    
     </div>
     
     <div>
@@ -92,7 +97,7 @@ class FirstPage extends Weavergirl.Component {
     <div>
         <input ${T(this).bind(() => this.stage.state.inputData)}>
         <span>Entered: ${() => this.stage.state.inputData}</span>
-        <button onclick="this.stage.setInputData()">Set</button>
+        <button id="btnSet" weavergirl-keep-id>Set</button>
     </div>
 </div>
 `;

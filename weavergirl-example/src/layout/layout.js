@@ -36,10 +36,11 @@ class WeavergirlLayoutStage extends Weavergirl.Stage {
         }, 2000);
     }
 
-    go(event, url) {
+    @OnClick(".layout-menu-link")
+    go(event) {
         event.preventDefault();
 
-        Weavergirl.Router.navigate(url);
+        Weavergirl.Router.navigate(event.target.href);
 
         return false;
     }
@@ -55,7 +56,7 @@ class WeavergirlLayout extends Weavergirl.Component {
 <div>
     <div>
         ${this.T.forEach(() => this.stage.state.menus, (m, i) =>
-            this.html`<a href="${m.href}" onclick="this.stage.go(event, '${m.href}')">${() => m.name}</a>`
+            this.html`<a class="layout-menu-link" href="${m.href}">${() => m.name}</a>`
         )}
     </div>
     <div weavergirl-slot></div>

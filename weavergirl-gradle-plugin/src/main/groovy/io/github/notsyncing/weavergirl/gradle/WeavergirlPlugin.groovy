@@ -42,9 +42,11 @@ class WeavergirlPlugin implements Plugin<Project> {
             workingDir dir.toFile()
 
             if (Os.isFamily(Os.FAMILY_MAC)) {
-                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "babel-preset-es2015", "babel-preset-env"
+                commandLine "/usr/local/bin/node", "/usr/local/bin/npm", "link", "babel-preset-es2015",
+                        "babel-preset-env", "babel-plugin-transform-decorators-legacy"
             } else {
-                commandLine "npm", "link", "babel-preset-es2015", "babel-preset-env"
+                commandLine "npm", "link", "babel-preset-es2015", "babel-preset-env",
+                        "babel-plugin-transform-decorators-legacy"
             }
         }
 
@@ -93,9 +95,11 @@ class WeavergirlPlugin implements Plugin<Project> {
                     workingDir dir.toFile()
 
                     if (Os.isFamily(Os.FAMILY_MAC)) {
-                        commandLine "/usr/local/bin/node", "/usr/local/bin/babel", f.toString(), "--presets=es2015", "-o", f.toString()
+                        commandLine "/usr/local/bin/node", "/usr/local/bin/babel", f.toString(),
+                                "--presets=es2015", "--plugins", "transform-decorators-legacy", "-o", f.toString()
                     } else {
-                        commandLine "babel", f.toString(), "--presets=es2015", "-o", f.toString()
+                        commandLine "babel", f.toString(), "--presets=es2015", "--plugins", "transform-decorators-legacy",
+                                "-o", f.toString()
                     }
                 }
 

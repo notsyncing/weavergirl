@@ -5,6 +5,7 @@ import Stage from "../router/stage";
 import {AttributeMutatorInfo, DelegateMutatorInfo, Mutator} from "./mutator";
 import {ResolvedRoute} from "../router/router-models";
 import Router from "../router/router";
+import {WireBot} from "../wiring/wire-bot";
 
 export default class Component extends HTMLElement {
     static stylesheets = new Set<string>();
@@ -160,6 +161,8 @@ export default class Component extends HTMLElement {
                 });
 
                 elem["_stageGetterDefined"] = true;
+
+                WireBot.doWirings(elem["stage"], elem);
             }
 
             return true;
@@ -459,7 +462,7 @@ export default class Component extends HTMLElement {
 
         let slotElem = this.findSlotElement();
 
-        async function _process(elem) {
+        let _process = async function (elem) {
             for (let c of elem.childNodes) {
                 if (c instanceof Component) {
                     await c.refreshCascade();
@@ -467,7 +470,7 @@ export default class Component extends HTMLElement {
                     await _process(c);
                 }
             }
-        }
+        };
 
         if (slotElem) {
             await _process(slotElem);
