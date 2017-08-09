@@ -162,7 +162,11 @@ export default class Component extends HTMLElement {
 
                 elem["_stageGetterDefined"] = true;
 
-                WireBot.doWirings(elem["stage"], elem);
+                let stage = elem["stage"];
+
+                if (!!stage) {
+                    WireBot.doWirings(stage, elem);
+                }
             }
 
             return true;
