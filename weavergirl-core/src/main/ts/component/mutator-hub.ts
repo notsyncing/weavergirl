@@ -72,10 +72,11 @@ export default class MutatorHub {
         let newStageMutatorMap = new Map<Stage, Map<string, Array<Mutator>>>();
 
         let mutatorStack: Array<Mutator> = [];
+        let that = this;
 
         let _process = function (stage: Stage, n: Node) {
             stage.handleMutatorNode(n, mutatorStack, m => {
-                if (this.mutatorFunctions.has(m.info.id)) {
+                if (that.mutatorFunctions.has(m.info.id)) {
                     newFunctionMap.set(m.info.id, this.mutatorFunctions.get(m.info.id));
                 }
 
