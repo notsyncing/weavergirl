@@ -238,6 +238,10 @@ export default class TemplateUtils {
     }
 
     bind(toField: Function): string {
+        if (!toField) {
+            return "";
+        }
+
         let exprList = [];
 
         this.component.stage.beginRecord(exprList);
