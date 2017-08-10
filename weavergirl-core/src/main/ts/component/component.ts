@@ -286,7 +286,7 @@ export default class Component extends HTMLElement {
         let __this = this;
         let attachToStage = (this._stage) && (this._stage.rootComponent === this);
 
-        function _process(elem) {
+        let _process = function (elem) {
             if (!(elem instanceof Element)) {
                 return;
             }
@@ -310,7 +310,7 @@ export default class Component extends HTMLElement {
             for (let c of elem.childNodes) {
                 _process(c);
             }
-        }
+        };
 
         _process(this);
     }
