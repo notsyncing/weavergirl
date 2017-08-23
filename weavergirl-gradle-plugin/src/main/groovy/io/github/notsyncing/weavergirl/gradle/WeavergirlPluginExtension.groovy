@@ -5,5 +5,6 @@ class WeavergirlPluginExtension {
     String[] additionalFiles = []
 
     boolean useBabel = false
+    String babelLevel = "full"
     String[] babelSkipFiles = []
 }

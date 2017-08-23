@@ -38,6 +38,8 @@ class WeavergirlPlugin implements Plugin<Project> {
     }
 
     private void babelDirectory(Project project, Path srcDir, Path targetDir, String[] skipFiles) {
+        def babelLevel = project.extensions.weavergirl.babelLevel
+
         project.exec {
             workingDir targetDir.toFile()
 
@@ -102,10 +104,18 @@ class WeavergirlPlugin implements Plugin<Project> {
 
                     def parameters = [
                             file.toString(),
-                            "--presets", targetDir.resolve("node_modules/babel-preset-es2015"),
-                            "--plugins", targetDir.resolve("node_modules/babel-plugin-transform-decorators-legacy").toString(),
                             "-o", relFile.toString()
                     ]
+
+                    if (babelLevel == "full") {
+                        parameters.add("--presets")
+                        parameters.add(targetDir.resolve("node_modules/babel-preset-es2015").toString())
+                        parameters.add("--plugins")
+                        parameters.add(targetDir.resolve("node_modules/babel-plugin-transform-decorators-legacy").toString())
+                    } else if (babelLevel == "decorators") {
+                        parameters.add("--plugins")
+                        parameters.add(targetDir.resolve("node_modules/babel-plugin-transform-decorators-legacy").toString())
+                    }
 
                     if (Os.isFamily(Os.FAMILY_MAC)) {
                         parameters.add(0, "/usr/local/bin/node")
