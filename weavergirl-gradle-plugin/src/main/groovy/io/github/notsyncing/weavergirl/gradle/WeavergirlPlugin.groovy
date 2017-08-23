@@ -73,7 +73,17 @@ class WeavergirlPlugin implements Plugin<Project> {
 
             @Override
             FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                def relFile = srcDir.relativize(file)
+
                 if (!file.fileName.toString().endsWith(".js")) {
+                    def targetFile = targetDir.resolve(relFile)
+                    Files.createDirectories(targetFile.parent)
+
+                    project.copy {
+                        from file.toFile()
+                        into targetFile.parent.toFile()
+                    }
+
                     return FileVisitResult.CONTINUE
                 }
 
@@ -81,7 +91,6 @@ class WeavergirlPlugin implements Plugin<Project> {
                     return FileVisitResult.CONTINUE
                 }
 
-                def relFile = srcDir.relativize(file)
                 def newChecksum = checksum(file)
 
                 if (checksums.containsKey(relFile.toString())) {
