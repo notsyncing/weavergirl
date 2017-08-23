@@ -213,6 +213,10 @@ export default class Component extends HTMLElement {
         console.info(`Attached ${this.id || this.tagName} to DOM, contentUrl ${this.contentUrl}, stage ${this._stage.constructor.name}`);
         console.dir(this);
 
+        for (let i = 0; i < this.attributes.length; i++) {
+            this._stage.addComponentAttribute(this.attributes[i].name, this.attributes[i].value);
+        }
+
         this.render()
             .then(() => {
                 console.info(`Rendered element ${this.id || this.tagName}`);
@@ -228,7 +232,8 @@ export default class Component extends HTMLElement {
     }
 
     attributeChangedCallback(attrName, oldVal, newVal) {
-
+        console.info(`Element ${this.id || this.tagName} attribute ${attrName} changed from ${oldVal} to ${newVal}`);
+        this._stage.componentAttributeChanged(attrName, oldVal, newVal);
     }
 
     findSlotElement(node: Node = this): Element {

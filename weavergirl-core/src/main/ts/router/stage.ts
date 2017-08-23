@@ -40,6 +40,8 @@ export default class Stage {
 
         this.init();
 
+        this.state["_attributes"] = {};
+
         this.inInit = false;
     }
 
@@ -203,6 +205,14 @@ export default class Stage {
         };
 
         return new Proxy(obj, watcher);
+    }
+
+    componentAttributeChanged(attrName: string, oldVal: string, newVal: string): void {
+        this.state["_attributes"][attrName] = newVal;
+    }
+
+    addComponentAttribute(attrName: string, value: string): void {
+        this.state["_attributes"][attrName] = value;
     }
 
     rootComponentRendered(): void {
