@@ -117,7 +117,7 @@ class WeavergirlPlugin implements Plugin<Project> {
                     commandLine(*parameters)
                 }
 
-                println("babel: ${file}")
+                println("babel: ${file} to ${targetDir.resolve(relFile)}")
 
                 checksums.put(relFile.toString(), newChecksum)
 
@@ -261,6 +261,7 @@ class WeavergirlPlugin implements Plugin<Project> {
 
         def makeJarTask = project.task("makeWeavergirlJar").doLast {
             def jarDir = project.buildDir.toPath().resolve("weavergirl/jar/${project.name}")
+            def appDir = project.buildDir.toPath().resolve("weavergirl/app/${project.name}")
             def name = "${project.name}-${project.version}.jar"
             def s = jarDir.parent.parent.resolve(name)
 
@@ -272,12 +273,10 @@ class WeavergirlPlugin implements Plugin<Project> {
                 Files.delete(s)
             }
 
-            if (project.extensions.weavergirl.srcDir != null) {
-                project.copy {
-                    from project.extensions.weavergirl.srcDir
-                    into jarDir.toFile()
-                    exclude 'index.html'
-                }
+            project.copy {
+                from appDir.toFile()
+                into jarDir.toFile()
+                exclude 'index.html'
             }
 
             for (f in project.extensions.weavergirl.additionalFiles) {
