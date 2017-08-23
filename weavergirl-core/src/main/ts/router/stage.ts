@@ -162,12 +162,16 @@ export default class Stage {
             get: function (target, key) {
                 let r: any;
 
-                if ((typeof target[key] === "object") && (target[key] !== null)) {
-                    let p = new Proxy(target[key], watcher) as any;
-                    p.parentProxy = target;
-                    p.proxyFieldName = key;
+                if ((target[key] === "object") && (target[key] !== null)) {
+                    if (target[key] instanceof Proxy) {
+                        r = target[key];
+                    } else {
+                        let p = new Proxy(target[key], watcher) as any;
+                        p.parentProxy = target;
+                        p.proxyFieldName = key;
 
-                    r = p;
+                        r = p;
+                    }
                 } else {
                     r = target[key];
                 }
