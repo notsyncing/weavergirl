@@ -45,6 +45,10 @@ export default class Stage {
         this.inInit = false;
     }
 
+    async earlyInit(): Promise<any> {
+
+    }
+
     init() {
 
     }

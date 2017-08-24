@@ -14,11 +14,36 @@ export default class Router {
     constructor() {
     }
 
-    init(routes: Array<Route> = [], mode: RouterMode = RouterMode.Direct, _noGo = false): void {
+    async init(routes: Array<Route> = [], mode: RouterMode = RouterMode.Direct, _noGo = false): Promise<void> {
         this.routes = routes;
         this.mode = mode;
 
-        let route = this.resolve(this.getCurrentPath(), location.search);
+        let _process = async (r: Route) => {
+            if (r.earlyInit) {
+                let elemClass = await Loader.load((typeof r.component === "string")
+                    ? (r.component as string) : (r.component as RouteComponentInfo).url);
+                let elem = new elemClass();
+
+                await elem.earlyInit();
+            }
+
+            if (r.children) {
+                for (let child of r.children) {
+                    await _process(child);
+                }
+            }
+        };
+
+        for (let r of routes) {
+            await _process(r);
+        }
+
+        let currentPath = this.getCurrentPath();
+        let route = this.resolve(currentPath, location.search);
+
+        if (!route) {
+            throw new Error(`Cannot resolve route for path ${currentPath}, search ${location.search}`);
+        }
 
         if (!_noGo) {
             this.go(route);

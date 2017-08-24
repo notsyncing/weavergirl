@@ -5,6 +5,7 @@ export interface Route {
     component: string | RouteComponentInfo;
     parameters?: any;
     children?: Array<Route>;
+    earlyInit?: boolean;
 }
 
 export interface RouteComponentInfo {

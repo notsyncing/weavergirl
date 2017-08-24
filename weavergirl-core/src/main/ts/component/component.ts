@@ -46,6 +46,10 @@ export default class Component extends HTMLElement {
         this.init();
     }
 
+    async earlyInit(): Promise<any> {
+        await this._stage.earlyInit();
+    }
+
     protected init() {
 
     }
