@@ -120,8 +120,8 @@ export default class Stage {
     static getFullExpression(proxy: any, key: any, previousString = ""): string {
         let s = previousString;
 
-        if (proxy.proxyFieldName) {
-            let f = proxy.proxyFieldName;
+        if (proxy.__proxyFieldName) {
+            let f = proxy.__proxyFieldName;
 
             if (!isNaN(f)) {
                 f = `[${f}]`;
@@ -146,14 +146,14 @@ export default class Stage {
             }
         }
 
-        if (proxy.parentProxy) {
-            if (proxy.parentProxy.proxyFieldName) {
-                if ((proxy.proxyFieldName) && (isNaN(proxy.proxyFieldName))) {
+        if (proxy.__parentProxy) {
+            if (proxy.__parentProxy.__proxyFieldName) {
+                if ((proxy.__proxyFieldName) && (isNaN(proxy.__proxyFieldName))) {
                     s = "." + s;
                 }
             }
 
-            return Stage.getFullExpression(proxy.parentProxy, null, s);
+            return Stage.getFullExpression(proxy.__parentProxy, null, s);
         }
 
         return s;
@@ -162,21 +162,31 @@ export default class Stage {
     static newWatchedObject(obj, handlers): any {
         let watcher = {
             get: function (target, key) {
+                if ((key === "__parentProxy") || (key === "__proxyFieldName")) {
+                    return target[key];
+                }
+
                 let r: any;
 
-                if ((target[key] === "object") && (target[key] !== null)) {
-                    if (target[key] instanceof Proxy) {
-                        r = target[key];
-                    } else {
+                if ((typeof target[key] === "object") && (target[key] !== null) && (target[key] !== undefined)) {
+                    if (target[key].__parentProxy === undefined) {
                         let p = new Proxy(target[key], watcher) as any;
-                        p.parentProxy = target;
-                        p.proxyFieldName = key;
 
-                        r = p;
+                        Object.defineProperty(p, "__parentProxy", {
+                            value: target,
+                            enumerable: false
+                        });
+
+                        Object.defineProperty(p, "__proxyFieldName", {
+                            value: key,
+                            enumerable: false
+                        });
+
+                        target[key] = p;
                     }
-                } else {
-                    r = target[key];
                 }
+
+                r = target[key];
 
                 if (handlers.get) {
                     let r2 = handlers.get(target, key, r);
@@ -189,7 +199,7 @@ export default class Stage {
                 return r;
             },
             set: function (target, key, value) {
-                if ((key === "parentProxy") || (key === "proxyFieldName")) {
+                if ((key === "__parentProxy") || (key === "__proxyFieldName")) {
                     target[key] = value;
                     return true;
                 }
