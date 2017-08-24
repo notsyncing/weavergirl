@@ -288,5 +288,12 @@ describe("TemplateUtils", () => {
 
             s.should.equal("data-weavergirl-bind-mutator=\"{%22id%22:0,%22type%22:%22delegate%22,%22expressions%22:[%22c%22],%22delegate%22:%22this.bindMutatorHandler%22}\"");
         });
+
+        it("should generate correct bind attribute for element with deep state", () => {
+            tc.stage.state.c = { d: 1 };
+            let s = T(tc).bind(() => tc.stage.state.c.d);
+
+            s.should.equal("data-weavergirl-bind-mutator=\"{%22id%22:0,%22type%22:%22delegate%22,%22expressions%22:[%22c%22,%22c.d%22],%22delegate%22:%22this.bindMutatorHandler%22}\"");
+        });
     });
 });

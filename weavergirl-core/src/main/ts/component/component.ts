@@ -342,7 +342,7 @@ export default class Component extends HTMLElement {
             return;
         }
 
-        console.info(`Bind mutator handler for ${elem.id || elem.tagName}, new value ${newValue}`);
+        console.info(`Bind mutator handler for ${elem.id || elem.classList || elem.tagName}, new value ${newValue}`);
 
         if (elem instanceof HTMLInputElement) {
             if ((elem.type === "checkbox") || (elem.type === "radio")) {
@@ -366,7 +366,7 @@ export default class Component extends HTMLElement {
             return;
         }
 
-        let bindTo = m.info.expressions[0];
+        let bindTo = m.info.expressions[m.info.expressions.length - 1];
         let writeFn = new Function("value", `this.stage.state.${bindTo} = value;`).bind(this);
         let readFn = new Function(`return this.stage.state.${bindTo};`).bind(this);
 
